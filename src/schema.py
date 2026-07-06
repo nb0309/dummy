@@ -41,8 +41,8 @@ class Prediction(BaseModel):
     evidence_citation: str = Field(
         default="",
         description=(
-            "Short quote or reference to the specific evidence (e.g. an "
-            "ax_subtree line or a screen-reader phrase) that drove the verdict."
+            "Short quote or reference to the specific evidence (e.g. a snippet of "
+            "the source/parent HTML or a screen-reader phrase) that drove the verdict."
         ),
     )
 

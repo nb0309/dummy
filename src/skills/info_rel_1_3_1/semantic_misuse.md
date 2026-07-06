@@ -4,15 +4,13 @@ technique: "semantic-misuse"
 title: "Misused or missing semantic structure"
 applies_when:
   element_tag: [main, body, section, div, article, ol, ul, p, nav, span]
-  ax_role: [main, text, region, article, list]
-axe_ids: [aria-roles, aria-valid-attr-value, region, landmark-unique, empty-heading]
 signals:
-  - field: element_html_raw
-    look_for: "invalid/nonsensical ARIA role names; <article> wrapping non-article content; empty <p>; content with no structural markup"
-  - field: ax_role
-    look_for: "role that does not match the content's meaning, or a generic/absent role where structure is expected"
-  - field: ax_subtree
-    look_for: "structure that misrepresents relationships (wrong landmark/role) or exposes no relationships at all"
+  - field: element_html
+    look_for: "invalid/nonsensical ARIA role names; a role that does not match the content's meaning; <article> wrapping non-article content; empty <p>; content with no structural markup"
+  - field: parent_html
+    look_for: "surrounding structure that misrepresents relationships (wrong landmark/role) or exposes no relationships at all"
+  - field: sr_transcript
+    look_for: "a role/landmark announced that contradicts the content, or an undifferentiated blob announced with no structural relationships"
 ---
 ## Violation criteria (1.3.1 for semantic misuse)
 Flag `inaccessible` under `1.3.1` when markup conveys structure/relationships that

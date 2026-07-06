@@ -4,25 +4,20 @@ technique: "table-relationships"
 title: "Data table structure and header relationships"
 applies_when:
   element_tag: [table, main, body, section, div, article]
-  ax_role: [table, grid, main]
-axe_ids: [empty-table-header, td-has-header, th-has-data-cells, scope-attr-valid, table-fake-caption, td-headers-attr]
 signals:
-  - field: table_cell_structure
-    look_for: "a <th> with NO-SCOPE whose text is a repeating data VALUE (not a column/row label) — the browser's inferred ax_subtree role for this cell cannot be trusted"
-  - field: ax_subtree
-    look_for: "data cells announced as 'cell' rather than 'columnheader'/'rowheader'; missing caption"
-  - field: sr_cell_walk
-    look_for: "matrix walk where row/column headers are NOT re-announced when moving between cells"
-  - field: sr_headers_announced
-    look_for: "rows read with no associated header context"
-  - field: axe_wcag131_violations
-    look_for: "axe-core table structure findings"
+  - field: element_html
+    look_for: "the raw table markup: data cells with no <th> at all; <th> cells missing a valid scope (or headers/id); an empty <th>; a <caption> missing; a <table> nested inside another <table> or inside a <th>; rows with an inconsistent number of cells; a <th> holding a repeating data VALUE (not a column/row label)"
+  - field: sr_transcript
+    look_for: "the cell-by-cell walk: data cells announced as 'cell' rather than 'columnheader'/'rowheader'; row/column headers NOT re-announced when moving between cells; rows read with no associated header context"
+  - field: parent_html
+    look_for: "a layout table imposing table semantics on non-tabular surrounding content"
 ---
 ## Violation criteria (1.3.1 for data tables)
 Flag `inaccessible` under `1.3.1` when a **data** table fails to encode its
-row/column relationships programmatically:
+row/column relationships programmatically. Read the raw markup in `element_html`
+and confirm against the `sr_transcript` cell walk:
 - Table has data cells but **no `<th>`** header cells — every cell announces as
-  `cell` in `ax_subtree`/`sr_cell_walk` (should be `columnheader`/`rowheader`).
+  `cell` in `sr_transcript` (should be `columnheader`/`rowheader`).
 - Header cells lack a valid `scope` (or `headers`/`id`) so headers are not
   associated with their data cells; navigating rows does not re-announce headers.
 - An **empty `<th>`** (empty table header) that leaves a row/column unlabelled.
@@ -34,32 +29,30 @@ row/column relationships programmatically:
 - Rows with an **inconsistent number of columns**, or scattered **empty cells**,
   that break the row/column mapping.
 - **Data values mis-marked as `<th>` with no `scope`** (a "double header" row):
-  check `table_cell_structure` directly — do **not** rely on `ax_subtree` alone
-  here. Browsers apply a best-effort header-inference algorithm that will
-  confidently assign a `columnheader`/`rowheader` role to a `NO-SCOPE` `<th>`
-  even when its text is actually a repeating data value, not a label. If
-  `table_cell_structure` shows multiple leading `th[NO-SCOPE]` cells per data
-  row whose text values change per row (e.g. street names, not column titles),
-  that is markup authored as data mistakenly tagged `<th>` — flag it even if
-  `ax_subtree` looks clean.
+  inspect the raw `element_html` directly. If multiple leading `<th>` cells per
+  data row carry no `scope` and their text values **change per row** (e.g. street
+  names, not column titles), that is markup authored as data mistakenly tagged
+  `<th>` — flag it even if the `sr_transcript` happens to announce them as
+  headers (the browser applies a best-effort header-inference guess that the raw
+  markup does not justify).
 
 ## Pass criteria
 - Genuine data tables expose `<th>` with correct `scope`, an optional
-  `<caption>`, consistent columns, and `ax_subtree` shows `columnheader` /
-  `rowheader` roles; navigating cells re-announces the relevant headers.
-- `<th>` cells with **no `scope`** are only acceptable when `table_cell_structure`
+  `<caption>`, consistent columns, and the `sr_transcript` announces
+  `columnheader` / `rowheader`; navigating cells re-announces the relevant
+  headers.
+- `<th>` cells with **no `scope`** are only acceptable when the raw markup
   confirms they are genuine single-level column headers (the first row) or are
   otherwise disambiguated via `headers`/`id` — not when they sit mid-table
   holding row-varying data.
 
 ## Examples
-- INACCESSIBLE: `<table>` of names/ages using only `<td>` → `ax_subtree` shows
+- INACCESSIBLE: `<table>` of names/ages using only `<td>` → `sr_transcript` reads
   every `cell "…"`, no `columnheader`.
 - INACCESSIBLE: `<table>` wrapping a nav `<ul>` and a `<h2>`/`<p>` (layout table).
 - INACCESSIBLE: header row `<th>Road</th><th>Junction</th>…`, then a data row
-  `<th>Regent Street</th><th>Oxford Street</th><td>307</td>…` — `table_cell_structure`
-  shows `th[NO-SCOPE]"Regent Street"` and `th[NO-SCOPE]"Oxford Street"` changing
-  every row (real data, not labels), even though `ax_subtree` inferred
-  `columnheader "Regent Street"` / `rowheader "Oxford Street"` for them.
+  `<th>Regent Street</th><th>Oxford Street</th><td>307</td>…` — the raw
+  `element_html` shows `<th>` with no `scope` on "Regent Street"/"Oxford Street"
+  whose values change every row (real data, not labels).
 - ACCESSIBLE: `<table><caption>…</caption>…<th scope="col">Name</th>…` →
-  `ax_subtree` shows `columnheader "Name"`.
+  `sr_transcript` announces `columnheader "Name"`.

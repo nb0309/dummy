@@ -88,5 +88,4 @@ export async function traverse(page, { sampleId = null, maxSteps = 300 } = {}) {
   );
 }
 
-export const pageReadingOrder = (page) => traverse(page, { maxSteps: 400 });
 export const elementTranscript = (page, sampleId) => traverse(page, { sampleId, maxSteps: 250 });

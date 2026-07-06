@@ -4,54 +4,46 @@ technique: "hidden-or-css-content"
 title: "Content hidden from (or injected outside) the accessibility tree"
 applies_when:
   element_tag: [main, body, section, div, article, a, span, p, button]
-  ax_role: [main, link, text, region]
 signals:
-  - field: css_generated_content
-    look_for: "text injected via ::before/::after `content:` (e.g. a food name 'Pizza') that is meaningful but absent from the DOM and never announced by the screen reader"
-  - field: hidden_content
-    look_for: "meaningful text removed from the a11y tree via computed display:none / visibility:hidden (e.g. ' about football' inside a 'Read more' link)"
-  - field: element_html_raw
-    look_for: "distinct context inside display:none / visibility:hidden (inline or class-based); or a node whose visible text is inserted via CSS"
+  - field: element_html
+    look_for: "meaningful text inside an inline style=\"display:none\" / \"visibility:hidden\", an aria-hidden=\"true\" wrapper, or a hidden attribute — especially distinct context behind an interactive control (e.g. ' about football' inside a 'Read more' link)"
   - field: sr_transcript
-    look_for: "an ambiguous phrase (e.g. just 'Read more') where hidden context was dropped, or missing text that the CSS was meant to add"
-  - field: sr_reading_order
-    look_for: "the full announced order to confirm the contextual phrase is absent"
+    look_for: "an ambiguous phrase (e.g. just 'Read more') where the hidden context was dropped, or text present in the HTML that the screen reader never announces"
+  - field: parent_html
+    look_for: "the surrounding control/context confirming that the dropped text was needed to disambiguate the element"
 ---
-## Violation criteria (1.3.1 for hidden / CSS content)
-Flag `inaccessible` under `1.3.1` when meaningful information is not available to
-assistive tech because of how it is hidden or inserted. The capture now resolves
-computed CSS for you — inspect the two dedicated evidence sections first:
-- **CSS-generated content**: the `css_generated_content` field lists text injected
-  via `::before`/`::after` `content:`. If it carries **meaning** (e.g. a food name
-  `"Pizza"` completing "My favourite food is ") and that text is **absent** from
-  `sr_transcript`/`sr_reading_order`, the sighted user reads content the screen
-  reader never gets → `inaccessible`. (Purely decorative glyphs like `">"`/`"v"`
-  on a disclosure widget are **not** a violation.)
-- **The hidden-text trap**: the `hidden_content` field lists text removed from the
-  a11y tree via computed `display:none` / `visibility:hidden` (inline OR
-  class-based). If an interactive control (`<a>`/`<button>`) relies on such a span
-  for distinct context (e.g. `" about football"` behind a "Read more" link) and
-  the transcript announces only the ambiguous placeholder, → `inaccessible`.
-  `display:none`/`visibility:hidden` remove content from the a11y tree (unlike a
-  visually-hidden/clip technique, which keeps it).
+## Violation criteria (1.3.1 for hidden content)
+Flag `inaccessible` under `1.3.1` when meaningful information present in the raw
+`element_html` is **not** available to assistive tech because it is hidden from
+the accessibility tree:
+- **The hidden-text trap**: `element_html` contains a span/element with
+  `style="display:none"` / `style="visibility:hidden"` / `aria-hidden="true"` /
+  `hidden` that carries **meaningful** text, and an interactive control
+  (`<a>`/`<button>`) relies on it for distinct context (e.g. `" about football"`
+  behind a "Read more" link). If `sr_transcript` announces only the ambiguous
+  placeholder ("link, Read more") and never the hidden text, → `inaccessible`.
+  `display:none`/`visibility:hidden`/`aria-hidden` remove content from the a11y
+  tree (unlike a visually-hidden/clip technique, which keeps it).
+- **Text in the HTML but never announced**: text clearly present in `element_html`
+  that carries meaning but is entirely absent from `sr_transcript`.
 
 ## Insufficient evidence
-Only when **both** `css_generated_content` and `hidden_content` are empty *and* the
-technique still implies content is injected/hidden by CSS you cannot see (e.g. a
-rule on an element outside the captured scope), return `insufficient_evidence` and
-say which computed field was empty. Do **not** abstain when the injected/hidden
-text is right there in those fields — decide on it.
+The capture provides only the raw HTML and the transcript — it does **not**
+resolve computed CSS. So if the technique implies content injected via a CSS
+`::before`/`::after` `content:` rule, or text hidden by a **class-based**
+`display:none` (where the rule lives in a stylesheet, not inline in
+`element_html`), the proof is not in these three fields. In that case return
+`insufficient_evidence` and say the injected/hidden text is not visible in the
+raw HTML or the transcript. Do **not** guess at CSS you cannot see.
 
 ## Pass criteria
-- All meaningful context is in the DOM and reflected in `sr_transcript` /
-  `sr_reading_order` (the contextual phrase is actually announced).
+- All meaningful context is in the DOM and reflected in `sr_transcript` (the
+  contextual phrase is actually announced).
 
 ## Examples
 - INACCESSIBLE: `<a>Read more <span style="display:none"> about football</span></a>`
-  → `hidden_content` lists `span [display:none] hides text: " about football"`,
-  and the transcript says only "link, Read more".
-- INACCESSIBLE: `<p id="css-generated-text">My favourite food is </p>` where
-  `css_generated_content` lists `p#css-generated-text ::after injects text:
-  "Pizza"` — the food name is shown to sighted users but never announced.
-- INSUFFICIENT: neither computed field is populated yet the technique implies a
-  CSS rule out of scope — say which field was empty.
+  → the hidden span's text is in `element_html`, but `sr_transcript` says only
+  "link, Read more".
+- INSUFFICIENT: the technique implies a `::after { content:"Pizza" }` rule — no
+  "Pizza" appears in `element_html` or `sr_transcript`, so the injected text
+  cannot be confirmed from this capture.

@@ -3,16 +3,12 @@ sc: "1.1.1"
 technique: "non-text-content"
 title: "Non-text content (images, image buttons, spacers)"
 applies_when:
-  element_tag: [img, input, svg, object, area, a, button]
-  ax_role: [img, image, button, link, graphics-document, presentation, none]
-axe_ids: [image-alt, input-image-alt, role-img-alt, area-alt, svg-img-alt, object-alt]
+  element_tag: [img, input, svg, canvas, picture, object, area, a, button]
 signals:
-  - field: element_html_raw
+  - field: element_html
     look_for: "img/input[type=image] with no alt, alt='', a filename as alt, or a generic/wrong alt"
   - field: sr_transcript
-    look_for: "a raw filename read aloud, a bare 'image'/'graphic', or the control announced with no accessible name"
-  - field: ax_name
-    look_for: "empty or filename-like accessible name for a meaningful image"
+    look_for: "a raw filename read aloud, a bare 'image'/'graphic', or the control announced with no accessible name (or a meaningful image skipped in silence)"
 ---
 ## Violation criteria (1.1.1 Non-text Content)
 Flag `inaccessible` under `1.1.1` when a meaningful, informative image or image

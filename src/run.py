@@ -35,24 +35,19 @@ def dry_run(df: pd.DataFrame) -> int:
     """Route + build evidence for every row; report coverage. No LLM."""
     print(f"DRY RUN — routing + evidence over {len(df)} rows (no API calls)\n")
     uncovered = 0
-    table_missing_signal = 0
     for _, row in df.iterrows():
         ev = evidence.build(row)
         skills = router.select(ev, row)
         skill_ids = [s.id for s in skills]
         if not skill_ids:
             uncovered += 1
-        if ev.is_table and "cell walk" not in ev.block:
-            table_missing_signal += 1
         print(
-            f"{str(row.get('failure_technique','?'))[:52]:54} "
-            f"tag=<{ev.element_tag}> role={ev.ax_role or '-':10} "
-            f"axe={ev.axe_ids or '[]'} -> {skill_ids}"
+            f"{str(row.get('sample_id','?'))[:52]:54} "
+            f"tag=<{ev.element_tag or '?'}> -> {skill_ids}"
         )
 
     print("\n--- coverage ---")
     print(f"rows with NO applicable skill : {uncovered}")
-    print(f"table rows missing cell-walk  : {table_missing_signal}")
     if uncovered:
         print("FAIL: some rows have no skill.")
         return 1
@@ -75,7 +70,7 @@ def full_run(df: pd.DataFrame, output_csv: Path, log_path: Path) -> None:
         ev = evidence.build(row)
         skills = router.select(ev, row)
         print(
-            f"[{index}] {str(row.get('failure_technique','?'))[:48]} "
+            f"[{index}] {str(row.get('sample_id','?'))[:48]} "
             f"-> {[s.id for s in skills]}"
         )
         try:
@@ -130,7 +125,7 @@ def main(argv: List[str] | None = None) -> int:
     df = pd.read_csv(input_csv)
     if args.limit:
         df = df.head(args.limit)
-    print(f"Loaded {len(df)} rows from {input_csv} (routing mode: {config.ROUTING_MODE})")
+    print(f"Loaded {len(df)} rows from {input_csv}")
 
     if args.dry_run:
         return dry_run(df)

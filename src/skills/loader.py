@@ -12,9 +12,8 @@ Example::
     title: "Data table missing header cells"
     applies_when:
       element_tag: [table]
-      ax_role: [table, grid]
     signals:
-      - field: ax_subtree
+      - field: sr_transcript
         look_for: "every data cell announces as 'cell', never 'columnheader'"
     ---
     ## Violation criteria

@@ -4,15 +4,13 @@ technique: "form-control-grouping"
 title: "Related form controls grouped with fieldset/legend"
 applies_when:
   element_tag: [form, fieldset, main, body, section, div, article, input, legend]
-  ax_role: [group, radiogroup, main, form, region]
-axe_ids: [fieldset, legend, group-radiogroup]
 signals:
   - field: parent_html
     look_for: "a group of related radio buttons or checkboxes addressing one prompt, NOT wrapped in <fieldset>/<legend>"
-  - field: element_html_raw
+  - field: element_html
     look_for: "loose <h3>/<h4>/<p> used as a group prompt above detached inputs; a <fieldset> with a missing or empty <legend>"
-  - field: ax_subtree
-    look_for: "checkbox/radio inputs with no enclosing 'group' role and no group label"
+  - field: sr_transcript
+    look_for: "checkbox/radio inputs announced with no enclosing group and no group label"
 ---
 ## Violation criteria (1.3.1 for form groups)
 Flag `inaccessible` under `1.3.1` when a set of related controls that answer a
@@ -29,12 +27,13 @@ one heading with no `<fieldset>`, flag the row.
 
 ## Note on the capture
 Interactive checkboxes/radios may be announced generically; rely on the DOM
-structure (`element_html_raw`/`parent_html`) and `ax_subtree` roles, not on the
-literal word the transcript uses for the control.
+structure (`element_html`/`parent_html`), not on the literal word the transcript
+uses for the control.
 
 ## Pass criteria
-- Related radios/checkboxes are wrapped in `<fieldset><legend>…</legend>…` and
-  `ax_subtree` exposes a `group` with an accessible name.
+- Related radios/checkboxes are wrapped in `<fieldset><legend>…</legend>…` (visible
+  in `element_html`/`parent_html`) and `sr_transcript` announces a group with an
+  accessible name.
 
 ## Examples
 - INACCESSIBLE: `<h4>Which waste do you transport?</h4>` followed by loose

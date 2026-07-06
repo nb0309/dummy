@@ -3,11 +3,9 @@ sc: "1.2.1"
 technique: "audio-video-text-alternative"
 title: "Time-based media without text alternative / unlabelled player"
 applies_when:
-  element_tag: [audio, video, source, track, object, iframe]
-  ax_role: [application, document, presentation, none]
-axe_ids: [audio-caption, video-caption, frame-title]
+  element_tag: [audio, video, source, track, object, embed, iframe]
 signals:
-  - field: element_html_raw
+  - field: element_html
     look_for: "<audio>/<video> with controls but no <track>, no caption, and no adjacent text alternative"
   - field: sr_transcript
     look_for: "the media player is skipped entirely (silence) or its controls read as unlabelled actions"

@@ -21,17 +21,12 @@ SRC_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SRC_DIR.parent
 SKILLS_DIR = SRC_DIR / "skills"
 
-# Default dataset the new pipeline classifies. Unlike the legacy script (which
-# expected a hand-renamed ``input.csv``) we read the rich capture directly.
+# Default dataset the new pipeline classifies. Each row carries only the three
+# model inputs (element HTML, parent HTML, screen-reader transcript) plus a
+# label and a sample_id.
 DEFAULT_INPUT_CSV = REPO_ROOT / "dataset.csv"
 DEFAULT_OUTPUT_CSV = REPO_ROOT / "predictions_skill_based.csv"
 DEFAULT_LOG_FILE = REPO_ROOT / "llm_calls.log"
-
-# Routing mode:
-#   "blind"  -> the router never looks at the ground-truth ``wcag_sc`` column
-#               (this reflects real usage where the SC is unknown).
-#   "oracle" -> narrow candidate skills to the row's ``wcag_sc`` (debug only).
-ROUTING_MODE = os.getenv("ROUTING_MODE", "blind").strip().lower()
 
 
 def _env(name: str, default: Optional[str] = None) -> Optional[str]:
