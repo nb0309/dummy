@@ -34,7 +34,11 @@ function parseArgs(argv) {
     else if (a === "--out") opts.out = argv[++i];
     else if (a === "--label") opts.label = argv[++i];
   }
-  if (opts.dirs.length === 0) opts.dirs = ["tests/SC 1.3.1", "tests/wcag 1.1.1"];
+  // Default suites are the all-inaccessible defect fixtures (the --label default
+  // is "inaccessible"). 4.1.3's pass fixtures live in "tests/wcag 4.1.3/pass"
+  // and are captured separately with --label accessible.
+  if (opts.dirs.length === 0)
+    opts.dirs = ["tests/SC 1.3.1", "tests/wcag 1.1.1", "tests/wcag 4.1.3/fail"];
   return opts;
 }
 

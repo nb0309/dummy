@@ -6,6 +6,7 @@
 //   - 1.1.1 non-text content  (img / svg / canvas / picture / input[type=image] / role=img)
 //   - 1.2.1 time-based media  (audio / video / object / embed / iframe)
 //   - 1.3.1 info & relationships (table / list / orphan list fragments)
+//   - 4.1.3 status messages   (role=status/alert/log/progressbar/…, aria-live, output/progress)
 // with a fallback content block so every file yields at least one sample.
 // Media/image inside an interactive control escalate to that control (so the
 // link/button is the sample), and structural containers suppress their
@@ -33,10 +34,17 @@ export async function extractSamples(page) {
       table: "table, [role='table'], [role='grid']",
       list: "ul, ol, dl, [role='list']",
       interactive: "a, button, [role='link'], [role='button']",
+      // 4.1.3 status messages: live-region hosts (explicit role/aria-live or a
+      // native <output>/<progress>). A status message authored as a bare
+      // <div>/<p> with no role matches nothing here on purpose -- it falls
+      // through to the fallback content block, which is exactly the defect.
+      status:
+        "[role='status'], [role='alert'], [role='log'], [role='progressbar'], " +
+        "[role='marquee'], [role='timer'], [aria-live], output, progress",
     };
     const MEDIAISH = [SEL.image, SEL.media, SEL.embed].join(", ");
     const CONTAINER = [SEL.table, SEL.list].join(", ");
-    const CANDIDATES = [SEL.image, SEL.media, SEL.embed, SEL.table, SEL.list].join(", ");
+    const CANDIDATES = [SEL.image, SEL.media, SEL.embed, SEL.table, SEL.list, SEL.status].join(", ");
 
     // ---- classify a resolved target element into an element_type -------------
     // Used only to drive selection/escalation; not emitted as a column.
@@ -52,6 +60,7 @@ export async function extractSamples(page) {
       if (target.matches(SEL.table)) return "table";
       if (tag === "ul" || tag === "ol" || tag === "dl") return tag;
       if (target.matches(SEL.list)) return "list";
+      if (target.matches(SEL.status)) return "status";
       if (target.matches(SEL.image)) return "image";
       if (target.matches(SEL.media)) return "media";
       if (target.matches(SEL.embed)) return "embed";

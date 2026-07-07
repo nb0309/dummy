@@ -15,7 +15,7 @@ from __future__ import annotations
 import pandas as pd
 
 # WCAG success criteria the pipeline currently has skills for.
-_KNOWN_SC = ("1.1.1", "1.2.1", "1.3.1")
+_KNOWN_SC = ("1.1.1", "1.2.1", "1.3.1", "4.1.3")
 
 
 def summarize(output_df: pd.DataFrame) -> None:

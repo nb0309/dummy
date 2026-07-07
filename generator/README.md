@@ -9,14 +9,18 @@ to `../dataset.csv`, so it plugs straight into the `src/` classifier.
 
 ```bash
 cd generator
-node capture.mjs                       # both default suites -> ../dataset_generated.{csv,jsonl}
+node capture.mjs                       # default (inaccessible) suites -> ../dataset_generated.{csv,jsonl}
 node capture.mjs --no-sr               # fast: skip the screen reader (static features only)
 node capture.mjs --dir "tests/wcag 1.1.1" --sc 1.1.1 --out images_only
+
+# 4.1.3 has both defect and pass fixtures; capture each with its label:
+node capture.mjs --dir "tests/wcag 4.1.3/fail" --label inaccessible --out ds_413_bad
+node capture.mjs --dir "tests/wcag 4.1.3/pass" --label accessible   --out ds_413_good
 ```
 
 Flags:
 - `--dir <path>`  input suite folder, relative to the repo root; repeatable.
-  Default: `tests/SC 1.3.1` and `tests/wcag 1.1.1`.
+  Default: `tests/SC 1.3.1`, `tests/wcag 1.1.1`, `tests/wcag 4.1.3/fail`.
 - `--sc <value|auto>`  success criterion. `auto` (default) infers it from the
   folder name (`SC 1.3.1` → `1.3.1`), then from the filename category.
 - `--label <value>`  ground-truth label for every row (default `inaccessible`;
@@ -35,6 +39,7 @@ does a single document-order sweep over a candidate set covering:
 | 1.1.1 | `img`, `svg`, `canvas`, `picture`, `input[type=image]`, `[role=img]` |
 | 1.2.1 | `audio`, `video`, `object`, `embed`, `iframe` |
 | 1.3.1 | `table`, `ul`/`ol`/`dl`, orphan `li`/`dt`/`dd`, fallback content block |
+| 4.1.3 | `[role=status/alert/log/progressbar/marquee/timer]`, `[aria-live]`, `output`, `progress` — plus status messages authored with **no** live-region markup, which fall through to the fallback content block |
 
 Media/images nested inside an interactive control escalate to that control
 (e.g. an image-only link is captured as the `<a>`). Containers suppress their
