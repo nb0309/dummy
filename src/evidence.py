@@ -4,6 +4,11 @@ The capture is deliberately minimal: each row carries only three model inputs �
 the element's HTML, its parent's HTML, and the screen-reader transcript. This
 module renders those into the text block handed to the LLM, and parses the
 element's outermost tag so the orchestrator can route it to a skill.
+
+Status-message (WCAG 4.1.3) rows carry one extra field,
+``sr_status_announcement``: the result of an interaction probe that updated the
+live region and recorded what the reader announced. It is rendered as its own
+section only when present (empty for every non-status row).
 """
 
 from __future__ import annotations
@@ -100,6 +105,31 @@ def build(row: Mapping[str, Any]) -> Evidence:
         "walking through this element, in order)"
     )
     parts.append(_format_phrases(_val(row, "sr_transcript")))
+
+    # 4.1.3 interaction probe: only present for status-message rows. An empty
+    # string means the row was not a status message (not probed) -> no section.
+    status_raw = _val(row, "sr_status_announcement")
+    if status_raw:
+        announced = _phrases(status_raw)
+        parts.append(
+            "\n## STATUS MESSAGE ANNOUNCEMENT — 4.1.3 interaction probe (the reader "
+            "was started, then the status region was updated to simulate a live "
+            "change; this observes whether the update is announced WITHOUT moving "
+            "focus)"
+        )
+        if announced:
+            parts.append(
+                "The update WAS announced without moving focus:\n"
+                + "\n".join(f"  - {p}" for p in announced)
+            )
+        else:
+            parts.append(
+                "(SILENT — the region was updated but the reader announced NOTHING, "
+                "so assistive-tech users are not notified. This is the decisive "
+                "4.1.3 failure signal — UNLESS the region is a value-driven role "
+                "such as progressbar, which this text-mutation probe does not "
+                "exercise; in that case fall back to the SOURCE HTML markup.)"
+            )
 
     return Evidence(
         element_tag=element_tag,

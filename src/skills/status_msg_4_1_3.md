@@ -5,17 +5,17 @@ title: "Status message not exposed as a live region"
 applies_when:
   element_tag: [output, progress, div, p, span, section, aside, main, body, article, ul, ol]
 signals:
+  - field: sr_status_announcement
+    look_for: "PRIMARY. The interaction probe updated the status region and recorded what the reader said. SILENT (no announcement) => the update is not conveyed without focus => 4.1.3 violation. A 'polite: <text>' / 'assertive: <text>' announcement of the message => it IS a working live region => pass. Only exception: a value-driven role=progressbar can read silent under this text probe — corroborate with element_html there."
   - field: element_html
-    look_for: "a success/confirmation, error, progress/loading, or results-count message whose element has NO role=status|alert|log|progressbar|marquee|timer and NO aria-live; or a live region that IS present but suppressed via display:none / hidden / aria-hidden=true"
+    look_for: "CORROBORATION. A success/confirmation, error, progress/loading, or results-count message whose element has NO role=status|alert|log|progressbar|marquee|timer and NO aria-live (or aria-live=off); or a live region present but suppressed via display:none / hidden / aria-hidden=true"
   - field: parent_html
     look_for: "whether an ancestor wrapper carries the live-region role/aria-live instead of the message element itself (that would satisfy 4.1.3); or a message injected into a container that is not itself a registered live region"
   - field: sr_transcript
-    look_for: "the message read as a plain paragraph (no 'status'/'alert'/'log'/'progressbar' role announced), or skipped entirely — versus the region announced with its live-region role"
+    look_for: "SECONDARY only. This is the STATIC walk and does NOT fire a live-region announcement, so silence here is expected — do not treat it as proof; use sr_status_announcement for the dynamic behaviour"
 ---
 ## Violation criteria (4.1.3 Status Messages)
-This skill authorises you to evaluate **4.1.3 Status Messages** for this element
-even though the base instructions frame the classifier around Level A — treat
-4.1.3 as in scope here.
+**4.1.3 Status Messages is Level AA and is in scope for this element.**
 
 A **status message** is text that informs the user of the outcome of an action,
 the waiting/progress state of a process, or the existence of an error, and that
@@ -26,9 +26,22 @@ via a role (`role="status"`, `role="alert"`, `role="log"`,
 attribute (`polite`/`assertive`), or a native live element (`<output>`,
 `<progress>`).
 
-Flag `inaccessible` under `4.1.3` when the element is (or contains) a status
-message that is **not** exposed this way. Read the raw `element_html` /
-`parent_html` directly:
+**Lead with the interaction probe (`sr_status_announcement`).** The capture
+started the screen reader, updated the status region, and recorded what was
+announced:
+- **SILENT** (empty / "the region was updated but the reader announced NOTHING")
+  ⇒ the status change is not conveyed to assistive tech without moving focus ⇒
+  flag `inaccessible` under `4.1.3`. This holds even when `element_html` *looks*
+  like it has a live region but it is suppressed (`display:none` /
+  `aria-hidden`), because the probe proves it was not announced.
+- **ANNOUNCED** as `polite: <text>` / `assertive: <text>` carrying the message ⇒
+  it IS a working live region ⇒ `accessible` for this skill.
+- The one exception: a value-driven `role="progressbar"` may read SILENT under
+  this text-mutation probe even though it is a valid mechanism — there, defer to
+  `element_html` markup rather than the probe.
+
+Then corroborate with the raw `element_html` / `parent_html` — a status message
+is **not** exposed when:
 - A **success / confirmation** banner ("Your application has been submitted",
   "Saved", "Copied") rendered as a plain `<div>`/`<p>`/`<span>` with **no**
   live-region role and **no** `aria-live` — the screen reader is never told it
@@ -53,13 +66,14 @@ When the message element itself lacks the role, check `parent_html`: an
 flag that case.
 
 ## Pass criteria
-- The status message (or an ancestor that wraps it) carries an appropriate
-  live-region role or `aria-live`, is **not** hidden from assistive tech, and the
-  `sr_transcript` announces it with that role (e.g. `status`, `alert`,
-  `progressbar`).
+- `sr_status_announcement` shows the message announced (`polite: …` /
+  `assertive: …`) — the region behaves as a live region and is not suppressed.
+- Or (probe silent for a value-driven `role="progressbar"` only) the
+  `element_html` carries a correct, non-suppressed `role="progressbar"` with value
+  attributes.
 - Choice of politeness is appropriate to urgency (errors → `alert`/`assertive`;
-  routine confirmations/counts → `status`/`polite`), but the mere presence of a
-  correct, non-suppressed live-region role/property is enough to pass this skill.
+  routine confirmations/counts → `status`/`polite`), but a correct, non-suppressed
+  live-region mechanism that actually announces is enough to pass this skill.
 
 ## Insufficient evidence
 - If it cannot be determined from the capture whether the text is a genuine
@@ -70,13 +84,14 @@ flag that case.
 
 ## Examples
 - INACCESSIBLE: `<div class="banner">Your application has been submitted</div>`
-  → no role/`aria-live`; SR reads it as plain text, so a mid-page update is
-  silent.
+  → no role/`aria-live`; probe `sr_status_announcement` is SILENT.
 - INACCESSIBLE: `<p class="error-message">There is a problem: enter a valid
-  email address</p>` → needs `role="alert"`.
+  email address</p>` → needs `role="alert"`; probe SILENT.
 - INACCESSIBLE: `<div role="status" style="display:none">Your changes have been
-  saved</div>` → correct role but hidden, so never announced.
+  saved</div>` → correct role but hidden, so the probe is SILENT (never
+  announced) even though the markup looks right.
 - ACCESSIBLE: `<div role="status">Your application has been submitted</div>` →
-  SR announces "status, Your application has been submitted".
-- ACCESSIBLE: `<div aria-live="polite">5 results found</div>` and
-  `<div role="progressbar" aria-valuenow="60" …>60% complete</div>`.
+  probe announces `polite: Your application has been submitted`.
+- ACCESSIBLE: `<div aria-live="polite">5 results found</div>` → probe announces
+  `polite: 5 results found`. `<div role="progressbar" aria-valuenow="60" …>` may
+  read SILENT under the probe → pass on the markup instead.

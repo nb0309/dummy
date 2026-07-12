@@ -19,7 +19,7 @@ import url from "node:url";
 import { startServer } from "./lib/server.js";
 import { extractSamples } from "./lib/extract.js";
 import { buildRow, writeOutputs } from "./lib/rows.js";
-import { injectVsr, elementTranscript } from "./lib/vsr.js";
+import { injectVsr, elementTranscript, statusAnnouncementProbe } from "./lib/vsr.js";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const REPO_ROOT = path.join(__dirname, ".."); // generator/ -> repo root
@@ -86,7 +86,14 @@ try {
       const samples = await extractSamples(page);
 
       // 2. virtual screen reader (per-element transcripts)
-      if (!opts.noSr) await injectVsr(page);
+      //    + the 4.1.3 interaction probe. The probe self-gates: it returns null
+      //    unless the page carries a [data-status-target], so it is cheap on
+      //    non-status pages and the page-level result can be stamped on each row.
+      let statusAnnouncement = null;
+      if (!opts.noSr) {
+        await injectVsr(page);
+        statusAnnouncement = await statusAnnouncementProbe(page);
+      }
 
       // 3. assemble one row per element
       for (const s of samples) {
@@ -96,6 +103,7 @@ try {
             file,
             sample: s,
             transcript,
+            statusAnnouncement,
             meta: { label: opts.label },
           })
         );

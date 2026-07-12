@@ -89,3 +89,58 @@ export async function traverse(page, { sampleId = null, maxSteps = 300 } = {}) {
 }
 
 export const elementTranscript = (page, sampleId) => traverse(page, { sampleId, maxSteps: 250 });
+
+/**
+ * WCAG 4.1.3 interaction probe. Start the reader on the whole page, then simulate
+ * a status update by mutating the fixture-marked `[data-status-target]` element
+ * (clear -> tick -> re-insert its text). The virtual reader's internal
+ * MutationObserver turns a *live-region* change into a spoken-phrase-log entry
+ * formatted "polite: …" / "assertive: …"; a bare element, an aria-live="off"
+ * region, or a display:none/aria-hidden region stays SILENT. We return only the
+ * new live-region announcements (or [] when silent), which is exactly the 4.1.3
+ * pass/fail signal.
+ *
+ * Returns `null` when the page has no `[data-status-target]` (not a status page,
+ * so the row's feature is N/A), `[]` when a target was updated but nothing was
+ * announced (the 4.1.3 failure), or the announcement phrases when it spoke.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {{maxWaitMs?: number}} opts
+ * @returns {Promise<string[]|null>} announcements, [] if silent, or null if N/A
+ */
+export async function statusAnnouncementProbe(page, { maxWaitMs = 2000 } = {}) {
+  return page.evaluate(
+    async ({ maxWaitMs }) => {
+      const mod = window.__vsrMod;
+      const target = document.querySelector("[data-status-target]");
+      if (!mod || !target) return null;
+
+      const tick = () => new Promise((r) => setTimeout(r, 0));
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      const v = new mod.Virtual();
+      await v.start({ container: document.body });
+      const before = (await v.spokenPhraseLog()).length;
+
+      // Simulate the status changing: clear, let the observer flush, then
+      // re-insert the original text -> a genuine mutation inside the region.
+      const text = target.textContent;
+      target.textContent = "";
+      await tick();
+      target.textContent = text;
+
+      // The announcement is queued on a MutationObserver microtask (after an
+      // internal `await tick()`), so poll the log until it grows or we time out.
+      const deadline = Date.now() + maxWaitMs;
+      let log = await v.spokenPhraseLog();
+      while (log.length === before && Date.now() < deadline) {
+        await sleep(50);
+        log = await v.spokenPhraseLog();
+      }
+      await v.stop();
+
+      return log.slice(before).filter((p) => /^(polite|assertive):/i.test(p || ""));
+    },
+    { maxWaitMs }
+  );
+}

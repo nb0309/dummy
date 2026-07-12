@@ -5,6 +5,11 @@
 // parent's HTML, and the screen-reader transcript — plus a label and a
 // sample_id/source_file for traceability. Everything else (ARIA tree, axe-core,
 // structural counts, CSS signals, raw cell structure) has been removed.
+//
+// One extra, status-only feature: `sr_status_announcement` — the WCAG 4.1.3
+// interaction probe result (what the virtual reader announced after a simulated
+// update to a live region). `[]` means the update was silent (a 4.1.3 failure
+// signal); `null` means the row is not a status message and was not probed.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -22,6 +27,8 @@ export const COLUMNS = [
   "element_html",
   "parent_html",
   "sr_transcript",
+  // 4.1.3 status-message interaction probe (null for non-status rows)
+  "sr_status_announcement",
 ];
 
 /**
@@ -31,8 +38,9 @@ export const COLUMNS = [
  * @param {object} args.sample    a descriptor from extractSamples()
  * @param {object} args.meta      run metadata (label)
  * @param {string[]} args.transcript  the element-scoped screen-reader phrases
+ * @param {string[]|null} [args.statusAnnouncement]  4.1.3 probe result, or null
  */
-export function buildRow({ file, sample, meta, transcript }) {
+export function buildRow({ file, sample, meta, transcript, statusAnnouncement = null }) {
   return {
     sample_id: `${path.basename(file, ".html")}::${sample.elementId}`,
     source_file: path.basename(file),
@@ -41,6 +49,7 @@ export function buildRow({ file, sample, meta, transcript }) {
     element_html: normalizeHtml(sample.elementHtmlRaw),
     parent_html: normalizeHtml(sample.parentHtml),
     sr_transcript: transcript || [],
+    sr_status_announcement: statusAnnouncement,
   };
 }
 
