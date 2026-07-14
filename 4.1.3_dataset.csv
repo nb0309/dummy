@@ -1,0 +1,93 @@
+sample_id,source_file,label,element_html,parent_html,sr_transcript,sr_status_announcement
+4.1.3::sample-0,4.1.3.html,inaccessible,"<body><h2>Products</h2><p>Wireless Mouse - ₹999</p><button onclick=""addToCart()"">Add to Cart</button><!-- FAIL: success message is a plain div with no role=""status"" / aria-live,
+so the screen reader is never told it appeared. --><div id=""cartMsg"" class=""cart-message"">Item added to cart!</div><h2>Checkout Form</h2><form onsubmit=""return validateForm()""><label>Email:</label><input type=""text"" id=""email""><br><br><button type=""submit"">Continue</button><!-- FAIL: error message is not a focus target and has no role=""alert"" /
+aria-live, so it is NOT announced when it is inserted. --><div id=""errorMsg"" class=""error"">Invalid email format</div></form></body>","<html lang=""en""><head><title>Shopping Cart - Failing Example</title><style>
+.cart-message {
+margin-top: 20px;
+color: green;
+}
+.error {
+color: red;
+margin-top: 10px;
+}
+</style><script>
+function addToCart() {
+// Simulate adding item to cart
+document.getElementById(""cartMsg"").innerText = ""Item added to cart!"";
+}
+function validateForm() {
+var email = document.getElementById(""email"").value;
+
+if (!email.includes(""@"")) {
+document.getElementById(""errorMsg"").innerText = ""Invalid email format"";
+return false;
+}
+
+return true;
+}
+</script></head><body><h2>Products</h2><p>Wireless Mouse - ₹999</p><button onclick=""addToCart()"">Add to Cart</button><!-- FAIL: success message is a plain div with no role=""status"" / aria-live,
+so the screen reader is never told it appeared. --><div id=""cartMsg"" class=""cart-message"">Item added to cart!</div><h2>Checkout Form</h2><form onsubmit=""return validateForm()""><label>Email:</label><input type=""text"" id=""email""><br><br><button type=""submit"">Continue</button><!-- FAIL: error message is not a focus target and has no role=""alert"" /
+aria-live, so it is NOT announced when it is inserted. --><div id=""errorMsg"" class=""error"">Invalid email format</div></form></body></html>","[""document"",""heading, Products, level 2"",""paragraph"",""Wireless Mouse - ₹999"",""end of paragraph"",""button, Add to Cart"",""Item added to cart!"",""heading, Checkout Form, level 2"",""form"",""Email:"",""textbox"",""button, Continue"",""Invalid email format"",""end of form"",""end of document""]",[]
+comment-form-error-not-announced::sample-0,comment-form-error-not-announced.html,inaccessible,"<body><h1>Leave a comment</h1><form onsubmit=""postComment(event)""><label for=""comment"">Your comment:</label><br><textarea id=""comment"" rows=""4""></textarea><br><br><button type=""submit"">Post comment</button><!-- FAIL: validation error is a plain <p> with no role=""alert"" /
+aria-live, so it is not announced when inserted. --><p id=""commentError"" class=""field-error"">Comment cannot be empty.</p></form></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Leave a Comment - Failing Example</title><style>
+.field-error { color: #c00; margin-top: 8px; }
+</style><script>
+function postComment(e) {
+e.preventDefault();
+var body = document.getElementById(""comment"").value.trim();
+if (!body) {
+// Error is injected with no role=""alert"" / aria-live -> not announced.
+document.getElementById(""commentError"").textContent =
+""Comment cannot be empty."";
+return;
+}
+}
+</script></head><body><h1>Leave a comment</h1><form onsubmit=""postComment(event)""><label for=""comment"">Your comment:</label><br><textarea id=""comment"" rows=""4""></textarea><br><br><button type=""submit"">Post comment</button><!-- FAIL: validation error is a plain <p> with no role=""alert"" /
+aria-live, so it is not announced when inserted. --><p id=""commentError"" class=""field-error"">Comment cannot be empty.</p></form></body></html>","[""document"",""heading, Leave a comment, level 1"",""form"",""Your comment:"",""textbox, Your comment:"",""button, Post comment"",""paragraph"",""Comment cannot be empty."",""end of paragraph"",""end of form"",""end of document""]",[]
+loading-indicator-no-live-region::sample-0,loading-indicator-no-live-region.html,inaccessible,"<body><h1>Generate report</h1><form onsubmit=""generate(event)""><label>Report type:</label><select id=""type""><option>Sales</option><option>Inventory</option></select><button type=""submit"">Generate</button><!-- FAIL: loading/busy indicator is a plain div with no role=""status"",
+role=""progressbar"", or aria-live, so the wait state is not announced. --><div id=""loading"" class=""loading"">Loading, please wait…</div></form></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Generate Report - Failing Example</title><style>
+.loading { margin-top: 12px; color: #555; }
+</style><script>
+function generate(e) {
+e.preventDefault();
+// Loading text injected with no role=""status"" / role=""progressbar"" /
+// aria-live -> the busy state is never announced.
+document.getElementById(""loading"").textContent = ""Loading, please wait…"";
+}
+</script></head><body><h1>Generate report</h1><form onsubmit=""generate(event)""><label>Report type:</label><select id=""type""><option>Sales</option><option>Inventory</option></select><button type=""submit"">Generate</button><!-- FAIL: loading/busy indicator is a plain div with no role=""status"",
+role=""progressbar"", or aria-live, so the wait state is not announced. --><div id=""loading"" class=""loading"">Loading, please wait…</div></form></body></html>","[""document"",""heading, Generate report, level 1"",""form"",""Report type:"",""combobox, Sales, has popup listbox, not expanded"",""option, Sales, not selected, position 1, set size 2"",""option, Inventory, not selected, position 2, set size 2"",""end of combobox, Sales, has popup listbox, not expanded"",""button, Generate"",""Loading, please wait…"",""end of form"",""end of document""]",[]
+newsletter-confirmation-not-announced::sample-0,newsletter-confirmation-not-announced.html,inaccessible,"<body><h1>Subscribe to our newsletter</h1><form onsubmit=""subscribe(event)""><label>Email address:</label><input type=""email"" id=""subEmail"" required=""""><button type=""submit"">Subscribe</button></form><!-- FAIL: success confirmation is a plain div with no role=""status"" /
+aria-live, so the screen reader is never told it appeared. --><div id=""subMsg"" class=""confirmation"">Thanks for subscribing! Check your inbox to confirm.</div></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Newsletter Signup - Failing Example</title><style>
+.confirmation { margin-top: 16px; color: #0a6; font-weight: bold; }
+</style><script>
+function subscribe(e) {
+e.preventDefault();
+// Confirmation is injected with no live region -> never announced.
+document.getElementById(""subMsg"").textContent =
+""Thanks for subscribing! Check your inbox to confirm."";
+}
+</script></head><body><h1>Subscribe to our newsletter</h1><form onsubmit=""subscribe(event)""><label>Email address:</label><input type=""email"" id=""subEmail"" required=""""><button type=""submit"">Subscribe</button></form><!-- FAIL: success confirmation is a plain div with no role=""status"" /
+aria-live, so the screen reader is never told it appeared. --><div id=""subMsg"" class=""confirmation"">Thanks for subscribing! Check your inbox to confirm.</div></body></html>","[""document"",""heading, Subscribe to our newsletter, level 1"",""form"",""Email address:"",""textbox, required"",""button, Subscribe"",""end of form"",""Thanks for subscribing! Check your inbox to confirm."",""end of document""]",[]
+search-results-count-no-live-region::sample-0,search-results-count-no-live-region.html,inaccessible,"<body><h1>Search products</h1><form onsubmit=""search(event)""><label>Search:</label><input type=""search"" id=""q"" value=""usb cable""><button type=""submit"">Search</button></form><!-- FAIL: results count updates in place with no aria-live / role=""status"",
+so screen-reader users are not told the result set changed. --><div id=""count"" class=""results-count"">3 results found</div><div class=""product"">USB-C Cable 1m</div><div class=""product"">USB-C Cable 2m</div><div class=""product"">USB-A to USB-C Cable</div></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Product Search - Failing Example</title><style>
+.results-count { margin: 12px 0; color: #333; }
+.product { padding: 6px 0; border-bottom: 1px solid #ddd; }
+</style><script>
+function search(e) {
+e.preventDefault();
+// Count updates in place with no aria-live -> change is silent to AT.
+document.getElementById(""count"").textContent = ""3 results found"";
+}
+</script></head><body><h1>Search products</h1><form onsubmit=""search(event)""><label>Search:</label><input type=""search"" id=""q"" value=""usb cable""><button type=""submit"">Search</button></form><!-- FAIL: results count updates in place with no aria-live / role=""status"",
+so screen-reader users are not told the result set changed. --><div id=""count"" class=""results-count"">3 results found</div><div class=""product"">USB-C Cable 1m</div><div class=""product"">USB-C Cable 2m</div><div class=""product"">USB-A to USB-C Cable</div></body></html>","[""document"",""heading, Search products, level 1"",""form"",""Search:"",""searchbox, usb cable"",""button, Search"",""end of form"",""3 results found"",""USB-C Cable 1m"",""USB-C Cable 2m"",""USB-A to USB-C Cable"",""end of document""]",[]
+contact-form-confirmation-role-status::sample-0,contact-form-confirmation-role-status.html,accessible,"<div id=""contactMsg"" class=""confirmation"" role=""status"">Your message has been sent. We'll reply within 2 business days.</div>","<body><h1>Contact us</h1><form onsubmit=""sendMessage(event)""><label>Message:</label><br><textarea id=""message"" rows=""4""></textarea><br><br><button type=""submit"">Send</button></form><!-- PASS: success confirmation carries role=""status"", so the update is
+announced to screen-reader users without moving focus. --><div id=""contactMsg"" class=""confirmation"" role=""status"">Your message has been sent. We'll reply within 2 business days.</div></body>","[""status"",""Your message has been sent. We'll reply within 2 business days."",""end of status""]","[""polite: Your message has been sent. We'll reply within 2 business days.""]"
+file-upload-progressbar::sample-0,file-upload-progressbar.html,accessible,"<div id=""progress"" class=""bar"" role=""progressbar"" aria-valuenow=""60"" aria-valuemin=""0"" aria-valuemax=""100"" aria-label=""Upload progress""><div class=""bar__fill"" style=""width:60%""></div><span class=""pct"">60% uploaded</span></div>","<form onsubmit=""upload(event)""><label>Choose image:</label><input type=""file"" id=""img""><button type=""submit"">Upload</button><!-- PASS: progress is exposed via role=""progressbar"" with value
+attributes. (A text-mutation probe may read silent here; the
+markup is the valid live-region mechanism.) --><div id=""progress"" class=""bar"" role=""progressbar"" aria-valuenow=""60"" aria-valuemin=""0"" aria-valuemax=""100"" aria-label=""Upload progress""><div class=""bar__fill"" style=""width:60%""></div><span class=""pct"">60% uploaded</span></div></form>","[""progressbar, Upload progress, max value 100, min value 0, current value 60%"",""60% uploaded"",""end of progressbar, Upload progress, max value 100, min value 0, current value 60%""]",[]
+login-error-role-alert::sample-0,login-error-role-alert.html,accessible,"<p id=""loginError"" class=""form-error"" role=""alert"">Incorrect username or password.</p>","<form onsubmit=""signIn(event)""><label>Username:</label><input type=""text"" id=""user""><br><br><label>Password:</label><input type=""password"" id=""pass""><br><br><button type=""submit"">Sign in</button><!-- PASS: error message carries role=""alert"", so it is announced
+assertively as soon as it is inserted. --><p id=""loginError"" class=""form-error"" role=""alert"">Incorrect username or password.</p></form>","[""alert"",""Incorrect username or password."",""end of alert""]","[""assertive: Incorrect username or password.""]"
+save-status-output-element::sample-0,save-status-output-element.html,accessible,"<output id=""saveStatus"" class=""save-status"">All changes saved.</output>","<form onsubmit=""save(event)""><label>Display name:</label><input type=""text"" id=""name"" value=""Asha""><button type=""submit"">Save changes</button><!-- PASS: native <output> element is an implicit live region, so the
+status update is announced without moving focus. --><output id=""saveStatus"" class=""save-status"">All changes saved.</output></form>","[""status"",""All changes saved."",""end of status""]","[""polite: All changes saved.""]"
+search-results-count-aria-live-polite::sample-0,search-results-count-aria-live-polite.html,accessible,"<div id=""count"" class=""results-count"" aria-live=""polite"">8 jobs found</div>","<body><h1>Search jobs</h1><form onsubmit=""search(event)""><label>Keyword:</label><input type=""search"" id=""q"" value=""designer""><button type=""submit"">Search</button></form><!-- PASS: results count is an aria-live=""polite"" region, so updates are
+announced to screen-reader users without moving focus. --><div id=""count"" class=""results-count"" aria-live=""polite"">8 jobs found</div><div class=""job"">Product Designer</div><div class=""job"">UX Designer</div><div class=""job"">Visual Designer</div></body>","[""8 jobs found""]","[""polite: 8 jobs found""]"
