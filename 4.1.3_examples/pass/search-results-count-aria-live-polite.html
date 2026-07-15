@@ -11,7 +11,7 @@
     function search(e) {
       e.preventDefault();
       // aria-live="polite" region -> the new count is announced without focus.
-      document.getElementById("count").textContent = "8 jobs found";
+      document.getElementById("count").textContent = "3 jobs found";
     }
   </script>
 </head>
@@ -21,12 +21,13 @@
   <form onsubmit="search(event)">
     <label>Keyword:</label>
     <input type="search" id="q" value="designer">
-    <button type="submit">Search</button>
+    <button type="submit" data-status-trigger>Search</button>
   </form>
 
   <!-- PASS: results count is an aria-live="polite" region, so updates are
-       announced to screen-reader users without moving focus. -->
-  <div id="count" class="results-count" aria-live="polite" data-status-target>8 jobs found</div>
+       announced to screen-reader users without moving focus. The region is
+       present but empty on load so the search result is a genuine change. -->
+  <div id="count" class="results-count" aria-live="polite" data-status-target></div>
 
   <div class="job">Product Designer</div>
   <div class="job">UX Designer</div>

@@ -25,11 +25,12 @@
     <label>Password:</label>
     <input type="password" id="pass"><br><br>
 
-    <button type="submit">Sign in</button>
+    <button type="submit" data-status-trigger>Sign in</button>
 
     <!-- PASS: error message carries role="alert", so it is announced
-         assertively as soon as it is inserted. -->
-    <p id="loginError" class="form-error" role="alert" data-status-target>Incorrect username or password.</p>
+         assertively as soon as the text is inserted. The region is present but
+         empty on load: the alert fires on the change, not on initial content. -->
+    <p id="loginError" class="form-error" role="alert" data-status-target></p>
   </form>
 </body>
 </html>

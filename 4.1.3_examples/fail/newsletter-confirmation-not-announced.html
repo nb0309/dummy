@@ -20,12 +20,12 @@
 
   <form onsubmit="subscribe(event)">
     <label>Email address:</label>
-    <input type="email" id="subEmail" required>
-    <button type="submit">Subscribe</button>
+    <input type="email" id="subEmail" value="asha@example.com" required>
+    <button type="submit" data-status-trigger>Subscribe</button>
   </form>
 
   <!-- FAIL: success confirmation is a plain div with no role="status" /
        aria-live, so the screen reader is never told it appeared. -->
-  <div id="subMsg" class="confirmation" data-status-target>Thanks for subscribing! Check your inbox to confirm.</div>
+  <div id="subMsg" class="confirmation" data-status-target></div>
 </body>
 </html>

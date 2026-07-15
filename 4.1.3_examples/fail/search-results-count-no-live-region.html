@@ -21,12 +21,12 @@
   <form onsubmit="search(event)">
     <label>Search:</label>
     <input type="search" id="q" value="usb cable">
-    <button type="submit">Search</button>
+    <button type="submit" data-status-trigger>Search</button>
   </form>
 
   <!-- FAIL: results count updates in place with no aria-live / role="status",
        so screen-reader users are not told the result set changed. -->
-  <div id="count" class="results-count" data-status-target>3 results found</div>
+  <div id="count" class="results-count" data-status-target></div>
 
   <div class="product">USB-C Cable 1m</div>
   <div class="product">USB-C Cable 2m</div>

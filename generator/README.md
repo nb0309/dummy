@@ -18,6 +18,29 @@ node capture.mjs --dir "tests/wcag 4.1.3/fail" --label inaccessible --out ds_413
 node capture.mjs --dir "tests/wcag 4.1.3/pass" --label accessible   --out ds_413_good
 ```
 
+## 4.1.3 fixture markers
+
+Status-message fixtures carry two markers, both stripped by `lib/normalize.js` so
+they can never reach a feature column:
+
+- `data-status-target` — the region the probe watches. **Required**, and it must
+  be in the DOM at load: `aria-live` only announces a change to a region that was
+  already registered. Leave it **empty** — 4.1.3 is about a message *added or
+  changed* after load, so a pre-rendered message is not a status message at all
+  (a screen reader just reads it as ordinary body copy on the way past).
+- `data-status-trigger` — the control the probe clicks to make the page write the
+  status through its own code path. Optional: fixtures without one (the static
+  `tests/wcag 4.1.3` suite) fall back to the probe replaying the region's existing
+  text as a synthetic mutation, which is why *those* fixtures do pre-render it.
+
+Two known limits of the underlying virtual reader:
+- `role="progressbar"` is not a live region, so a value change raises no
+  announcement and the probe reads SILENT on a valid progressbar. The 4.1.3 skill
+  falls back to markup for that one case.
+- Its live-region path does not prune hidden subtrees, so it would announce from
+  inside `display:none`. `statusAnnouncementProbe()` corrects this by discarding
+  announcements when the region is hidden from the a11y tree after the update.
+
 Flags:
 - `--dir <path>`  input suite folder, relative to the repo root; repeatable.
   Default: `tests/SC 1.3.1`, `tests/wcag 1.1.1`, `tests/wcag 4.1.3/fail`.

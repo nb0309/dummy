@@ -13,10 +13,10 @@ export function normalizeHtml(html) {
   let out = html;
   // drop the injected correlation marker (with or without surrounding space)
   out = out.replace(/\s*data-sample-id="[^"]*"/g, "");
-  // drop the 4.1.3 probe target marker (present in fixtures, must not leak into
-  // the stored HTML feature); it may be valueless (`data-status-target`) or
+  // drop the 4.1.3 probe markers (present in fixtures, must not leak into the
+  // stored HTML feature); each may be valueless (`data-status-target`) or
   // valued (`data-status-target="…"`).
-  out = out.replace(/\s*data-status-target(?:="[^"]*")?/g, "");
+  out = out.replace(/\s*data-status-(?:target|trigger)(?:="[^"]*")?/g, "");
   // collapse runs of whitespace between tags / inside text to single spaces,
   // but keep it readable rather than fully minified.
   out = out.replace(/>\s+</g, "><");

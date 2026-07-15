@@ -24,11 +24,11 @@
       <option>Sales</option>
       <option>Inventory</option>
     </select>
-    <button type="submit">Generate</button>
+    <button type="submit" data-status-trigger>Generate</button>
 
     <!-- FAIL: loading/busy indicator is a plain div with no role="status",
          role="progressbar", or aria-live, so the wait state is not announced. -->
-    <div id="loading" class="loading" data-status-target>Loading, please wait…</div>
+    <div id="loading" class="loading" data-status-target></div>
   </form>
 </body>
 </html>

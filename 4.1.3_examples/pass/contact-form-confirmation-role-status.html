@@ -22,11 +22,13 @@
     <label>Message:</label><br>
     <textarea id="message" rows="4"></textarea>
     <br><br>
-    <button type="submit">Send</button>
+    <button type="submit" data-status-trigger>Send</button>
   </form>
 
   <!-- PASS: success confirmation carries role="status", so the update is
-       announced to screen-reader users without moving focus. -->
-  <div id="contactMsg" class="confirmation" role="status" data-status-target>Your message has been sent. We'll reply within 2 business days.</div>
+       announced to screen-reader users without moving focus. The region is
+       present but empty on load — role="status" announces a *change*, so the
+       message has to arrive after load to be announced at all. -->
+  <div id="contactMsg" class="confirmation" role="status" data-status-target></div>
 </body>
 </html>

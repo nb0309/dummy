@@ -6,7 +6,7 @@ applies_when:
   element_tag: [output, progress, div, p, span, section, aside, main, body, article, ul, ol]
 signals:
   - field: sr_status_announcement
-    look_for: "PRIMARY. The interaction probe updated the status region and recorded what the reader said. SILENT (no announcement) => the update is not conveyed without focus => 4.1.3 violation. A 'polite: <text>' / 'assertive: <text>' announcement of the message => it IS a working live region => pass. Only exception: a value-driven role=progressbar can read silent under this text probe — corroborate with element_html there."
+    look_for: "PRIMARY. The interaction probe triggered the status update (clicking the page's own control where the fixture has one) and recorded what the reader said. SILENT (no announcement) => the update is not conveyed without focus => 4.1.3 violation. A 'polite: <text>' / 'assertive: <text>' announcement of the message => it IS a working live region => pass. Only exception: a value-driven role=progressbar can read silent under this probe — corroborate with element_html there."
   - field: element_html
     look_for: "CORROBORATION. A success/confirmation, error, progress/loading, or results-count message whose element has NO role=status|alert|log|progressbar|marquee|timer and NO aria-live (or aria-live=off); or a live region present but suppressed via display:none / hidden / aria-hidden=true"
   - field: parent_html
@@ -27,8 +27,11 @@ attribute (`polite`/`assertive`), or a native live element (`<output>`,
 `<progress>`).
 
 **Lead with the interaction probe (`sr_status_announcement`).** The capture
-started the screen reader, updated the status region, and recorded what was
-announced:
+started the screen reader, drove the status update through the page's own code
+path (clicking the control that produces the message), and recorded what was
+announced. Because the update happens after load, this measures the thing 4.1.3
+is actually about: a message that is *added or changed* is announced only if it
+lands in a live region that was already registered:
 - **SILENT** (empty / "the region was updated but the reader announced NOTHING")
   ⇒ the status change is not conveyed to assistive tech without moving focus ⇒
   flag `inaccessible` under `4.1.3`. This holds even when `element_html` *looks*
@@ -37,8 +40,9 @@ announced:
 - **ANNOUNCED** as `polite: <text>` / `assertive: <text>` carrying the message ⇒
   it IS a working live region ⇒ `accessible` for this skill.
 - The one exception: a value-driven `role="progressbar"` may read SILENT under
-  this text-mutation probe even though it is a valid mechanism — there, defer to
-  `element_html` markup rather than the probe.
+  this probe even though it is a valid mechanism (`progressbar` is not itself a
+  live region, so an `aria-valuenow` change raises no announcement) — there,
+  defer to `element_html` markup rather than the probe.
 
 Then corroborate with the raw `element_html` / `parent_html` — a status message
 is **not** exposed when:

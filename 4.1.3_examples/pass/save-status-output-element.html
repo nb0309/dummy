@@ -20,11 +20,12 @@
   <form onsubmit="save(event)">
     <label>Display name:</label>
     <input type="text" id="name" value="Asha">
-    <button type="submit">Save changes</button>
+    <button type="submit" data-status-trigger>Save changes</button>
 
     <!-- PASS: native <output> element is an implicit live region, so the
-         status update is announced without moving focus. -->
-    <output id="saveStatus" class="save-status" data-status-target>All changes saved.</output>
+         status update is announced without moving focus. Empty on load — the
+         announcement comes from the change, not from initial content. -->
+    <output id="saveStatus" class="save-status" data-status-target></output>
   </form>
 </body>
 </html>

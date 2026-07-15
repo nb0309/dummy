@@ -26,11 +26,11 @@
     <label for="comment">Your comment:</label><br>
     <textarea id="comment" rows="4"></textarea>
     <br><br>
-    <button type="submit">Post comment</button>
+    <button type="submit" data-status-trigger>Post comment</button>
 
     <!-- FAIL: validation error is a plain <p> with no role="alert" /
-         aria-live, so it is not announced when inserted. -->
-    <p id="commentError" class="field-error" data-status-target>Comment cannot be empty.</p>
+         aria-live, so it is not announced when inserted on submit. -->
+    <p id="commentError" class="field-error" data-status-target></p>
   </form>
 </body>
 </html>
