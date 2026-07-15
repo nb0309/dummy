@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Upload Photo - Passing Example</title>
+  <style>
+    .bar { width: 240px; height: 12px; background: #eee; margin-top: 12px; }
+    .bar__fill { height: 100%; background: #0a6; }
+  </style>
+  <script>
+    function upload(e) {
+      e.preventDefault();
+      var pb = document.getElementById("progress");
+      pb.setAttribute("aria-valuenow", "60");
+      pb.querySelector(".bar__fill").style.width = "60%";
+      pb.querySelector(".pct").textContent = "60% uploaded";
+    }
+  </script>
+</head>
+<body>
+  <h1>Upload a photo</h1>
+
+  <form onsubmit="upload(event)">
+    <label>Choose image:</label>
+    <input type="file" id="img">
+    <button type="submit">Upload</button>
+
+    <!-- PASS: progress is exposed via role="progressbar" with value
+         attributes. (A text-mutation probe may read silent here; the
+         markup is the valid live-region mechanism.) -->
+    <div id="progress" class="bar" role="progressbar" aria-valuenow="60"
+         aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress"
+         data-status-target>
+      <div class="bar__fill" style="width:60%"></div>
+      <span class="pct">60% uploaded</span>
+    </div>
+  </form>
+</body>
+</html>

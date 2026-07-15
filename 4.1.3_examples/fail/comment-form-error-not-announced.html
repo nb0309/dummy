@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Leave a Comment - Failing Example</title>
+  <style>
+    .field-error { color: #c00; margin-top: 8px; }
+  </style>
+  <script>
+    function postComment(e) {
+      e.preventDefault();
+      var body = document.getElementById("comment").value.trim();
+      if (!body) {
+        // Error is injected with no role="alert" / aria-live -> not announced.
+        document.getElementById("commentError").textContent =
+          "Comment cannot be empty.";
+        return;
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Leave a comment</h1>
+
+  <form onsubmit="postComment(event)">
+    <label for="comment">Your comment:</label><br>
+    <textarea id="comment" rows="4"></textarea>
+    <br><br>
+    <button type="submit">Post comment</button>
+
+    <!-- FAIL: validation error is a plain <p> with no role="alert" /
+         aria-live, so it is not announced when inserted. -->
+    <p id="commentError" class="field-error" data-status-target>Comment cannot be empty.</p>
+  </form>
+</body>
+</html>

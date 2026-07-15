@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Generate Report - Failing Example</title>
+  <style>
+    .loading { margin-top: 12px; color: #555; }
+  </style>
+  <script>
+    function generate(e) {
+      e.preventDefault();
+      // Loading text injected with no role="status" / role="progressbar" /
+      // aria-live -> the busy state is never announced.
+      document.getElementById("loading").textContent = "Loading, please wait…";
+    }
+  </script>
+</head>
+<body>
+  <h1>Generate report</h1>
+
+  <form onsubmit="generate(event)">
+    <label>Report type:</label>
+    <select id="type">
+      <option>Sales</option>
+      <option>Inventory</option>
+    </select>
+    <button type="submit">Generate</button>
+
+    <!-- FAIL: loading/busy indicator is a plain div with no role="status",
+         role="progressbar", or aria-live, so the wait state is not announced. -->
+    <div id="loading" class="loading" data-status-target>Loading, please wait…</div>
+  </form>
+</body>
+</html>
