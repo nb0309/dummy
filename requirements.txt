@@ -1,0 +1,19 @@
+# Python dependencies for the src/ classifier pipeline (python -m src.run).
+# Verified against Python 3.12. Floors are the versions this was developed and
+# run against; major versions are capped because pydantic/langchain have all
+# broken APIs across majors before.
+#
+# The generator/ capture pipeline is Node, not Python — its dependencies live in
+# generator/package.json and are installed separately with npm.
+#
+#   pip install -r requirements.txt
+
+pandas>=2.2.3,<3
+pydantic>=2.10.3,<3
+python-dotenv>=1.1.1,<2
+
+# LLM access. Only needed for a full run; `python -m src.run --dry-run` exercises
+# routing + evidence without them. langchain-openai pulls in `openai` itself, so
+# it is deliberately not pinned here.
+langchain-core>=1.4.7,<2
+langchain-openai>=1.3.2,<2
