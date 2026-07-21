@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Book an appointment - Passing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .error-summary { display: none; border: 4px solid #d4351c; padding: 12px; }
+    .error-message { color: #d4351c; font-weight: bold; }
+  </style>
+  <script>
+    function book(e) {
+      e.preventDefault();
+      var email = document.getElementById("email");
+      var phone = document.getElementById("phone");
+      var bad = false;
+
+      if (email.value.indexOf("@") === -1) {
+        email.setAttribute("aria-invalid", "true");
+        document.getElementById("emailError").textContent =
+          "Error: Enter an email address in the correct format, like name@example.com";
+        bad = true;
+      }
+      if (phone.value.replace(/\D/g, "").length < 11) {
+        phone.setAttribute("aria-invalid", "true");
+        document.getElementById("phoneError").textContent =
+          "Error: Enter a phone number with 11 digits";
+        bad = true;
+      }
+      // PASS: a summary at the top of the form names each field in error and
+      // links to it, and every field ALSO carries its own inline text message
+      // wired up with aria-describedby.
+      if (bad) document.getElementById("errorSummary").style.display = "block";
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Book an appointment</h1>
+
+    <form onsubmit="book(event)">
+      <div class="error-summary" id="errorSummary">
+        <h2>There is a problem</h2>
+        <ul>
+          <li><a href="#email">Enter an email address in the correct format, like name@example.com</a></li>
+          <li><a href="#phone">Enter a phone number with 11 digits</a></li>
+        </ul>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <p class="error-message" id="emailError"></p>
+        <input type="text" id="email" aria-describedby="emailError" data-error-fill="jordan.example.com">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <p class="error-message" id="phoneError"></p>
+        <input type="text" id="phone" aria-describedby="phoneError" data-error-fill="0777">
+      </div>
+
+      <button type="submit" data-error-trigger>Book appointment</button>
+    </form>
+  </main>
+</body>
+</html>

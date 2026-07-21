@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose a username - Passing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .error-message { color: #d4351c; font-weight: bold; display: block; }
+  </style>
+  <script>
+    function chooseUsername(e) {
+      e.preventDefault();
+      var name = document.getElementById("username");
+      if (name.value.length < 6) {
+        // PASS: the error text is placed INSIDE the field's own <label>, so it
+        // becomes part of the accessible name and is unambiguously tied to the
+        // field -- no aria-describedby needed for the association.
+        name.setAttribute("aria-invalid", "true");
+        document.getElementById("usernameError").textContent =
+          "Error: Username must be at least 6 characters long";
+      }
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Choose a username</h1>
+
+    <form onsubmit="chooseUsername(event)">
+      <div class="form-group">
+        <label for="username">
+          Username
+          <span class="error-message" id="usernameError"></span>
+        </label>
+        <input type="text" id="username" data-error-fill="rae">
+      </div>
+
+      <button type="submit" data-error-trigger>Continue</button>
+    </form>
+  </main>
+</body>
+</html>

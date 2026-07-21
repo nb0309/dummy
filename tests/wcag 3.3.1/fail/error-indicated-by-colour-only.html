@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Create your account - Failing Example</title>
+  <style>
+    .form-group { position: relative; margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; }
+    /* The only error signal: a red border plus a 2px red bar. No text. */
+    .form-control.has-error { border-color: #d70b0b; }
+    .field-error { display: none; height: 2px; width: 100%; background-color: #d70b0b; }
+  </style>
+  <script>
+    function createAccount(e) {
+      e.preventDefault();
+      var zip = document.getElementById("zcode");
+      if (!/^[0-9]{5}$/.test(zip.value)) {
+        // FAIL: the error is conveyed by colour alone. The error container is
+        // revealed but never given any text, so there is nothing to announce and
+        // nothing for a user who cannot perceive the red bar.
+        zip.classList.add("has-error");
+        document.getElementById("zcodeError").style.display = "block";
+      }
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Create your account</h1>
+
+    <form onsubmit="createAccount(event)">
+      <div class="form-group">
+        <label for="zcode">Zip code</label>
+        <input type="text" class="form-control" id="zcode" data-error-fill="12">
+        <div class="field-error" id="zcodeError"></div>
+      </div>
+
+      <button type="submit" data-error-trigger>Create account</button>
+    </form>
+  </main>
+</body>
+</html>

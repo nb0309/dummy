@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Join the mailing list - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+  </style>
+  <script>
+    function subscribe(e) {
+      e.preventDefault();
+      var email = document.getElementById("email");
+      if (email.value.indexOf("@") === -1) {
+        // FAIL: the error is detected -- submission is blocked and focus is
+        // moved back to the field -- but nothing whatsoever is added to the
+        // page. The user is given no indication of what went wrong, or that
+        // anything went wrong at all.
+        email.focus();
+        return;
+      }
+      document.getElementById("done").textContent = "Thanks for subscribing.";
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Join the mailing list</h1>
+
+    <form onsubmit="subscribe(event)">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="text" id="email" data-error-fill="sam-at-example">
+      </div>
+
+      <button type="submit" data-error-trigger>Subscribe</button>
+
+      <p id="done"></p>
+    </form>
+  </main>
+</body>
+</html>

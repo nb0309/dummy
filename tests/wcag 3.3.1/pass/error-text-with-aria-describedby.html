@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Create your account - Passing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .error-message { color: #d4351c; font-weight: bold; }
+    input[aria-invalid="true"] { border: 2px solid #d4351c; }
+  </style>
+  <script>
+    function createAccount(e) {
+      e.preventDefault();
+      var email = document.getElementById("email");
+      if (email.value.indexOf("@") === -1) {
+        // PASS: the error is described in text ("Enter an email address in the
+        // correct format"), and the item in error is identified two ways -- the
+        // message is wired to the input with aria-describedby, and the input is
+        // marked aria-invalid. The red border is a redundant extra, not the
+        // only signal.
+        email.setAttribute("aria-invalid", "true");
+        document.getElementById("emailError").textContent =
+          "Error: Enter an email address in the correct format, like name@example.com";
+      }
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Create your account</h1>
+
+    <form onsubmit="createAccount(event)">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <p class="error-message" id="emailError"></p>
+        <input type="text" id="email" aria-describedby="emailError" data-error-fill="casey.example.com">
+      </div>
+
+      <button type="submit" data-error-trigger>Create account</button>
+    </form>
+  </main>
+</body>
+</html>

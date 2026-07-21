@@ -17,6 +17,11 @@ export function normalizeHtml(html) {
   // stored HTML feature); each may be valueless (`data-status-target`) or
   // valued (`data-status-target="…"`).
   out = out.replace(/\s*data-status-(?:target|trigger)(?:="[^"]*")?/g, "");
+  // drop the 3.3.1 interaction markers. These matter more than the 4.1.3 ones:
+  // the DOM is snapshotted AFTER interact.js clicks, so the markers are sitting
+  // inside the captured form, and data-error-fill's value would leak the very
+  // input that provoked the error into a feature column.
+  out = out.replace(/\s*data-error-(?:trigger|fill)(?:="[^"]*")?/g, "");
   // collapse runs of whitespace between tags / inside text to single spaces,
   // but keep it readable rather than fully minified.
   out = out.replace(/>\s+</g, "><");

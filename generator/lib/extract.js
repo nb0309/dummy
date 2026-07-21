@@ -7,6 +7,7 @@
 //   - 1.2.1 time-based media  (audio / video / object / embed / iframe)
 //   - 1.3.1 info & relationships (table / list / orphan list fragments)
 //   - 4.1.3 status messages   (role=status/alert/log/progressbar/…, aria-live, output/progress)
+//   - 3.3.1 error identification (form) -- opt-in via --sc 3.3.1, see CANDIDATES
 // with a fallback content block so every file yields at least one sample.
 // Media/image inside an interactive control escalate to that control (so the
 // link/button is the sample), and structural containers suppress their
@@ -21,10 +22,11 @@
 
 /**
  * @param {import('@playwright/test').Page} page
+ * @param {{sc?: string|null}} opts criterion to opt into extra sweeps for
  * @returns {Promise<Array>} one descriptor per sample element, in DOM order
  */
-export async function extractSamples(page) {
-  return page.evaluate(() => {
+export async function extractSamples(page, { sc = null } = {}) {
+  return page.evaluate((sc) => {
     // ---- selector vocabulary -------------------------------------------------
     const SEL = {
       image:
@@ -41,10 +43,19 @@ export async function extractSamples(page) {
       status:
         "[role='status'], [role='alert'], [role='log'], [role='progressbar'], " +
         "[role='marquee'], [role='timer'], [aria-live], output, progress",
+      // 3.3.1 error identification. The form is the sample because the SC needs
+      // the field, its label and the error text judged together -- a bare error
+      // <p> in isolation cannot show whether the item in error is identified.
+      form: "form, [role='form']",
     };
     const MEDIAISH = [SEL.image, SEL.media, SEL.embed].join(", ");
     const CONTAINER = [SEL.table, SEL.list].join(", ");
-    const CANDIDATES = [SEL.image, SEL.media, SEL.embed, SEL.table, SEL.list, SEL.status].join(", ");
+    // Opt-in per criterion: adding form to the default sweep would steal the
+    // fallback block from every form page, and the absence of that block is what
+    // carries the 4.1.3 defect signal.
+    const CANDIDATES = [SEL.image, SEL.media, SEL.embed, SEL.table, SEL.list, SEL.status]
+      .concat(sc === "3.3.1" ? [SEL.form] : [])
+      .join(", ");
 
     // ---- classify a resolved target element into an element_type -------------
     // Used only to drive selection/escalation; not emitted as a column.
@@ -61,6 +72,7 @@ export async function extractSamples(page) {
       if (tag === "ul" || tag === "ol" || tag === "dl") return tag;
       if (target.matches(SEL.list)) return "list";
       if (target.matches(SEL.status)) return "status";
+      if (target.matches(SEL.form)) return "form";
       if (target.matches(SEL.image)) return "image";
       if (target.matches(SEL.media)) return "media";
       if (target.matches(SEL.embed)) return "embed";
@@ -99,6 +111,14 @@ export async function extractSamples(page) {
         target
           .querySelectorAll(`${MEDIAISH}, tr, th, td, li, dt, dd, thead, tbody`)
           .forEach((c) => seen.add(c));
+      }
+
+      // A 3.3.1 form is judged whole, so it swallows everything inside it --
+      // otherwise an error summary carrying role="alert" would also surface as a
+      // second, evidence-poor row. Safe because querySelectorAll yields the
+      // <form> before its own descendants, so the form is always added first.
+      if (sc === "3.3.1" && target.matches(SEL.form)) {
+        target.querySelectorAll("*").forEach((c) => seen.add(c));
       }
     });
 
@@ -145,5 +165,5 @@ export async function extractSamples(page) {
       delete c._el;
       return { sampleIndex: i, elementId: id, ...c };
     });
-  });
+  }, sc);
 }

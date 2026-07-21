@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Update your details - Passing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .error-message { color: #d4351c; font-weight: bold; }
+    input[aria-invalid="true"] { border: 2px solid #d4351c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Update your details</h1>
+
+    <!-- PASS: the server re-rendered this page with the error state already in
+         the markup, so there is no client-side validation and no interaction
+         markers here -- this fixture also proves the static capture path still
+         works. The error is described in text and tied to its field by
+         aria-describedby, exactly as in the client-side cases. -->
+    <form action="/details" method="post">
+      <div class="form-group">
+        <label for="fullname">Full name</label>
+        <input type="text" id="fullname" name="fullname" value="Alex Fenn">
+      </div>
+
+      <div class="form-group">
+        <label for="dob">Date of birth</label>
+        <p class="error-message" id="dobError">Error: Enter a date in the format DD/MM/YYYY</p>
+        <input type="text" id="dob" name="dob" value="March 3rd"
+               aria-invalid="true" aria-describedby="dobError">
+      </div>
+
+      <button type="submit">Save changes</button>
+    </form>
+  </main>
+</body>
+</html>

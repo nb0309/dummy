@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Update your details - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .footnote { display: none; margin-top: 60px; color: #d4351c; font-size: 12px; }
+  </style>
+  <script>
+    function updateDetails(e) {
+      e.preventDefault();
+      var dob = document.getElementById("dob");
+      if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dob.value)) {
+        // FAIL: the error IS described in text, and the text is even accurate --
+        // but nothing ties it to the field. It is rendered at the foot of the
+        // form, far from the input, with no aria-describedby and no label link,
+        // so the item that is in error is never identified.
+        document.getElementById("footnote").style.display = "block";
+      }
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Update your details</h1>
+
+    <form onsubmit="updateDetails(event)">
+      <div class="form-group">
+        <label for="fullname">Full name</label>
+        <input type="text" id="fullname" value="Alex Fenn">
+      </div>
+
+      <div class="form-group">
+        <label for="dob">Date of birth</label>
+        <input type="text" id="dob" data-error-fill="March 3rd">
+      </div>
+
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <input type="text" id="postcode" value="SW1A 1AA">
+      </div>
+
+      <button type="submit" data-error-trigger>Save changes</button>
+
+      <p class="footnote" id="footnote">Enter a date in the format DD/MM/YYYY.</p>
+    </form>
+  </main>
+</body>
+</html>

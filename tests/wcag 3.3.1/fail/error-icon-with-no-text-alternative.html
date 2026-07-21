@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose a username - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .error-icon { display: none; }
+  </style>
+  <script>
+    function chooseUsername(e) {
+      e.preventDefault();
+      var name = document.getElementById("username");
+      if (name.value.length < 6) {
+        // FAIL: the error is identified only by an icon. The svg has no title
+        // and no accessible name, so the error is never described in text --
+        // there is nothing to read out and nothing to read if you cannot see it.
+        document.getElementById("usernameIcon").style.display = "inline";
+      }
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Choose a username</h1>
+
+    <form onsubmit="chooseUsername(event)">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" data-error-fill="rae">
+        <svg class="error-icon" id="usernameIcon" width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="8" fill="#d4351c"></circle>
+          <path d="M4 4l8 8M12 4l-8 8" stroke="#fff" stroke-width="2"></path>
+        </svg>
+      </div>
+
+      <button type="submit" data-error-trigger>Continue</button>
+    </form>
+  </main>
+</body>
+</html>
