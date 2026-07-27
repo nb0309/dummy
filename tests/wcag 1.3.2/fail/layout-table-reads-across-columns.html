@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Rights and responsibilities - Failing Example</title>
+  <style>
+    table { border-collapse: collapse; max-width: 760px; }
+    td { vertical-align: top; padding: 0 24px 16px 0; width: 50%; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Rights and responsibilities</h1>
+
+    <!--
+      FAIL: a table used purely for layout to place two INDEPENDENT columns of
+      prose side by side. Each column is a continuous passage meant to be read
+      downwards, but a table is read row by row, so the reader interleaves them
+      one cell at a time: a sentence about your rights, then a sentence about your
+      responsibilities, then back again. Neither passage survives.
+    -->
+    <table>
+      <tr>
+        <td>Your rights: you may ask for a decision to be reviewed at any point
+            within six weeks of receiving it.</td>
+        <td>Your responsibilities: you must tell us within one month if your
+            circumstances change.</td>
+      </tr>
+      <tr>
+        <td>A review is free and is carried out by someone who was not involved in
+            the original decision.</td>
+        <td>You must keep records of any payments you receive for at least two
+            years after the claim ends.</td>
+      </tr>
+      <tr>
+        <td>If you disagree with the review you can appeal to an independent
+            tribunal.</td>
+        <td>Failing to report a change may mean you have to repay money you were
+            not entitled to.</td>
+      </tr>
+    </table>
+  </main>
+</body>
+</html>

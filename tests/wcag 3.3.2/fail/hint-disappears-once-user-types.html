@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose a password - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .hint { color: #505a5f; display: block; margin-bottom: 4px; }
+  </style>
+  <script>
+    // FAIL: the instruction is treated as decoration for the empty state. The
+    // moment the user starts typing -- exactly when the rules matter most -- the
+    // hint is torn out of the DOM, taking the field's accessible description
+    // with it. The markup passes inspection at rest and fails in use.
+    function dropHint(e) {
+      var hint = document.getElementById(e.target.getAttribute("aria-describedby"));
+      if (hint && e.target.value.length > 0) hint.remove();
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Choose a password</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="password">Password</label>
+        <span class="hint" id="passwordHint">Must be at least 12 characters and include a number</span>
+        <input type="password" class="form-control" id="password"
+               aria-describedby="passwordHint" oninput="dropHint(event)">
+      </div>
+
+      <div class="form-group">
+        <label for="memorable">Memorable word</label>
+        <span class="hint" id="memorableHint">Use something you will remember, not a date of birth</span>
+        <input type="text" class="form-control" id="memorable"
+               aria-describedby="memorableHint" oninput="dropHint(event)">
+      </div>
+
+      <button type="submit">Create password</button>
+    </form>
+  </main>
+</body>
+</html>

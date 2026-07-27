@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose an appointment date</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input[type="text"] { border: 1px solid #999; padding: 6px; width: 220px; }
+    .calendar { border: 2px solid #0b0c0c; padding: 8px; width: 300px; margin-top: 12px; }
+    .week { display: flex; }
+    .day {
+      width: 40px; height: 34px; border: 1px solid #b1b4b6; background: #fff;
+      margin: 1px; cursor: pointer;
+    }
+    .day:focus { outline: 3px solid #ffdd00; }
+    button.continue { margin-top: 16px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Choose an appointment date</h1>
+
+    <label for="reference">Your reference</label>
+    <input type="text" id="reference" />
+
+    <!--
+      FAIL: the calendar is an arrow-key grid using roving tabindex, and its keydown
+      handler blocks Tab in both directions so the grid can never be left with the
+      keyboard. Arrow keys move between days, which is correct for a grid — but the
+      only key that would take focus back OUT is intercepted, no Escape handler
+      exists, and nothing on the page tells the user what to press instead. That
+      last part is what makes it a failure rather than a design choice: 2.1.2 allows
+      a non-Tab exit only if the user is advised of it. Compare
+      ../pass/grid-advises-escape-to-leave.html, the same widget with a working
+      Escape key and an instruction that names it.
+    -->
+    <div class="calendar" role="grid" aria-label="August 2026" id="calendar">
+      <div class="week" role="row">
+        <button class="day" role="gridcell" type="button" tabindex="0" id="day-10">10</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1">11</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1">12</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1">13</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1">14</button>
+      </div>
+    </div>
+
+    <button type="button" class="continue" id="continue">Continue</button>
+  </main>
+
+  <script>
+    var calendar = document.getElementById("calendar");
+    var days = [].slice.call(calendar.querySelectorAll(".day"));
+
+    calendar.addEventListener("keydown", function (event) {
+      if (event.key === "Tab") {
+        event.preventDefault();
+        return;
+      }
+      var current = days.indexOf(document.activeElement);
+      if (current < 0) return;
+      var next = current;
+      if (event.key === "ArrowRight") next = Math.min(current + 1, days.length - 1);
+      else if (event.key === "ArrowLeft") next = Math.max(current - 1, 0);
+      else return;
+      event.preventDefault();
+      days[current].setAttribute("tabindex", "-1");
+      days[next].setAttribute("tabindex", "0");
+      days[next].focus();
+    });
+  </script>
+</body>
+</html>

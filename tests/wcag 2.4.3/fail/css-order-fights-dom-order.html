@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Send us a message - Failing Example</title>
+  <style>
+    .stack { display: flex; flex-direction: column; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .field { margin-bottom: 24px; }
+    /* The submit control is pulled to the TOP visually, but it is still last in
+       the DOM, so the keyboard reaches it last. */
+    .actions { order: -1; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Send us a message</h1>
+
+    <!--
+      FAIL: flexbox `order` moves the submit button to the top of the visual
+      layout while leaving it last in the DOM. Tab order follows the DOM, so a
+      keyboard user starts in the email field, works down the form, and only
+      reaches the button at the end -- by which point the button has been sitting
+      above everything on screen the whole time. The visual sequence and the
+      keyboard sequence disagree.
+    -->
+    <form class="stack" onsubmit="event.preventDefault()">
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" class="form-control" id="email">
+      </div>
+
+      <div class="field">
+        <label for="subject">Subject</label>
+        <input type="text" class="form-control" id="subject">
+      </div>
+
+      <div class="field">
+        <label for="message">Message</label>
+        <textarea class="form-control" id="message" rows="4"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Send message</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

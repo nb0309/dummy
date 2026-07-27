@@ -1,0 +1,430 @@
+﻿sample_id,source_file,label,element_html,parent_html,sr_transcript,sr_status_announcement,sr_role_state_value,sr_label_instruction,sr_focus_order,sr_headings_labels,sr_reading_order,sr_keyboard_trap,sr_focus_context
+blur-handler-forces-focus-back::sample-0,blur-handler-forces-focus-back.html,inaccessible,"<body><main><h1>Contact details</h1><p><a href=""/account"">Back to your account</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""name"">Your name</label><input type=""text"" id=""name"" value=""A Nonymous""></div><div class=""form-group""><label for=""email"">Email address</label><input type=""email"" id=""email"" value=""a.nonymous.example.com"" aria-describedby=""email-error""><p class=""error"" id=""email-error"">Enter an email address in the correct format</p></div><div class=""form-group""><label for=""phone"">Phone number</label><input type=""tel"" id=""phone""></div><button type=""submit"">Save contact details</button></form></main><script>
+var email = document.getElementById(""email"");
+
+function emailIsValid() {
+return email.value.indexOf(""@"") > -1;
+}
+
+// Bounce focus back the instant it lands anywhere else. Written on focusin
+// rather than blur because focus changes made during blur are unreliable.
+document.addEventListener(""focusin"", function (event) {
+if (event.target === email) return;
+if (emailIsValid()) return;
+email.focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Contact details</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+.form-group { margin-bottom: 20px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 320px; }
+.error { color: #d4351c; font-weight: bold; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Contact details</h1><p><a href=""/account"">Back to your account</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""name"">Your name</label><input type=""text"" id=""name"" value=""A Nonymous""></div><div class=""form-group""><label for=""email"">Email address</label><input type=""email"" id=""email"" value=""a.nonymous.example.com"" aria-describedby=""email-error""><p class=""error"" id=""email-error"">Enter an email address in the correct format</p></div><div class=""form-group""><label for=""phone"">Phone number</label><input type=""tel"" id=""phone""></div><button type=""submit"">Save contact details</button></form></main><script>
+var email = document.getElementById(""email"");
+
+function emailIsValid() {
+return email.value.indexOf(""@"") > -1;
+}
+
+// Bounce focus back the instant it lands anywhere else. Written on focusin
+// rather than blur because focus changes made during blur are unreliable.
+document.addEventListener(""focusin"", function (event) {
+if (event.target === email) return;
+if (emailIsValid()) return;
+email.focus();
+});
+</script></body></html>","[""document"",""main"",""heading, Contact details, level 1"",""paragraph"",""link, Back to your account"",""end of paragraph"",""form"",""Your name"",""textbox, Your name, A Nonymous"",""Email address"",""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""paragraph"",""Enter an email address in the correct format"",""end of paragraph"",""Phone number"",""textbox, Phone number"",""button, Save contact details"",""end of form"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16},{""stop"":2,""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16}],""outcome"":""stalled"",""cycle"":null,""region"":{""tag"":""div"",""role"":null,""ariaModal"":null,""id"":null,""advisory"":""Email address Enter an email address in the correct format"",""keyshortcuts"":[],""describedBy"":[""Enter an email address in the correct format""]},""reverse"":{""presses"":3,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16},{""stop"":2,""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16},{""stop"":3,""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16}]},""escape"":{""activeAfter"":{""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16},""afterTab"":{""phrase"":""textbox, Email address, a.nonymous.example.com, Enter an email address in the correct format"",""tag"":""input"",""role"":null,""name"":null,""id"":""email"",""tabindex"":null,""domIndex"":16},""regionHidden"":false,""exited"":false}}",
+date-grid-consumes-tab-both-directions::sample-0,date-grid-consumes-tab-both-directions.html,inaccessible,"<body><main><h1>Choose an appointment date</h1><label for=""reference"">Your reference</label><input type=""text"" id=""reference""><div class=""calendar"" role=""grid"" aria-label=""August 2026"" id=""calendar""><div class=""week"" role=""row""><button class=""day"" role=""gridcell"" type=""button"" tabindex=""0"" id=""day-10"">10</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">11</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">12</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">13</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">14</button></div></div><button type=""button"" class=""continue"" id=""continue"">Continue</button></main><script>
+var calendar = document.getElementById(""calendar"");
+var days = [].slice.call(calendar.querySelectorAll("".day""));
+
+calendar.addEventListener(""keydown"", function (event) {
+if (event.key === ""Tab"") {
+event.preventDefault();
+return;
+}
+var current = days.indexOf(document.activeElement);
+if (current < 0) return;
+var next = current;
+if (event.key === ""ArrowRight"") next = Math.min(current + 1, days.length - 1);
+else if (event.key === ""ArrowLeft"") next = Math.max(current - 1, 0);
+else return;
+event.preventDefault();
+days[current].setAttribute(""tabindex"", ""-1"");
+days[next].setAttribute(""tabindex"", ""0"");
+days[next].focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose an appointment date</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input[type=""text""] { border: 1px solid #999; padding: 6px; width: 220px; }
+.calendar { border: 2px solid #0b0c0c; padding: 8px; width: 300px; margin-top: 12px; }
+.week { display: flex; }
+.day {
+width: 40px; height: 34px; border: 1px solid #b1b4b6; background: #fff;
+margin: 1px; cursor: pointer;
+}
+.day:focus { outline: 3px solid #ffdd00; }
+button.continue { margin-top: 16px; padding: 8px 12px; }
+</style></head><body><main><h1>Choose an appointment date</h1><label for=""reference"">Your reference</label><input type=""text"" id=""reference""><div class=""calendar"" role=""grid"" aria-label=""August 2026"" id=""calendar""><div class=""week"" role=""row""><button class=""day"" role=""gridcell"" type=""button"" tabindex=""0"" id=""day-10"">10</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">11</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">12</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">13</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"">14</button></div></div><button type=""button"" class=""continue"" id=""continue"">Continue</button></main><script>
+var calendar = document.getElementById(""calendar"");
+var days = [].slice.call(calendar.querySelectorAll("".day""));
+
+calendar.addEventListener(""keydown"", function (event) {
+if (event.key === ""Tab"") {
+event.preventDefault();
+return;
+}
+var current = days.indexOf(document.activeElement);
+if (current < 0) return;
+var next = current;
+if (event.key === ""ArrowRight"") next = Math.min(current + 1, days.length - 1);
+else if (event.key === ""ArrowLeft"") next = Math.max(current - 1, 0);
+else return;
+event.preventDefault();
+days[current].setAttribute(""tabindex"", ""-1"");
+days[next].setAttribute(""tabindex"", ""0"");
+days[next].focus();
+});
+</script></body></html>","[""document"",""main"",""heading, Choose an appointment date, level 1"",""Your reference"",""textbox, Your reference"",""grid, August 2026"",""row, 10 11 12 13 14"",""gridcell, 10"",""gridcell, 11"",""gridcell, 12"",""gridcell, 13"",""gridcell, 14"",""end of row, 10 11 12 13 14"",""end of grid, August 2026"",""button, Continue"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""textbox, Your reference"",""tag"":""input"",""role"":null,""name"":null,""id"":""reference"",""tabindex"":null,""domIndex"":9},{""stop"":2,""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12},{""stop"":3,""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12}],""outcome"":""stalled"",""cycle"":null,""region"":{""tag"":""div"",""role"":""grid"",""ariaModal"":null,""id"":""calendar"",""advisory"":null,""keyshortcuts"":[],""describedBy"":[]},""reverse"":{""presses"":3,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12},{""stop"":2,""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12},{""stop"":3,""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12}]},""escape"":{""activeAfter"":{""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12},""afterTab"":{""phrase"":""gridcell, 10"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":12},""regionHidden"":false,""exited"":false}}",
+keydown-preventdefault-pins-focus::sample-0,keydown-preventdefault-pins-focus.html,inaccessible,"<body><main><h1>Report a problem</h1><p><a href=""/help"">Read the troubleshooting guide first</a></p><label for=""details"">What went wrong?</label><p class=""hint"" id=""details-hint"">Paste any error text you saw.</p><textarea id=""details"" aria-describedby=""details-hint""></textarea><button type=""button"" id=""send"">Send report</button></main><script>
+var editor = document.getElementById(""details"");
+editor.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+event.preventDefault();
+var at = editor.selectionStart;
+editor.value = editor.value.slice(0, at) + ""\t"" + editor.value.slice(editor.selectionEnd);
+editor.selectionStart = editor.selectionEnd = at + 1;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Report a problem</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+textarea { border: 1px solid #999; padding: 6px; width: 420px; height: 120px; font-family: monospace; }
+.hint { color: #505a5f; font-size: 0.9em; }
+button { margin-top: 16px; padding: 8px 12px; }
+</style></head><body><main><h1>Report a problem</h1><p><a href=""/help"">Read the troubleshooting guide first</a></p><label for=""details"">What went wrong?</label><p class=""hint"" id=""details-hint"">Paste any error text you saw.</p><textarea id=""details"" aria-describedby=""details-hint""></textarea><button type=""button"" id=""send"">Send report</button></main><script>
+var editor = document.getElementById(""details"");
+editor.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+event.preventDefault();
+var at = editor.selectionStart;
+editor.value = editor.value.slice(0, at) + ""\t"" + editor.value.slice(editor.selectionEnd);
+editor.selectionStart = editor.selectionEnd = at + 1;
+});
+</script></body></html>","[""document"",""main"",""heading, Report a problem, level 1"",""paragraph"",""link, Read the troubleshooting guide first"",""end of paragraph"",""What went wrong?"",""paragraph"",""Paste any error text you saw."",""end of paragraph"",""textbox, What went wrong?, Paste any error text you saw."",""button, Send report"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""link, Read the troubleshooting guide first"",""tag"":""a"",""role"":null,""name"":""Read the troubleshooting guide first"",""id"":null,""tabindex"":null,""domIndex"":9},{""stop"":2,""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12},{""stop"":3,""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12}],""outcome"":""stalled"",""cycle"":null,""region"":{""tag"":""main"",""role"":null,""ariaModal"":null,""id"":null,""advisory"":""Report a problem What went wrong? Paste any error text you saw."",""keyshortcuts"":[],""describedBy"":[""Paste any error text you saw.""]},""reverse"":{""presses"":3,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12},{""stop"":2,""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12},{""stop"":3,""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12}]},""escape"":{""activeAfter"":{""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12},""afterTab"":{""phrase"":""textbox, What went wrong?, Paste any error text you saw."",""tag"":""textarea"",""role"":null,""name"":null,""id"":""details"",""tabindex"":null,""domIndex"":12},""regionHidden"":false,""exited"":false}}",
+modal-traps-tab-with-no-escape::sample-0,modal-traps-tab-with-no-escape.html,inaccessible,"<body><main><h1>Your booking</h1><p>Two nights, 14 to 16 August, Room 402.</p><p><a href=""/bookings"">Back to your bookings</a></p><p><a href=""/help"">Get help with a booking</a></p></main><div class=""overlay""></div><div role=""dialog"" aria-modal=""true"" aria-labelledby=""dialog-title"" id=""booking-dialog"" class=""dialog""><h2 id=""dialog-title"">Confirm your booking</h2><p>Enter a promotion code if you have one, then confirm.</p><label for=""promo"">Promotion code</label><input type=""text"" id=""promo""><button type=""button"" id=""confirm"">Confirm booking</button></div><script>
+var dialog = document.getElementById(""booking-dialog"");
+var firstControl = document.getElementById(""promo"");
+var lastControl = document.getElementById(""confirm"");
+
+dialog.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+if (event.shiftKey && document.activeElement === firstControl) {
+event.preventDefault();
+lastControl.focus();
+} else if (!event.shiftKey && document.activeElement === lastControl) {
+event.preventDefault();
+firstControl.focus();
+}
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Confirm your booking</title><style>
+body { margin: 0; font-family: system-ui, sans-serif; }
+main { padding: 16px; }
+.overlay { position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); }
+.dialog {
+position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+width: 380px; background: #fff; border: 4px solid #0b0c0c; padding: 20px;
+}
+.dialog h2 { margin-top: 0; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 100%; }
+button { margin-top: 16px; padding: 8px 12px; }
+</style></head><body><main><h1>Your booking</h1><p>Two nights, 14 to 16 August, Room 402.</p><p><a href=""/bookings"">Back to your bookings</a></p><p><a href=""/help"">Get help with a booking</a></p></main><div class=""overlay""></div><div role=""dialog"" aria-modal=""true"" aria-labelledby=""dialog-title"" id=""booking-dialog"" class=""dialog""><h2 id=""dialog-title"">Confirm your booking</h2><p>Enter a promotion code if you have one, then confirm.</p><label for=""promo"">Promotion code</label><input type=""text"" id=""promo""><button type=""button"" id=""confirm"">Confirm booking</button></div><script>
+var dialog = document.getElementById(""booking-dialog"");
+var firstControl = document.getElementById(""promo"");
+var lastControl = document.getElementById(""confirm"");
+
+dialog.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+if (event.shiftKey && document.activeElement === firstControl) {
+event.preventDefault();
+lastControl.focus();
+} else if (!event.shiftKey && document.activeElement === lastControl) {
+event.preventDefault();
+firstControl.focus();
+}
+});
+</script></body></html>","[""document"",""main"",""heading, Your booking, level 1"",""paragraph"",""Two nights, 14 to 16 August, Room 402."",""end of paragraph"",""paragraph"",""link, Back to your bookings"",""end of paragraph"",""paragraph"",""link, Get help with a booking"",""end of paragraph"",""end of main"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm.""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""link, Back to your bookings"",""tag"":""a"",""role"":null,""name"":""Back to your bookings"",""id"":null,""tabindex"":null,""domIndex"":10},{""stop"":2,""phrase"":""link, Get help with a booking"",""tag"":""a"",""role"":null,""name"":""Get help with a booking"",""id"":null,""tabindex"":null,""domIndex"":12},{""stop"":3,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":18},{""stop"":4,""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":19},{""stop"":5,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":18}],""outcome"":""cycled"",""cycle"":{""startStop"":3,""length"":2,""members"":[18,19]},""region"":{""tag"":""div"",""role"":""dialog"",""ariaModal"":""true"",""id"":""booking-dialog"",""advisory"":""Confirm your booking Enter a promotion code if you have one, then confirm. Promotion code"",""keyshortcuts"":[],""describedBy"":[]},""reverse"":{""presses"":4,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":19},{""stop"":2,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":18},{""stop"":3,""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":19},{""stop"":4,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":18}]},""escape"":{""activeAfter"":{""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":18},""afterTab"":{""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":19},""regionHidden"":false,""exited"":false}}",
+toolbar-cycles-focus-within-itself::sample-0,toolbar-cycles-focus-within-itself.html,inaccessible,"<body><main><h1>Edit your listing description</h1><p><a href=""/listings"">Back to your listings</a></p><div class=""toolbar"" role=""toolbar"" aria-label=""Text formatting"" id=""toolbar""><button type=""button"" id=""bold"">Bold</button><button type=""button"" id=""italic"">Italic</button><button type=""button"" id=""link"">Insert link</button></div><div class=""editor"" contenteditable=""true"" role=""textbox"" aria-multiline=""true"" aria-label=""Listing description"">Sunny two-bedroom flat close to the station.</div><button type=""button"" class=""save"">Save description</button></main><script>
+var toolbar = document.getElementById(""toolbar"");
+var buttons = [].slice.call(toolbar.querySelectorAll(""button""));
+var firstButton = buttons[0];
+var lastButton = buttons[buttons.length - 1];
+
+toolbar.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+if (event.shiftKey && document.activeElement === firstButton) {
+event.preventDefault();
+lastButton.focus();
+} else if (!event.shiftKey && document.activeElement === lastButton) {
+event.preventDefault();
+firstButton.focus();
+}
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Edit your listing description</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+.toolbar { border: 2px solid #0b0c0c; display: inline-flex; padding: 4px; }
+.toolbar button { margin: 2px; padding: 6px 10px; }
+.editor { border: 1px solid #999; padding: 8px; width: 420px; min-height: 90px; }
+button.save { margin-top: 16px; padding: 8px 12px; }
+</style></head><body><main><h1>Edit your listing description</h1><p><a href=""/listings"">Back to your listings</a></p><div class=""toolbar"" role=""toolbar"" aria-label=""Text formatting"" id=""toolbar""><button type=""button"" id=""bold"">Bold</button><button type=""button"" id=""italic"">Italic</button><button type=""button"" id=""link"">Insert link</button></div><div class=""editor"" contenteditable=""true"" role=""textbox"" aria-multiline=""true"" aria-label=""Listing description"">Sunny two-bedroom flat close to the station.</div><button type=""button"" class=""save"">Save description</button></main><script>
+var toolbar = document.getElementById(""toolbar"");
+var buttons = [].slice.call(toolbar.querySelectorAll(""button""));
+var firstButton = buttons[0];
+var lastButton = buttons[buttons.length - 1];
+
+toolbar.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+if (event.shiftKey && document.activeElement === firstButton) {
+event.preventDefault();
+lastButton.focus();
+} else if (!event.shiftKey && document.activeElement === lastButton) {
+event.preventDefault();
+firstButton.focus();
+}
+});
+</script></body></html>","[""document"",""main"",""heading, Edit your listing description, level 1"",""paragraph"",""link, Back to your listings"",""end of paragraph"",""toolbar, Text formatting, orientated horizontally"",""button, Bold"",""button, Italic"",""button, Insert link"",""end of toolbar, Text formatting, orientated horizontally"",""textbox, Listing description, not read only"",""Sunny two-bedroom flat close to the station."",""end of textbox, Listing description, not read only"",""button, Save description"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""link, Back to your listings"",""tag"":""a"",""role"":null,""name"":""Back to your listings"",""id"":null,""tabindex"":null,""domIndex"":9},{""stop"":2,""phrase"":""button, Bold"",""tag"":""button"",""role"":null,""name"":""Bold"",""id"":""bold"",""tabindex"":null,""domIndex"":11},{""stop"":3,""phrase"":""button, Italic"",""tag"":""button"",""role"":null,""name"":""Italic"",""id"":""italic"",""tabindex"":null,""domIndex"":12},{""stop"":4,""phrase"":""button, Insert link"",""tag"":""button"",""role"":null,""name"":""Insert link"",""id"":""link"",""tabindex"":null,""domIndex"":13},{""stop"":5,""phrase"":""button, Bold"",""tag"":""button"",""role"":null,""name"":""Bold"",""id"":""bold"",""tabindex"":null,""domIndex"":11}],""outcome"":""cycled"",""cycle"":{""startStop"":2,""length"":3,""members"":[11,12,13]},""region"":{""tag"":""div"",""role"":""toolbar"",""ariaModal"":null,""id"":""toolbar"",""advisory"":null,""keyshortcuts"":[],""describedBy"":[]},""reverse"":{""presses"":5,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""button, Insert link"",""tag"":""button"",""role"":null,""name"":""Insert link"",""id"":""link"",""tabindex"":null,""domIndex"":13},{""stop"":2,""phrase"":""button, Italic"",""tag"":""button"",""role"":null,""name"":""Italic"",""id"":""italic"",""tabindex"":null,""domIndex"":12},{""stop"":3,""phrase"":""button, Bold"",""tag"":""button"",""role"":null,""name"":""Bold"",""id"":""bold"",""tabindex"":null,""domIndex"":11},{""stop"":4,""phrase"":""button, Insert link"",""tag"":""button"",""role"":null,""name"":""Insert link"",""id"":""link"",""tabindex"":null,""domIndex"":13},{""stop"":5,""phrase"":""button, Italic"",""tag"":""button"",""role"":null,""name"":""Italic"",""id"":""italic"",""tabindex"":null,""domIndex"":12}]},""escape"":{""activeAfter"":{""phrase"":""button, Italic"",""tag"":""button"",""role"":null,""name"":""Italic"",""id"":""italic"",""tabindex"":null,""domIndex"":12},""afterTab"":{""phrase"":""button, Insert link"",""tag"":""button"",""role"":null,""name"":""Insert link"",""id"":""link"",""tabindex"":null,""domIndex"":13},""regionHidden"":false,""exited"":false}}",
+datepicker-closes-on-tab::sample-0,datepicker-closes-on-tab.html,accessible,"<body><main><h1>When did the problem start?</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""start-date"">Start date</label><input type=""text"" id=""start-date"" value=""10 August 2026"" aria-describedby=""picker-hint""><p id=""picker-hint"">Press Tab to close the calendar and carry on.</p><div class=""picker"" role=""group"" aria-label=""August 2026"" id=""picker""><button type=""button"">10</button><button type=""button"">11</button><button type=""button"">12</button></div></div><div class=""form-group""><label for=""reference"">Reference number</label><input type=""text"" id=""reference""></div><button type=""submit"" class=""submit"">Continue</button></form></main><script>
+var picker = document.getElementById(""picker"");
+var dateField = document.getElementById(""start-date"");
+var reference = document.getElementById(""reference"");
+
+picker.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+event.preventDefault();
+picker.hidden = true;
+if (event.shiftKey) dateField.focus();
+else reference.focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>When did the problem start?</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 220px; }
+.picker { border: 2px solid #0b0c0c; padding: 8px; width: 260px; margin: 8px 0; }
+.picker button { width: 40px; height: 32px; margin: 1px; }
+.form-group { margin-bottom: 20px; }
+button.submit { padding: 8px 12px; }
+[hidden] { display: none; }
+</style></head><body><main><h1>When did the problem start?</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""start-date"">Start date</label><input type=""text"" id=""start-date"" value=""10 August 2026"" aria-describedby=""picker-hint""><p id=""picker-hint"">Press Tab to close the calendar and carry on.</p><div class=""picker"" role=""group"" aria-label=""August 2026"" id=""picker""><button type=""button"">10</button><button type=""button"">11</button><button type=""button"">12</button></div></div><div class=""form-group""><label for=""reference"">Reference number</label><input type=""text"" id=""reference""></div><button type=""submit"" class=""submit"">Continue</button></form></main><script>
+var picker = document.getElementById(""picker"");
+var dateField = document.getElementById(""start-date"");
+var reference = document.getElementById(""reference"");
+
+picker.addEventListener(""keydown"", function (event) {
+if (event.key !== ""Tab"") return;
+event.preventDefault();
+picker.hidden = true;
+if (event.shiftKey) dateField.focus();
+else reference.focus();
+});
+</script></body></html>","[""document"",""main"",""heading, When did the problem start?, level 1"",""form"",""Start date"",""textbox, Start date, 10 August 2026, Press Tab to close the calendar and carry on."",""paragraph"",""Press Tab to close the calendar and carry on."",""end of paragraph"",""group, August 2026"",""button, 10"",""button, 11"",""button, 12"",""end of group, August 2026"",""Reference number"",""textbox, Reference number"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""textbox, Start date, 10 August 2026, Press Tab to close the calendar and carry on."",""tag"":""input"",""role"":null,""name"":null,""id"":""start-date"",""tabindex"":null,""domIndex"":11},{""stop"":2,""phrase"":""button, 10"",""tag"":""button"",""role"":null,""name"":""10"",""id"":null,""tabindex"":null,""domIndex"":14},{""stop"":3,""phrase"":""textbox, Reference number"",""tag"":""input"",""role"":null,""name"":null,""id"":""reference"",""tabindex"":null,""domIndex"":19},{""stop"":4,""phrase"":""button, Continue"",""tag"":""button"",""role"":null,""name"":""Continue"",""id"":null,""tabindex"":null,""domIndex"":20}],""outcome"":""escaped"",""cycle"":null,""region"":null,""reverse"":null,""escape"":null}",
+grid-advises-escape-to-leave::sample-0,grid-advises-escape-to-leave.html,accessible,"<body><main><h1>Choose an appointment date</h1><label for=""reference"">Your reference</label><input type=""text"" id=""reference""><div class=""calendar"" role=""grid"" aria-label=""August 2026"" aria-describedby=""calendar-instruction"" id=""calendar""><p class=""instruction"" id=""calendar-instruction"">
+Use the arrow keys to choose a date, then press Escape to leave the calendar.
+</p><div class=""week"" role=""row""><button class=""day"" role=""gridcell"" type=""button"" tabindex=""0"" id=""day-10"" aria-keyshortcuts=""Escape"">10</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">11</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">12</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">13</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">14</button></div></div><button type=""button"" class=""continue"" id=""continue"">Continue</button></main><script>
+var calendar = document.getElementById(""calendar"");
+var days = [].slice.call(calendar.querySelectorAll("".day""));
+var continueButton = document.getElementById(""continue"");
+
+calendar.addEventListener(""keydown"", function (event) {
+if (event.key === ""Escape"") {
+event.preventDefault();
+continueButton.focus();
+return;
+}
+if (event.key === ""Tab"") {
+event.preventDefault();
+return;
+}
+var current = days.indexOf(document.activeElement);
+if (current < 0) return;
+var next = current;
+if (event.key === ""ArrowRight"") next = Math.min(current + 1, days.length - 1);
+else if (event.key === ""ArrowLeft"") next = Math.max(current - 1, 0);
+else return;
+event.preventDefault();
+days[current].setAttribute(""tabindex"", ""-1"");
+days[next].setAttribute(""tabindex"", ""0"");
+days[next].focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose an appointment date</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input[type=""text""] { border: 1px solid #999; padding: 6px; width: 220px; }
+.calendar { border: 2px solid #0b0c0c; padding: 8px; width: 300px; margin-top: 12px; }
+.calendar .instruction { margin: 0 0 8px; font-size: 0.9em; color: #0b0c0c; }
+.week { display: flex; }
+.day {
+width: 40px; height: 34px; border: 1px solid #b1b4b6; background: #fff;
+margin: 1px; cursor: pointer;
+}
+.day:focus { outline: 3px solid #ffdd00; }
+button.continue { margin-top: 16px; padding: 8px 12px; }
+</style></head><body><main><h1>Choose an appointment date</h1><label for=""reference"">Your reference</label><input type=""text"" id=""reference""><div class=""calendar"" role=""grid"" aria-label=""August 2026"" aria-describedby=""calendar-instruction"" id=""calendar""><p class=""instruction"" id=""calendar-instruction"">
+Use the arrow keys to choose a date, then press Escape to leave the calendar.
+</p><div class=""week"" role=""row""><button class=""day"" role=""gridcell"" type=""button"" tabindex=""0"" id=""day-10"" aria-keyshortcuts=""Escape"">10</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">11</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">12</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">13</button><button class=""day"" role=""gridcell"" type=""button"" tabindex=""-1"" aria-keyshortcuts=""Escape"">14</button></div></div><button type=""button"" class=""continue"" id=""continue"">Continue</button></main><script>
+var calendar = document.getElementById(""calendar"");
+var days = [].slice.call(calendar.querySelectorAll("".day""));
+var continueButton = document.getElementById(""continue"");
+
+calendar.addEventListener(""keydown"", function (event) {
+if (event.key === ""Escape"") {
+event.preventDefault();
+continueButton.focus();
+return;
+}
+if (event.key === ""Tab"") {
+event.preventDefault();
+return;
+}
+var current = days.indexOf(document.activeElement);
+if (current < 0) return;
+var next = current;
+if (event.key === ""ArrowRight"") next = Math.min(current + 1, days.length - 1);
+else if (event.key === ""ArrowLeft"") next = Math.max(current - 1, 0);
+else return;
+event.preventDefault();
+days[current].setAttribute(""tabindex"", ""-1"");
+days[next].setAttribute(""tabindex"", ""0"");
+days[next].focus();
+});
+</script></body></html>","[""document"",""main"",""heading, Choose an appointment date, level 1"",""Your reference"",""textbox, Your reference"",""grid, August 2026, Use the arrow keys to choose a date, then press Escape to leave the calendar."",""paragraph"",""Use the arrow keys to choose a date, then press Escape to leave the calendar."",""end of paragraph"",""row, 10 11 12 13 14"",""gridcell, 10, key shortcuts Escape"",""gridcell, 11, key shortcuts Escape"",""gridcell, 12, key shortcuts Escape"",""gridcell, 13, key shortcuts Escape"",""gridcell, 14, key shortcuts Escape"",""end of row, 10 11 12 13 14"",""end of grid, August 2026, Use the arrow keys to choose a date, then press Escape to leave the calendar."",""button, Continue"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""textbox, Your reference"",""tag"":""input"",""role"":null,""name"":null,""id"":""reference"",""tabindex"":null,""domIndex"":9},{""stop"":2,""phrase"":""gridcell, 10, key shortcuts Escape"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":13},{""stop"":3,""phrase"":""gridcell, 10, key shortcuts Escape"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":13}],""outcome"":""stalled"",""cycle"":null,""region"":{""tag"":""div"",""role"":""grid"",""ariaModal"":null,""id"":""calendar"",""advisory"":""Use the arrow keys to choose a date, then press Escape to leave the calendar."",""keyshortcuts"":[""Escape""],""describedBy"":[""Use the arrow keys to choose a date, then press Escape to leave the calendar.""]},""reverse"":{""presses"":3,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""gridcell, 10, key shortcuts Escape"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":13},{""stop"":2,""phrase"":""gridcell, 10, key shortcuts Escape"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":13},{""stop"":3,""phrase"":""gridcell, 10, key shortcuts Escape"",""tag"":""button"",""role"":""gridcell"",""name"":""10"",""id"":""day-10"",""tabindex"":""0"",""domIndex"":13}]},""escape"":{""activeAfter"":{""phrase"":""button, Continue"",""tag"":""button"",""role"":null,""name"":""Continue"",""id"":""continue"",""tabindex"":null,""domIndex"":18},""afterTab"":null,""regionHidden"":false,""exited"":true}}",
+modal-wraps-tab-but-escape-closes::sample-0,modal-wraps-tab-but-escape-closes.html,accessible,"<body><main><h1>Your booking</h1><p>Two nights, 14 to 16 August, Room 402.</p><p><a href=""/bookings"">Back to your bookings</a></p><button type=""button"" id=""opener"">Confirm this booking</button></main><div class=""overlay"" id=""overlay""></div><div role=""dialog"" aria-modal=""true"" aria-labelledby=""dialog-title"" id=""booking-dialog"" class=""dialog""><h2 id=""dialog-title"">Confirm your booking</h2><p>Enter a promotion code if you have one, then confirm.</p><label for=""promo"">Promotion code</label><input type=""text"" id=""promo""><button type=""button"" id=""confirm"">Confirm booking</button><button type=""button"" id=""cancel"">Cancel</button></div><script>
+var dialog = document.getElementById(""booking-dialog"");
+var overlay = document.getElementById(""overlay"");
+var opener = document.getElementById(""opener"");
+var firstControl = document.getElementById(""promo"");
+var lastControl = document.getElementById(""cancel"");
+
+function closeDialog() {
+dialog.hidden = true;
+overlay.hidden = true;
+opener.focus();
+}
+
+dialog.addEventListener(""keydown"", function (event) {
+if (event.key === ""Escape"") {
+event.preventDefault();
+closeDialog();
+return;
+}
+if (event.key !== ""Tab"") return;
+if (event.shiftKey && document.activeElement === firstControl) {
+event.preventDefault();
+lastControl.focus();
+} else if (!event.shiftKey && document.activeElement === lastControl) {
+event.preventDefault();
+firstControl.focus();
+}
+});
+
+document.getElementById(""cancel"").addEventListener(""click"", closeDialog);
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Confirm your booking</title><style>
+body { margin: 0; font-family: system-ui, sans-serif; }
+main { padding: 16px; }
+.overlay { position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); }
+.dialog {
+position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+width: 380px; background: #fff; border: 4px solid #0b0c0c; padding: 20px;
+}
+.dialog h2 { margin-top: 0; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 100%; }
+button { margin-top: 16px; padding: 8px 12px; }
+[hidden] { display: none; }
+</style></head><body><main><h1>Your booking</h1><p>Two nights, 14 to 16 August, Room 402.</p><p><a href=""/bookings"">Back to your bookings</a></p><button type=""button"" id=""opener"">Confirm this booking</button></main><div class=""overlay"" id=""overlay""></div><div role=""dialog"" aria-modal=""true"" aria-labelledby=""dialog-title"" id=""booking-dialog"" class=""dialog""><h2 id=""dialog-title"">Confirm your booking</h2><p>Enter a promotion code if you have one, then confirm.</p><label for=""promo"">Promotion code</label><input type=""text"" id=""promo""><button type=""button"" id=""confirm"">Confirm booking</button><button type=""button"" id=""cancel"">Cancel</button></div><script>
+var dialog = document.getElementById(""booking-dialog"");
+var overlay = document.getElementById(""overlay"");
+var opener = document.getElementById(""opener"");
+var firstControl = document.getElementById(""promo"");
+var lastControl = document.getElementById(""cancel"");
+
+function closeDialog() {
+dialog.hidden = true;
+overlay.hidden = true;
+opener.focus();
+}
+
+dialog.addEventListener(""keydown"", function (event) {
+if (event.key === ""Escape"") {
+event.preventDefault();
+closeDialog();
+return;
+}
+if (event.key !== ""Tab"") return;
+if (event.shiftKey && document.activeElement === firstControl) {
+event.preventDefault();
+lastControl.focus();
+} else if (!event.shiftKey && document.activeElement === lastControl) {
+event.preventDefault();
+firstControl.focus();
+}
+});
+
+document.getElementById(""cancel"").addEventListener(""click"", closeDialog);
+</script></body></html>","[""document"",""main"",""heading, Your booking, level 1"",""paragraph"",""Two nights, 14 to 16 August, Room 402."",""end of paragraph"",""paragraph"",""link, Back to your bookings"",""end of paragraph"",""button, Confirm this booking"",""end of main"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal"",""dialog, Confirm your booking, modal"",""heading, Confirm your booking, level 2"",""paragraph"",""Enter a promotion code if you have one, then confirm."",""end of paragraph"",""Promotion code"",""textbox, Promotion code"",""button, Confirm booking"",""button, Cancel"",""end of dialog, Confirm your booking, modal""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""link, Back to your bookings"",""tag"":""a"",""role"":null,""name"":""Back to your bookings"",""id"":null,""tabindex"":null,""domIndex"":10},{""stop"":2,""phrase"":""button, Confirm this booking"",""tag"":""button"",""role"":null,""name"":""Confirm this booking"",""id"":""opener"",""tabindex"":null,""domIndex"":11},{""stop"":3,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":17},{""stop"":4,""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":18},{""stop"":5,""phrase"":""button, Cancel"",""tag"":""button"",""role"":null,""name"":""Cancel"",""id"":""cancel"",""tabindex"":null,""domIndex"":19},{""stop"":6,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":17}],""outcome"":""cycled"",""cycle"":{""startStop"":3,""length"":3,""members"":[17,18,19]},""region"":{""tag"":""div"",""role"":""dialog"",""ariaModal"":""true"",""id"":""booking-dialog"",""advisory"":""Confirm your booking Enter a promotion code if you have one, then confirm. Promotion code"",""keyshortcuts"":[],""describedBy"":[]},""reverse"":{""presses"":5,""exited"":false,""exitedTo"":null,""path"":[{""stop"":1,""phrase"":""button, Cancel"",""tag"":""button"",""role"":null,""name"":""Cancel"",""id"":""cancel"",""tabindex"":null,""domIndex"":19},{""stop"":2,""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":18},{""stop"":3,""phrase"":""textbox, Promotion code"",""tag"":""input"",""role"":null,""name"":null,""id"":""promo"",""tabindex"":null,""domIndex"":17},{""stop"":4,""phrase"":""button, Cancel"",""tag"":""button"",""role"":null,""name"":""Cancel"",""id"":""cancel"",""tabindex"":null,""domIndex"":19},{""stop"":5,""phrase"":""button, Confirm booking"",""tag"":""button"",""role"":null,""name"":""Confirm booking"",""id"":""confirm"",""tabindex"":null,""domIndex"":18}]},""escape"":{""activeAfter"":{""phrase"":""button, Confirm this booking"",""tag"":""button"",""role"":null,""name"":""Confirm this booking"",""id"":""opener"",""tabindex"":null,""domIndex"":11},""afterTab"":null,""regionHidden"":true,""exited"":true}}",
+plain-form-tab-reaches-end-of-page::sample-0,plain-form-tab-reaches-end-of-page.html,accessible,"<body><main><h1>Request a callback</h1><p><a href=""/help"">Read about callback times</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""name"">Your name</label><input type=""text"" id=""name""></div><div class=""form-group""><label for=""phone"">Phone number</label><input type=""tel"" id=""phone""></div><div class=""form-group""><label for=""besttime"">Best time to call</label><select id=""besttime""><option>Morning</option><option>Afternoon</option></select></div><button type=""submit"">Request callback</button></form><p><a href=""/contact"">Other ways to contact us</a></p></main></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Request a callback</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+.form-group { margin-bottom: 20px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input, select { border: 1px solid #999; padding: 6px; width: 320px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Request a callback</h1><p><a href=""/help"">Read about callback times</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""name"">Your name</label><input type=""text"" id=""name""></div><div class=""form-group""><label for=""phone"">Phone number</label><input type=""tel"" id=""phone""></div><div class=""form-group""><label for=""besttime"">Best time to call</label><select id=""besttime""><option>Morning</option><option>Afternoon</option></select></div><button type=""submit"">Request callback</button></form><p><a href=""/contact"">Other ways to contact us</a></p></main></body></html>","[""document"",""main"",""heading, Request a callback, level 1"",""paragraph"",""link, Read about callback times"",""end of paragraph"",""form"",""Your name"",""textbox, Your name"",""Phone number"",""textbox, Phone number"",""Best time to call"",""combobox, Best time to call, Morning, has popup listbox, not expanded"",""option, Morning, not selected, position 1, set size 2"",""option, Afternoon, not selected, position 2, set size 2"",""end of combobox, Best time to call, Morning, has popup listbox, not expanded"",""button, Request callback"",""end of form"",""paragraph"",""link, Other ways to contact us"",""end of paragraph"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""link, Read about callback times"",""tag"":""a"",""role"":null,""name"":""Read about callback times"",""id"":null,""tabindex"":null,""domIndex"":9},{""stop"":2,""phrase"":""textbox, Your name"",""tag"":""input"",""role"":null,""name"":null,""id"":""name"",""tabindex"":null,""domIndex"":13},{""stop"":3,""phrase"":""textbox, Phone number"",""tag"":""input"",""role"":null,""name"":null,""id"":""phone"",""tabindex"":null,""domIndex"":16},{""stop"":4,""phrase"":""combobox, Best time to call, Morning, has popup listbox, not expanded"",""tag"":""select"",""role"":null,""name"":""Morning\n          Afternoon"",""id"":""besttime"",""tabindex"":null,""domIndex"":19},{""stop"":5,""phrase"":""button, Request callback"",""tag"":""button"",""role"":null,""name"":""Request callback"",""id"":null,""tabindex"":null,""domIndex"":22},{""stop"":6,""phrase"":""link, Other ways to contact us"",""tag"":""a"",""role"":null,""name"":""Other ways to contact us"",""id"":null,""tabindex"":null,""domIndex"":24}],""outcome"":""escaped"",""cycle"":null,""region"":null,""reverse"":null,""escape"":null}",
+radiogroup-roving-tabindex-tab-exits::sample-0,radiogroup-roving-tabindex-tab-exits.html,accessible,"<body><main><h1>How would you like to be contacted?</h1><div role=""radiogroup"" aria-label=""Contact preference"" id=""contact-group""><div class=""option"" role=""radio"" aria-checked=""true"" tabindex=""0"" id=""by-email"">Email</div><div class=""option"" role=""radio"" aria-checked=""false"" tabindex=""-1"" id=""by-phone"">Phone</div><div class=""option"" role=""radio"" aria-checked=""false"" tabindex=""-1"" id=""by-post"">Post</div></div><button type=""button"" id=""continue"">Continue</button></main><script>
+var group = document.getElementById(""contact-group"");
+var options = [].slice.call(group.querySelectorAll('[role=""radio""]'));
+
+group.addEventListener(""keydown"", function (event) {
+var current = options.indexOf(document.activeElement);
+if (current < 0) return;
+var next = current;
+if (event.key === ""ArrowDown"" || event.key === ""ArrowRight"") next = (current + 1) % options.length;
+else if (event.key === ""ArrowUp"" || event.key === ""ArrowLeft"") next = (current - 1 + options.length) % options.length;
+else return;
+event.preventDefault();
+options.forEach(function (option) {
+option.setAttribute(""aria-checked"", ""false"");
+option.setAttribute(""tabindex"", ""-1"");
+});
+options[next].setAttribute(""aria-checked"", ""true"");
+options[next].setAttribute(""tabindex"", ""0"");
+options[next].focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>How would you like to be contacted?</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+legend { font-weight: bold; margin-bottom: 8px; }
+.option { margin-bottom: 8px; }
+.option:focus { outline: 3px solid #ffdd00; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>How would you like to be contacted?</h1><div role=""radiogroup"" aria-label=""Contact preference"" id=""contact-group""><div class=""option"" role=""radio"" aria-checked=""true"" tabindex=""0"" id=""by-email"">Email</div><div class=""option"" role=""radio"" aria-checked=""false"" tabindex=""-1"" id=""by-phone"">Phone</div><div class=""option"" role=""radio"" aria-checked=""false"" tabindex=""-1"" id=""by-post"">Post</div></div><button type=""button"" id=""continue"">Continue</button></main><script>
+var group = document.getElementById(""contact-group"");
+var options = [].slice.call(group.querySelectorAll('[role=""radio""]'));
+
+group.addEventListener(""keydown"", function (event) {
+var current = options.indexOf(document.activeElement);
+if (current < 0) return;
+var next = current;
+if (event.key === ""ArrowDown"" || event.key === ""ArrowRight"") next = (current + 1) % options.length;
+else if (event.key === ""ArrowUp"" || event.key === ""ArrowLeft"") next = (current - 1 + options.length) % options.length;
+else return;
+event.preventDefault();
+options.forEach(function (option) {
+option.setAttribute(""aria-checked"", ""false"");
+option.setAttribute(""tabindex"", ""-1"");
+});
+options[next].setAttribute(""aria-checked"", ""true"");
+options[next].setAttribute(""tabindex"", ""0"");
+options[next].focus();
+});
+</script></body></html>","[""document"",""main"",""heading, How would you like to be contacted?, level 1"",""radiogroup, Contact preference"",""radio, Email, checked, position 1, set size 3"",""radio, Phone, not checked, position 2, set size 3"",""radio, Post, not checked, position 3, set size 3"",""end of radiogroup, Contact preference"",""button, Continue"",""end of main"",""end of document""]",,,,,,,"{""stops"":[{""stop"":1,""phrase"":""radio, Email, checked"",""tag"":""div"",""role"":""radio"",""name"":""Email"",""id"":""by-email"",""tabindex"":""0"",""domIndex"":9},{""stop"":2,""phrase"":""button, Continue"",""tag"":""button"",""role"":null,""name"":""Continue"",""id"":""continue"",""tabindex"":null,""domIndex"":12}],""outcome"":""escaped"",""cycle"":null,""region"":null,""reverse"":null,""escape"":null}",

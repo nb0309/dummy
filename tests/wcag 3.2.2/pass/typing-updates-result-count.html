@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Search the register</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 300px; }
+    .count { margin: 8px 0 0; color: #505a5f; }
+    .results { border-top: 1px solid #b1b4b6; margin-top: 16px; padding-top: 12px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Search the register</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        PASS: typing updates a running count of matches in a polite live region. The
+        page changes on every keystroke and the probe records the mutation, but the
+        user's context is untouched: focus stays in the search box, nothing navigates,
+        and the results below are refined rather than replaced by something unrelated.
+
+        The live region is what makes it work for a screen reader user — the count is
+        announced without moving them anywhere, which is the correct way to report a
+        change that happens while they are still typing.
+      -->
+      <div>
+        <label for="query">Search by name or registration number</label>
+        <input type="text" id="query" aria-describedby="result-count" />
+        <p class="count" id="result-count" role="status" aria-live="polite">3 results</p>
+      </div>
+
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="results">
+      <p><a href="/register/1">Ashworth Building Services</a></p>
+    </div>
+  </main>
+
+  <script>
+    var query = document.getElementById("query");
+    var count = document.getElementById("result-count");
+    query.addEventListener("input", function () {
+      var matches = query.value.length === 0 ? 3 : Math.max(0, 3 - query.value.length);
+      count.textContent = matches + (matches === 1 ? " result" : " results");
+    });
+  </script>
+</body>
+</html>

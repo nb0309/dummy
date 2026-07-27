@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Apply for a licence - Failing Example</title>
+  <style>
+    section { margin-bottom: 32px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Apply for a licence</h1>
+
+    <section>
+      <!--
+        FAIL: the headings are placeholders ("Section 1", "More information") that
+        name their position rather than their topic, and the labels name a DATA
+        TYPE rather than a purpose. "Number", "Date" and "Type" only make sense
+        while you can see the heading above them; announced on their own in a
+        form-controls list they identify nothing.
+      -->
+      <h2>Section 1</h2>
+      <div class="form-group">
+        <label for="num">Number</label>
+        <input type="text" class="form-control" id="num">
+      </div>
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input type="text" class="form-control" id="date">
+      </div>
+    </section>
+
+    <section>
+      <h2>More information</h2>
+      <div class="form-group">
+        <label for="kind">Type</label>
+        <select id="kind" class="form-control">
+          <option>Standard</option>
+          <option>Provisional</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="other">Other</label>
+        <input type="text" class="form-control" id="other">
+      </div>
+    </section>
+  </main>
+</body>
+</html>

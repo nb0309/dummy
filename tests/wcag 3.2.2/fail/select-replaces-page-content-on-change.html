@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Council services</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    select { border: 1px solid #999; padding: 6px; width: 260px; }
+    .form-group { margin-bottom: 20px; }
+    .panel { border-top: 1px solid #b1b4b6; padding-top: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Council services</h1>
+
+    <div class="form-group">
+      <label for="area">Choose an area</label>
+      <select id="area">
+        <option value="waste">Waste and recycling</option>
+        <option value="parking">Parking</option>
+      </select>
+    </div>
+
+    <!--
+      FAIL: changing the area tears out the whole content region and writes a
+      different one — new heading, new body copy, new links. Nothing navigates and
+      focus does not move, so none of the blunt signals fire; the change of context
+      is entirely in the fact that the page now MEANS something else while claiming
+      to be the same page. The user was not told this would happen.
+
+      This is the fixture that needs the added-node markup to judge. "6 nodes added"
+      could be a hint or a help panel; what settles it is that an <h2>, a <p> and a
+      list of links replaced the ones that were there.
+    -->
+    <div class="panel" id="panel">
+      <h2>Waste and recycling</h2>
+      <p>Find your bin collection day and report a missed collection.</p>
+      <ul>
+        <li><a href="/waste/collections">Bin collection days</a></li>
+        <li><a href="/waste/missed">Report a missed collection</a></li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    var area = document.getElementById("area");
+    var panel = document.getElementById("panel");
+
+    var content = {
+      waste: {
+        heading: "Waste and recycling",
+        body: "Find your bin collection day and report a missed collection.",
+        links: [["/waste/collections", "Bin collection days"], ["/waste/missed", "Report a missed collection"]]
+      },
+      parking: {
+        heading: "Parking",
+        body: "Buy a permit, pay a penalty charge notice or appeal a ticket.",
+        links: [["/parking/permits", "Buy a parking permit"], ["/parking/pcn", "Pay a penalty charge notice"]]
+      }
+    };
+
+    area.addEventListener("change", function () {
+      var next = content[area.value];
+      if (!next) return;
+      panel.innerHTML = "";
+      var heading = document.createElement("h2");
+      heading.textContent = next.heading;
+      var body = document.createElement("p");
+      body.textContent = next.body;
+      var list = document.createElement("ul");
+      next.links.forEach(function (pair) {
+        var item = document.createElement("li");
+        var link = document.createElement("a");
+        link.href = pair[0];
+        link.textContent = pair[1];
+        item.appendChild(link);
+        list.appendChild(item);
+      });
+      panel.appendChild(heading);
+      panel.appendChild(body);
+      panel.appendChild(list);
+    });
+  </script>
+</body>
+</html>

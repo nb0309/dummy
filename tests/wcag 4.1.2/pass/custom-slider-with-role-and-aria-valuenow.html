@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Playback volume - Passing Example</title>
+  <style>
+    .slider-track { width: 200px; height: 4px; background: #b1b4b6; }
+  </style>
+  <script>
+    function nudgeVolume(el, delta) {
+      var value = parseInt(el.getAttribute("aria-valuenow"), 10);
+      var min = parseInt(el.getAttribute("aria-valuemin"), 10);
+      var max = parseInt(el.getAttribute("aria-valuemax"), 10);
+      value = Math.max(min, Math.min(max, value + delta));
+      el.setAttribute("aria-valuenow", String(value));
+      el.setAttribute("aria-valuetext", value + " percent");
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Playback volume</h1>
+    <div class="slider-track" role="slider" tabindex="0" aria-label="Volume"
+      aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" aria-valuetext="60 percent"
+      onkeydown="if(event.key==='ArrowRight'){nudgeVolume(this,10);}else if(event.key==='ArrowLeft'){nudgeVolume(this,-10);}">
+    </div>
+  </main>
+</body>
+</html>

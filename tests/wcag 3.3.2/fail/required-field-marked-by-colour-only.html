@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Contact us - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    /* The only "this is required" signal: a red asterisk generated in CSS. */
+    .required-field label::after { content: " *"; color: #d4351c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Contact us</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group required-field">
+        <!--
+          FAIL: which fields are mandatory is conveyed only by a red asterisk
+          painted on with CSS ::after. There is no `required`, no aria-required,
+          and no text anywhere saying what the asterisk means -- so the
+          instruction "you must fill this in" is never available in text.
+        -->
+        <label for="contact-name">Your name</label>
+        <input type="text" class="form-control" id="contact-name">
+      </div>
+
+      <div class="form-group required-field">
+        <label for="contact-email">Email address</label>
+        <input type="email" class="form-control" id="contact-email">
+      </div>
+
+      <div class="form-group">
+        <label for="contact-company">Company (you can leave this blank)</label>
+        <input type="text" class="form-control" id="contact-company">
+      </div>
+
+      <button type="submit">Send message</button>
+    </form>
+  </main>
+</body>
+</html>

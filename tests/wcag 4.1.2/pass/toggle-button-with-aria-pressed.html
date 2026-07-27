@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Format toolbar - Passing Example</title>
+  <style>
+    button[aria-pressed="true"] { background: #1d70b8; color: #fff; }
+  </style>
+  <script>
+    function togglePressed(el) {
+      // PASS: aria-pressed is flipped by the same click handler that changes
+      // the visual style, so the state change is announced, not just shown.
+      var pressed = el.getAttribute("aria-pressed") === "true";
+      el.setAttribute("aria-pressed", String(!pressed));
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Format toolbar</h1>
+    <button type="button" aria-pressed="false" onclick="togglePressed(this)">Bold</button>
+  </main>
+</body>
+</html>

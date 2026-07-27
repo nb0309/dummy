@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Passport guidance - Passing Example</title>
+  <style>
+    body { margin: 0; }
+    header, footer { background: #f3f2f1; padding: 12px 16px; }
+    main { padding: 16px; }
+    section { margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+  <!--
+    PASS, and deliberately adversarial for the duplicate-link check: "Contact us"
+    appears three times, but every instance resolves to the SAME destination
+    (/contact). Repeating link text is only ambiguous when the destinations
+    differ -- a support link in the header, body and footer is ordinary, useful
+    markup, and flagging it would be a false positive. The headings are all
+    distinct and each describes the section it introduces.
+  -->
+  <header>
+    <a href="/contact">Contact us</a>
+  </header>
+
+  <main>
+    <h1>Renewing an adult passport</h1>
+
+    <section>
+      <h2>When to renew your passport</h2>
+      <p>Renew your passport if it has expired, or if it has less than six months
+         left before you travel to some countries.</p>
+    </section>
+
+    <section>
+      <h2>What renewing costs</h2>
+      <p>A standard adult renewal costs £88.50 online, or £100 by post. The one
+         week fast track service costs £178.</p>
+      <p>If your application is urgent, <a href="/contact">Contact us</a> before
+         you apply.</p>
+    </section>
+
+    <section>
+      <h2>How long a renewal takes</h2>
+      <p>Allow up to ten weeks for a standard renewal. Fast track applications are
+         usually returned within one week of your appointment.</p>
+    </section>
+  </main>
+
+  <footer>
+    <a href="/contact">Contact us</a>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Date of birth</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+    legend { font-weight: bold; margin-bottom: 8px; }
+    .date-part { display: inline-block; margin-right: 12px; }
+    .date-part label { display: block; font-weight: normal; }
+    .date-part input { border: 1px solid #999; padding: 6px; width: 48px; }
+    .date-part input.year { width: 68px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Date of birth</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        FAIL: each box jumps focus to the next as soon as it is full. Focus is moved by
+        INPUT, not by the user, which is a change of context — and it is the reason
+        this pattern is so hostile in practice: correcting a typo is impossible, because
+        the moment the second digit is typed focus has already gone, and a screen reader
+        user hears the next field's name with no idea why. Nobody was warned.
+
+        Note the trigger. Merely focusing a box does nothing here, so 3.2.1 has no
+        finding; the change happens on input, which is what makes it 3.2.2's.
+      -->
+      <fieldset>
+        <legend>What is your date of birth?</legend>
+        <div class="date-part">
+          <label for="dob-day">Day</label>
+          <input type="text" id="dob-day" maxlength="2" inputmode="numeric" />
+        </div>
+        <div class="date-part">
+          <label for="dob-month">Month</label>
+          <input type="text" id="dob-month" maxlength="2" inputmode="numeric" />
+        </div>
+        <div class="date-part">
+          <label for="dob-year">Year</label>
+          <input type="text" id="dob-year" class="year" maxlength="4" inputmode="numeric" />
+        </div>
+      </fieldset>
+
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+
+  <script>
+    var order = ["dob-day", "dob-month", "dob-year"];
+    order.forEach(function (id, index) {
+      var box = document.getElementById(id);
+      box.addEventListener("input", function () {
+        var max = parseInt(box.getAttribute("maxlength"), 10);
+        var next = document.getElementById(order[index + 1]);
+        if (box.value.length >= max && next) next.focus();
+      });
+    });
+  </script>
+</body>
+</html>

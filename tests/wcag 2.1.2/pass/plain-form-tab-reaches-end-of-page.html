@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Request a callback</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input, select { border: 1px solid #999; padding: 6px; width: 320px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <!--
+    PASS: the baseline. No scripts, no key handlers, nothing that could interfere
+    with focus, so Tab walks every control once and then leaves the document
+    altogether. Included because a keyboard trap can only exist where something
+    intervenes, and a suite of nothing but widgets would never show what the
+    absence of a trap looks like.
+  -->
+  <main>
+    <h1>Request a callback</h1>
+    <p><a href="/help">Read about callback times</a></p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="name">Your name</label>
+        <input type="text" id="name" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" />
+      </div>
+
+      <div class="form-group">
+        <label for="besttime">Best time to call</label>
+        <select id="besttime">
+          <option>Morning</option>
+          <option>Afternoon</option>
+        </select>
+      </div>
+
+      <button type="submit">Request callback</button>
+    </form>
+
+    <p><a href="/contact">Other ways to contact us</a></p>
+  </main>
+</body>
+</html>

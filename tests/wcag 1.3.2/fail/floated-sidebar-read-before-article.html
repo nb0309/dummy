@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Applying from abroad - Failing Example</title>
+  <style>
+    main { max-width: 780px; padding: 16px; }
+    /* First in the DOM, floated to the right of the article it annotates. */
+    .aside {
+      float: right; width: 240px; margin: 0 0 16px 24px;
+      background: #f3f2f1; padding: 12px; border-left: 4px solid #b1b4b6;
+    }
+    p { margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Applying from abroad</h1>
+
+    <!--
+      FAIL: the sidebar is a footnote to the article, but it is written first in
+      the DOM and floated alongside. A sighted reader takes the article first and
+      glances at the note afterwards; a screen reader is given the note first, so
+      it opens on "this does not apply to Ireland" before anything has been said
+      that it could not apply to.
+    -->
+    <div class="aside">
+      <p>This does not apply to Ireland, where the common travel area rules are
+         different.</p>
+    </div>
+
+    <p>If you live outside the UK you must apply online and post your supporting
+       documents to the overseas processing centre.</p>
+    <p>Applications from abroad take up to twelve weeks, and you cannot use the
+       fast track service.</p>
+  </main>
+</body>
+</html>

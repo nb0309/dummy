@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Confirm your booking</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    main { padding: 16px; }
+    .overlay { position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); }
+    .dialog {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      width: 380px; background: #fff; border: 4px solid #0b0c0c; padding: 20px;
+    }
+    .dialog h2 { margin-top: 0; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 100%; }
+    button { margin-top: 16px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Your booking</h1>
+    <p>Two nights, 14 to 16 August, Room 402.</p>
+    <p><a href="/bookings">Back to your bookings</a></p>
+    <p><a href="/help">Get help with a booking</a></p>
+  </main>
+
+  <!--
+    FAIL: the dialog implements a focus trap and nothing else. Its keydown handler
+    wraps Tab from the last control back to the first and Shift+Tab from the first
+    back to the last, so once the keyboard reaches the dialog it can never leave
+    it. There is no Escape handler, no close button, and no text telling the user
+    how to get out. Containing focus is correct for a modal; containing it with no
+    way out is the 2.1.2 failure. Compare
+    ../pass/modal-wraps-tab-but-escape-closes.html, which cycles identically and
+    conforms purely because Escape works.
+  -->
+  <div class="overlay"></div>
+  <div role="dialog" aria-modal="true" aria-labelledby="dialog-title" id="booking-dialog" class="dialog">
+    <h2 id="dialog-title">Confirm your booking</h2>
+    <p>Enter a promotion code if you have one, then confirm.</p>
+    <label for="promo">Promotion code</label>
+    <input type="text" id="promo" />
+    <button type="button" id="confirm">Confirm booking</button>
+  </div>
+
+  <script>
+    var dialog = document.getElementById("booking-dialog");
+    var firstControl = document.getElementById("promo");
+    var lastControl = document.getElementById("confirm");
+
+    dialog.addEventListener("keydown", function (event) {
+      if (event.key !== "Tab") return;
+      if (event.shiftKey && document.activeElement === firstControl) {
+        event.preventDefault();
+        lastControl.focus();
+      } else if (!event.shiftKey && document.activeElement === lastControl) {
+        event.preventDefault();
+        firstControl.focus();
+      }
+    });
+  </script>
+</body>
+</html>

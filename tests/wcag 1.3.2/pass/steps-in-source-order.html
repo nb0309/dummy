@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>How to renew - Passing Example</title>
+  <style>
+    .steps { display: flex; flex-direction: column; max-width: 620px; }
+    .step { border-left: 4px solid #1d70b8; padding: 8px 16px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>How to renew your licence</h1>
+
+    <!--
+      PASS: flexbox is used for layout, but no `order` is applied, so the steps
+      stay in source order. They are presented 1, 2, 3 and exposed 1, 2, 3, which
+      for dependent instructions is the whole requirement.
+    -->
+    <div class="steps">
+      <div class="step">
+        <h2>Step 1: Sign in to your account</h2>
+        <p>Use the email address you registered with when you first applied.</p>
+      </div>
+      <div class="step">
+        <h2>Step 2: Pay the renewal fee</h2>
+        <p>The fee is £42 and can be paid by debit or credit card.</p>
+      </div>
+      <div class="step">
+        <h2>Step 3: Check your confirmation email</h2>
+        <p>We send confirmation within one hour. Keep the reference number safe.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

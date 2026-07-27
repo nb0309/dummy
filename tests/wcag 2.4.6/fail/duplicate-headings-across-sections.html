@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Benefits guidance - Failing Example</title>
+  <style>
+    section { margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Benefits guidance</h1>
+
+    <!--
+      FAIL: three different benefits, three identical "Overview" headings. In
+      reading order each one is anchored by the paragraph before it, but a screen
+      reader user pulling up the headings list hears "Overview, Overview,
+      Overview" with no way to tell which benefit each one belongs to -- which is
+      precisely the navigation mode 2.4.6 exists to protect.
+    -->
+    <section>
+      <h2>Overview</h2>
+      <p>Universal Credit is a monthly payment to help with your living costs. You
+         may be able to get it if you are on a low income or out of work.</p>
+    </section>
+
+    <section>
+      <h2>Overview</h2>
+      <p>Personal Independence Payment helps with extra living costs if you have a
+         long term physical or mental health condition.</p>
+    </section>
+
+    <section>
+      <h2>Overview</h2>
+      <p>Attendance Allowance helps with extra costs if you have a disability
+         severe enough that you need someone to help look after you.</p>
+    </section>
+  </main>
+</body>
+</html>

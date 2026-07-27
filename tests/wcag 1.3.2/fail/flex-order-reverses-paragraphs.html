@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Before you apply - Failing Example</title>
+  <style>
+    .stack { display: flex; flex-direction: column; max-width: 640px; }
+    .stack p { margin: 0 0 16px; }
+    /* The paragraphs are presented in one sequence and exposed in another. */
+    .p-first  { order: 1; }
+    .p-second { order: 2; }
+    .p-third  { order: 3; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Before you apply</h1>
+
+    <!--
+      FAIL: this is continuous prose, so the order carries the meaning. CSS `order`
+      presents it as first-second-third on screen, but the DOM sequence is
+      third-first-second, and that is the sequence a screen reader exposes. Read
+      aloud the passage contradicts itself: the reader is told what to do "once
+      you have done both of the above" before either step has been mentioned.
+    -->
+    <div class="stack">
+      <p class="p-third">Once you have done both of the above, submit the form and
+         we will write to you within ten working days.</p>
+      <p class="p-first">First, check that your passport has at least six months
+         left on it before you begin.</p>
+      <p class="p-second">Then gather proof of your address from the last three
+         months, such as a bank statement or utility bill.</p>
+    </div>
+  </main>
+</body>
+</html>

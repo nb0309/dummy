@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Date of birth - Passing Example</title>
+  <style>
+    fieldset { border: 1px solid #999; padding: 16px; margin-bottom: 24px; }
+    legend { font-weight: bold; padding: 0 4px; }
+    .hint { color: #505a5f; display: block; margin-bottom: 8px; }
+    .date-part { display: inline-block; margin-right: 12px; }
+    .date-part label { display: block; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 70px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Your details</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        PASS: the group has a <legend> naming the whole question, a hint wired to
+        the group with aria-describedby, and every part carries its own visible
+        <label for>. The instruction that gives the expected format is announced
+        with the group and does not depend on any field being empty.
+      -->
+      <fieldset aria-describedby="dobHint">
+        <legend>Date of birth</legend>
+        <span class="hint" id="dobHint">For example, 31 3 1980</span>
+
+        <div class="date-part">
+          <label for="dob-day">Day</label>
+          <input type="text" class="form-control" id="dob-day" inputmode="numeric">
+        </div>
+        <div class="date-part">
+          <label for="dob-month">Month</label>
+          <input type="text" class="form-control" id="dob-month" inputmode="numeric">
+        </div>
+        <div class="date-part">
+          <label for="dob-year">Year</label>
+          <input type="text" class="form-control" id="dob-year" inputmode="numeric">
+        </div>
+      </fieldset>
+
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+</body>
+</html>

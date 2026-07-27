@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Your account - Failing Example</title>
+  <style>
+    body { margin: 0; }
+    main { padding: 16px; }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); z-index: 1;
+    }
+    .dialog {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      width: 420px; background: #fff; padding: 24px;
+      border: 2px solid #0b0c0c; z-index: 2;
+    }
+    .dialog button { margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Your account</h1>
+
+    <p><a href="/account/details">Change your details</a></p>
+    <p><a href="/account/password">Change your password</a></p>
+    <p><a href="/account/close">Close your account</a></p>
+
+    <div class="overlay"></div>
+
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <!--
+        FAIL: the dialog is open and covering the page, but it is last in the DOM
+        and nothing removes the content behind it from the tab sequence. The
+        keyboard walks all three account links -- which are visually obscured and
+        cannot be seen -- before it ever reaches the dialog the user is supposed to
+        be answering.
+      -->
+      <h2 id="confirmTitle">Close your account?</h2>
+      <p>This cannot be undone.</p>
+      <button type="button">Yes, close it</button>
+      <button type="button">Cancel</button>
+    </div>
+  </main>
+</body>
+</html>

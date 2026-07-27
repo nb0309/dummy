@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>How would you like to be contacted?</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+    legend { font-weight: bold; margin-bottom: 8px; }
+    .option { margin-bottom: 8px; }
+    .option:focus { outline: 3px solid #ffdd00; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>How would you like to be contacted?</h1>
+
+    <!--
+      PASS: a custom radiogroup built the way the ARIA authoring practices describe.
+      Arrow keys move the selection within the group and roving tabindex keeps only
+      the selected option in the tab sequence — but Tab itself is never intercepted,
+      so one press takes focus straight out of the group to the Continue button and
+      the next takes it out of the page. A widget with its own arrow-key handling is
+      not a trap as long as Tab still works, which is the distinction this fixture
+      exists to hold.
+    -->
+    <div role="radiogroup" aria-label="Contact preference" id="contact-group">
+      <div class="option" role="radio" aria-checked="true" tabindex="0" id="by-email">Email</div>
+      <div class="option" role="radio" aria-checked="false" tabindex="-1" id="by-phone">Phone</div>
+      <div class="option" role="radio" aria-checked="false" tabindex="-1" id="by-post">Post</div>
+    </div>
+
+    <button type="button" id="continue">Continue</button>
+  </main>
+
+  <script>
+    var group = document.getElementById("contact-group");
+    var options = [].slice.call(group.querySelectorAll('[role="radio"]'));
+
+    group.addEventListener("keydown", function (event) {
+      var current = options.indexOf(document.activeElement);
+      if (current < 0) return;
+      var next = current;
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") next = (current + 1) % options.length;
+      else if (event.key === "ArrowUp" || event.key === "ArrowLeft") next = (current - 1 + options.length) % options.length;
+      else return;
+      event.preventDefault();
+      options.forEach(function (option) {
+        option.setAttribute("aria-checked", "false");
+        option.setAttribute("tabindex", "-1");
+      });
+      options[next].setAttribute("aria-checked", "true");
+      options[next].setAttribute("tabindex", "0");
+      options[next].focus();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Book an appointment - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .footnote { color: #505a5f; font-size: 14px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Book an appointment</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <!--
+          FAIL: the field accepts only one date format, but the instruction that
+          says so is parked at the foot of the form with no aria-describedby and
+          no proximity to the field. The label alone does not tell the user what
+          this input will accept, so the required format is never conveyed.
+        -->
+        <label for="appointment-date">Appointment date</label>
+        <input type="text" class="form-control" id="appointment-date">
+      </div>
+
+      <div class="form-group">
+        <label for="reference">Booking reference</label>
+        <input type="text" class="form-control" id="reference">
+      </div>
+
+      <p class="footnote">
+        Dates must be entered as DD/MM/YYYY. Booking references are 8 characters,
+        starting with two letters.
+      </p>
+
+      <button type="submit">Book</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Complete your order - Failing Example</title>
+  <style>
+    section { margin-bottom: 32px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Complete your order</h1>
+
+    <section>
+      <!--
+        FAIL: the heading is specific and reads perfectly well on its own, but it
+        is wrong about what it introduces. Everything under "Payment details" is a
+        delivery address. A screen reader user who jumps to this heading to enter
+        their card details lands in an address form instead. Nothing about the
+        heading text alone reveals this -- only comparing it against the content
+        it heads does.
+      -->
+      <h2>Payment details</h2>
+      <div class="form-group">
+        <label for="street">Street address</label>
+        <input type="text" class="form-control" id="street">
+      </div>
+      <div class="form-group">
+        <label for="town">Town or city</label>
+        <input type="text" class="form-control" id="town">
+      </div>
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <input type="text" class="form-control" id="postcode">
+      </div>
+    </section>
+
+    <section>
+      <!-- Same defect in reverse: the card fields sit under a delivery heading. -->
+      <h2>Delivery address</h2>
+      <div class="form-group">
+        <label for="cardnumber">Card number</label>
+        <input type="text" class="form-control" id="cardnumber">
+      </div>
+      <div class="form-group">
+        <label for="expiry">Expiry date</label>
+        <input type="text" class="form-control" id="expiry">
+      </div>
+    </section>
+  </main>
+</body>
+</html>

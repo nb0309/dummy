@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Find your country</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 280px; }
+    .listbox { border: 1px solid #999; width: 280px; margin: 0; padding: 0; list-style: none; }
+    .listbox li { padding: 4px 6px; }
+    .form-group { margin-bottom: 20px; }
+    button { padding: 8px 12px; }
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Find your country</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        PASS: focusing the combobox expands its listbox and flips aria-expanded to
+        true. That is the behaviour the ARIA authoring practices describe, and it is
+        not a change of context: FOCUS STAYS ON THE INPUT (the listbox is referenced
+        by aria-controls and browsed with the arrow keys, never focused), nothing
+        navigates, and the options are supplementary content offered to help complete
+        the field the user is already in.
+
+        Included because it mutates the DOM on focus more visibly than any other
+        passing fixture — a list of options appearing looks alarming next to a dialog
+        appearing, and the difference is that focus did not move and the page did not
+        change meaning.
+      -->
+      <div class="form-group">
+        <label for="country">Country</label>
+        <input type="text" id="country" role="combobox" aria-expanded="false"
+               aria-controls="country-list" aria-autocomplete="list" />
+        <ul class="listbox" id="country-list" role="listbox" aria-label="Countries" hidden></ul>
+      </div>
+
+      <div class="form-group">
+        <label for="postcode">Postcode or ZIP</label>
+        <input type="text" id="postcode" />
+      </div>
+
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+
+  <script>
+    var country = document.getElementById("country");
+    var list = document.getElementById("country-list");
+    var options = ["United Kingdom", "United States", "Ireland"];
+
+    country.addEventListener("focus", function () {
+      if (list.children.length === 0) {
+        options.forEach(function (name) {
+          var option = document.createElement("li");
+          option.setAttribute("role", "option");
+          option.textContent = name;
+          list.appendChild(option);
+        });
+      }
+      list.hidden = false;
+      country.setAttribute("aria-expanded", "true");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Display settings - Passing Example</title>
+  <style>
+    .row { margin-bottom: 24px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .switch {
+      display: inline-block; width: 52px; height: 28px;
+      background: #b1b4b6; border-radius: 14px; vertical-align: middle;
+    }
+    .switch[aria-checked="true"] { background: #00703c; }
+    .decorative { color: #505a5f; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Display settings</h1>
+
+    <!--
+      PASS: tabindex is only ever 0 or -1. The custom switch uses tabindex="0" to
+      join the sequence exactly where it sits in the DOM and on screen, and the
+      decorative "learn more" chevron is given tabindex="-1" to keep a purely
+      presentational element out of the sequence. Nothing reorders anything: the
+      tab order is Dark mode -> Text size -> Save, top to bottom.
+    -->
+    <div class="row">
+      <label id="darkLabel">Dark mode</label>
+      <span class="switch" role="switch" tabindex="0"
+            aria-checked="false" aria-labelledby="darkLabel"></span>
+      <span class="decorative" tabindex="-1" aria-hidden="true">&#9662;</span>
+    </div>
+
+    <div class="row">
+      <label for="textsize">Text size</label>
+      <select id="textsize">
+        <option>Normal</option>
+        <option>Large</option>
+        <option>Extra large</option>
+      </select>
+    </div>
+
+    <button type="button">Save settings</button>
+  </main>
+</body>
+</html>

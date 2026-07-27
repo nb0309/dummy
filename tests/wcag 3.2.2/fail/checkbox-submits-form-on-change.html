@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Search results</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    fieldset { border: 1px solid #b1b4b6; padding: 12px; margin-bottom: 20px; }
+    legend { font-weight: bold; }
+    .option { margin-bottom: 6px; }
+    input[type="text"] { border: 1px solid #999; padding: 6px; width: 260px; }
+    button { padding: 8px 12px; }
+    .results { border-top: 1px solid #b1b4b6; margin-top: 20px; padding-top: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Search results</h1>
+
+    <form id="filters" action="/results" method="get">
+      <div>
+        <label for="keyword">Keyword</label><br />
+        <input type="text" id="keyword" name="keyword" />
+      </div>
+
+      <!--
+        FAIL: ticking any filter submits the form immediately and reloads the page.
+        Nothing warns the user, and the effect is worse than it looks: someone
+        selecting three filters gets three page loads, and after the first one the
+        focus position and everything typed above is gone. Auto-submitting on change
+        is a change of context, and the criterion allows it only with a warning first.
+      -->
+      <fieldset>
+        <legend>Filter by status</legend>
+        <div class="option">
+          <input type="checkbox" id="status-open" name="status" value="open" />
+          <label for="status-open">Open</label>
+        </div>
+        <div class="option">
+          <input type="checkbox" id="status-closed" name="status" value="closed" />
+          <label for="status-closed">Closed</label>
+        </div>
+      </fieldset>
+
+      <button type="submit">Apply filters</button>
+    </form>
+
+    <div class="results">
+      <h2>3 results</h2>
+      <p><a href="/results/1">Planning application 24/0193</a></p>
+    </div>
+  </main>
+
+  <script>
+    var form = document.getElementById("filters");
+    var boxes = form.querySelectorAll("input[type='checkbox']");
+    [].forEach.call(boxes, function (box) {
+      box.addEventListener("change", function () {
+        form.submit();
+      });
+    });
+  </script>
+</body>
+</html>

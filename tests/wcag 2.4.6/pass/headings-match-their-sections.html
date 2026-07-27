@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Complete your order - Passing Example</title>
+  <style>
+    section { margin-bottom: 32px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Complete your order</h1>
+
+    <section>
+      <!--
+        PASS: each heading is accurate about the section it introduces. The
+        delivery heading is followed by address fields and the payment heading by
+        card fields, so jumping to either heading lands the user where the heading
+        promised.
+      -->
+      <h2>Delivery address</h2>
+      <div class="form-group">
+        <label for="street">Street address</label>
+        <input type="text" class="form-control" id="street">
+      </div>
+      <div class="form-group">
+        <label for="town">Town or city</label>
+        <input type="text" class="form-control" id="town">
+      </div>
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <input type="text" class="form-control" id="postcode">
+      </div>
+    </section>
+
+    <section>
+      <h2>Payment details</h2>
+      <div class="form-group">
+        <label for="cardnumber">Card number</label>
+        <input type="text" class="form-control" id="cardnumber">
+      </div>
+      <div class="form-group">
+        <label for="expiry">Card expiry date</label>
+        <input type="text" class="form-control" id="expiry">
+      </div>
+    </section>
+  </main>
+</body>
+</html>

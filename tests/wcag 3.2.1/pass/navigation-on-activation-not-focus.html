@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose a service</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+    .form-group { margin-bottom: 20px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Choose a service</h1>
+    <p><a href="/help">Get help choosing</a></p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="reference">Your reference</label>
+        <input type="text" id="reference" />
+      </div>
+
+      <!--
+        PASS for 3.2.1, and the scope boundary this fixture exists to hold. The select
+        is the same jump menu as ../fail/select-navigates-on-focus.html, but the
+        navigation is wired to `change` — it happens when the user CHANGES THE SETTING,
+        never when the control merely receives focus. Tabbing through the form passes
+        over it harmlessly, which is all 3.2.1 asks.
+
+        Whether navigating on `change` is itself acceptable is 3.2.2 On Input's
+        question, and arguably a defect there — a keyboard user changing the selection
+        with arrow keys navigates on the first option they land on. Report that under
+        3.2.2 if you report it; it is not a 3.2.1 finding either way.
+      -->
+      <div class="form-group">
+        <label for="service">Service</label>
+        <select id="service">
+          <option value="">Choose a service</option>
+          <option value="/renew">Renew a licence</option>
+          <option value="/apply">Apply for a licence</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <input type="text" id="postcode" />
+      </div>
+
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+
+  <script>
+    var service = document.getElementById("service");
+    service.addEventListener("change", function () {
+      if (service.value) window.location.href = service.value;
+    });
+  </script>
+</body>
+</html>

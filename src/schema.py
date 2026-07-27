@@ -28,7 +28,8 @@ class Prediction(BaseModel):
         default_factory=dict,
         description=(
             "Mapping of WCAG success-criterion number (e.g. '1.1.1', '1.2.1', "
-            "'1.3.1', '3.3.1', '4.1.3') to a concise technical justification "
+            "'1.3.1', '1.3.2', '2.4.3', '2.4.4', '2.4.6', '3.3.1', '3.3.2', '4.1.2', "
+            "'4.1.3') to a concise technical justification "
             "citing the specific evidence field that proves the violation."
         ),
     )

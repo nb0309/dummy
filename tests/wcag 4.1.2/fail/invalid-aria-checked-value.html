@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Display settings - Failing Example</title>
+  <style>
+    .switch { display: inline-block; width: 40px; height: 20px; border-radius: 10px; background: #00703c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Display settings</h1>
+    <!-- FAIL: aria-checked only accepts "true" | "false" | "mixed". "yes" is
+         not a valid enumerated value, so assistive tech cannot reliably
+         report the switch's state even though the role and name are fine. -->
+    <div class="switch" role="switch" tabindex="0" aria-checked="yes" aria-label="Enable dark mode"></div>
+  </main>
+</body>
+</html>

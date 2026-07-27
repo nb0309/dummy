@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Search the register - Passing Example</title>
+  <style>
+    .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    .hint { color: #505a5f; display: block; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Search the register</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        PASS: this compact search row has no room for a visible label, so the
+        name is supplied with aria-label and the instruction with
+        aria-describedby pointing at real visible text. Both are attached to the
+        input itself, so neither depends on the field being empty.
+      -->
+      <div class="search-row">
+        <input type="search" class="form-control" id="registerSearch"
+               aria-label="Search the register by company name or number"
+               aria-describedby="searchHint">
+        <button type="submit">Search</button>
+      </div>
+      <span class="hint" id="searchHint">
+        Enter a full company name, or an 8-digit company number
+      </span>
+    </form>
+  </main>
+</body>
+</html>

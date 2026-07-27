@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Fees and charges - Failing Example</title>
+  <style>
+    body { margin: 0; }
+    main { position: relative; padding: 130px 16px 16px; max-width: 680px; }
+    /* Painted across the top of the page, but last in the DOM. */
+    .intro {
+      position: absolute; top: 0; left: 0; right: 0;
+      background: #f3f2f1; padding: 16px; border-bottom: 2px solid #b1b4b6;
+    }
+    p { margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Fees and charges</h1>
+
+    <!--
+      FAIL: the introduction that frames the whole page is drawn at the top but
+      written last in the DOM. A screen reader therefore reads the detailed
+      figures first and only afterwards learns that they apply to applications
+      made after April -- the framing arrives after the content it was meant to
+      frame, which reverses the meaning of everything before it.
+    -->
+    <p>A standard application costs £42. Applications made in person at a
+       counter cost an additional £12 handling charge.</p>
+    <p>Replacement documents cost £26. There is no charge if the original was
+       lost in the post while in our care.</p>
+
+    <div class="intro">
+      <p>These fees apply only to applications made on or after 1 April. Anything
+         submitted before that date is charged at the previous year's rates.</p>
+    </div>
+  </main>
+</body>
+</html>

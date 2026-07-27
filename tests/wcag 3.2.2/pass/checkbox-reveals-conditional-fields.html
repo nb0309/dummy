@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Your contact details</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { font-weight: bold; }
+    .form-group { margin-bottom: 20px; }
+    .conditional { border-left: 4px solid #b1b4b6; padding-left: 12px; margin-top: 12px; }
+    input[type="text"] { border: 1px solid #999; padding: 6px; width: 280px; display: block; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Your contact details</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="text" id="email" />
+      </div>
+
+      <!--
+        PASS: ticking the box reveals two extra fields below it. Content is added — the
+        probe records the added nodes, just as the failing fixtures record theirs — but
+        nothing about the user's context changes: focus stays on the checkbox they just
+        ticked, the page does not navigate, no window opens, no form submits, and the
+        rest of the page is exactly where it was.
+
+        Progressive disclosure is the standard way to ask a follow-up question, and the
+        content that appears is subordinate to the control that revealed it. Compare
+        ../fail/select-replaces-page-content-on-change.html, which also only mutates
+        the DOM but replaces the page's subject matter wholesale.
+      -->
+      <div class="form-group">
+        <input type="checkbox" id="by-post" />
+        <label for="by-post">I would prefer to be contacted by post</label>
+        <div class="conditional" id="postal-fields" hidden>
+          <label for="address">Address</label>
+          <input type="text" id="address" />
+          <label for="postcode">Postcode</label>
+          <input type="text" id="postcode" />
+        </div>
+      </div>
+
+      <button type="submit">Save contact details</button>
+    </form>
+  </main>
+
+  <script>
+    var byPost = document.getElementById("by-post");
+    var fields = document.getElementById("postal-fields");
+    byPost.addEventListener("change", function () {
+      fields.hidden = !byPost.checked;
+    });
+  </script>
+</body>
+</html>

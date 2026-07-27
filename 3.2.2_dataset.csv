@@ -1,0 +1,267 @@
+﻿sample_id,source_file,label,element_html,parent_html,sr_transcript,sr_status_announcement,sr_role_state_value,sr_label_instruction,sr_focus_order,sr_headings_labels,sr_reading_order,sr_keyboard_trap,sr_focus_context,sr_input_context
+checkbox-submits-form-on-change::sample-0,checkbox-submits-form-on-change.html,inaccessible,"<body><main><h1>Search results</h1><form id=""filters"" action=""/results"" method=""get""><div><label for=""keyword"">Keyword</label><br><input type=""text"" id=""keyword"" name=""keyword""></div><fieldset><legend>Filter by status</legend><div class=""option""><input type=""checkbox"" id=""status-open"" name=""status"" value=""open""><label for=""status-open"">Open</label></div><div class=""option""><input type=""checkbox"" id=""status-closed"" name=""status"" value=""closed""><label for=""status-closed"">Closed</label></div></fieldset><button type=""submit"">Apply filters</button></form><div class=""results""><h2>3 results</h2><p><a href=""/results/1"">Planning application 24/0193</a></p></div></main><script>
+var form = document.getElementById(""filters"");
+var boxes = form.querySelectorAll(""input[type='checkbox']"");
+[].forEach.call(boxes, function (box) {
+box.addEventListener(""change"", function () {
+form.submit();
+});
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Search results</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+fieldset { border: 1px solid #b1b4b6; padding: 12px; margin-bottom: 20px; }
+legend { font-weight: bold; }
+.option { margin-bottom: 6px; }
+input[type=""text""] { border: 1px solid #999; padding: 6px; width: 260px; }
+button { padding: 8px 12px; }
+.results { border-top: 1px solid #b1b4b6; margin-top: 20px; padding-top: 12px; }
+</style></head><body><main><h1>Search results</h1><form id=""filters"" action=""/results"" method=""get""><div><label for=""keyword"">Keyword</label><br><input type=""text"" id=""keyword"" name=""keyword""></div><fieldset><legend>Filter by status</legend><div class=""option""><input type=""checkbox"" id=""status-open"" name=""status"" value=""open""><label for=""status-open"">Open</label></div><div class=""option""><input type=""checkbox"" id=""status-closed"" name=""status"" value=""closed""><label for=""status-closed"">Closed</label></div></fieldset><button type=""submit"">Apply filters</button></form><div class=""results""><h2>3 results</h2><p><a href=""/results/1"">Planning application 24/0193</a></p></div></main><script>
+var form = document.getElementById(""filters"");
+var boxes = form.querySelectorAll(""input[type='checkbox']"");
+[].forEach.call(boxes, function (box) {
+box.addEventListener(""change"", function () {
+form.submit();
+});
+});
+</script></body></html>","[""document"",""main"",""heading, Search results, level 1"",""form"",""Keyword"",""textbox, Keyword"",""group, Filter by status"",""Filter by status"",""checkbox, Open, not checked"",""Open"",""checkbox, Closed, not checked"",""Closed"",""end of group, Filter by status"",""button, Apply filters"",""end of form"",""heading, 3 results, level 2"",""paragraph"",""link, Planning application 24/0193"",""end of paragraph"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":12,""tag"":""input"",""role"":null,""id"":""keyword"",""name"":null},""advisory"":{""label"":""Keyword"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""input"",""role"":null,""id"":""status-open"",""name"":null},""advisory"":{""label"":""Open"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[""filters""],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":19,""tag"":""input"",""role"":null,""id"":""status-closed"",""name"":null},""advisory"":{""label"":""Closed"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[""filters""],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+radio-opens-new-window-on-change::sample-0,radio-opens-new-window-on-change.html,inaccessible,"<body><main><h1>Delivery options</h1><form onsubmit=""event.preventDefault()""><fieldset><legend>How should we deliver this?</legend><div class=""option""><input type=""radio"" id=""standard"" name=""delivery"" value=""standard""><label for=""standard"">Standard, 3 to 5 working days</label></div><div class=""option""><input type=""radio"" id=""express"" name=""delivery"" value=""express""><label for=""express"">Express, next working day</label></div></fieldset><div><label for=""instructions"">Delivery instructions</label><br><input type=""text"" id=""instructions""></div><button type=""submit"">Confirm delivery</button></form></main><script>
+var options = document.querySelectorAll(""input[name='delivery']"");
+[].forEach.call(options, function (option) {
+option.addEventListener(""change"", function () {
+window.open(""/delivery-terms/"" + option.value, ""_blank"");
+});
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Delivery options</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+fieldset { border: 1px solid #b1b4b6; padding: 12px; margin-bottom: 20px; }
+legend { font-weight: bold; }
+.option { margin-bottom: 6px; }
+input[type=""text""] { border: 1px solid #999; padding: 6px; width: 260px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Delivery options</h1><form onsubmit=""event.preventDefault()""><fieldset><legend>How should we deliver this?</legend><div class=""option""><input type=""radio"" id=""standard"" name=""delivery"" value=""standard""><label for=""standard"">Standard, 3 to 5 working days</label></div><div class=""option""><input type=""radio"" id=""express"" name=""delivery"" value=""express""><label for=""express"">Express, next working day</label></div></fieldset><div><label for=""instructions"">Delivery instructions</label><br><input type=""text"" id=""instructions""></div><button type=""submit"">Confirm delivery</button></form></main><script>
+var options = document.querySelectorAll(""input[name='delivery']"");
+[].forEach.call(options, function (option) {
+option.addEventListener(""change"", function () {
+window.open(""/delivery-terms/"" + option.value, ""_blank"");
+});
+});
+</script></body></html>","[""document"",""main"",""heading, Delivery options, level 1"",""form"",""group, How should we deliver this?"",""How should we deliver this?"",""radio, Standard, 3 to 5 working days, not checked, position 1, set size 2"",""Standard, 3 to 5 working days"",""radio, Express, next working day, not checked, position 2, set size 2"",""Express, next working day"",""end of group, How should we deliver this?"",""Delivery instructions"",""textbox, Delivery instructions"",""button, Confirm delivery"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":12,""tag"":""input"",""role"":null,""id"":""standard"",""name"":null},""advisory"":{""label"":""Standard, 3 to 5 working days"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[""/delivery-terms/standard""],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":15,""tag"":""input"",""role"":null,""id"":""express"",""name"":null},""advisory"":{""label"":""Express, next working day"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[""/delivery-terms/express""],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":20,""tag"":""input"",""role"":null,""id"":""instructions"",""name"":null},""advisory"":{""label"":""Delivery instructions"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+select-navigates-on-change::sample-0,select-navigates-on-change.html,inaccessible,"<body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""change"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose a service</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""change"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body></html>","[""document"",""main"",""heading, Choose a service, level 1"",""paragraph"",""link, Get help choosing"",""end of paragraph"",""form"",""Your reference"",""textbox, Your reference"",""Service"",""combobox, Service, has popup listbox, not expanded"",""option, Choose a service, not selected, position 1, set size 3"",""option, Renew a licence, /renew, not selected, position 2, set size 3"",""option, Apply for a licence, /apply, not selected, position 3, set size 3"",""end of combobox, Service, has popup listbox, not expanded"",""Postcode"",""textbox, Postcode"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":13,""tag"":""input"",""role"":null,""id"":""reference"",""name"":null},""advisory"":{""label"":""Your reference"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""select"",""role"":null,""id"":""service"",""name"":""Choose a service Renew a licence Apply for a licence""},""advisory"":{""label"":""Service"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":true,""focusMovedTo"":null,""navigatedTo"":""/renew""},{""component"":{""domIndex"":22,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""advisory"":{""label"":""Postcode"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+select-replaces-page-content-on-change::sample-0,select-replaces-page-content-on-change.html,inaccessible,"<body><main><h1>Council services</h1><div class=""form-group""><label for=""area"">Choose an area</label><select id=""area""><option value=""waste"">Waste and recycling</option><option value=""parking"">Parking</option></select></div><div class=""panel"" id=""panel""><h2>Waste and recycling</h2><p>Find your bin collection day and report a missed collection.</p><ul><li><a href=""/waste/collections"">Bin collection days</a></li><li><a href=""/waste/missed"">Report a missed collection</a></li></ul></div></main><script>
+var area = document.getElementById(""area"");
+var panel = document.getElementById(""panel"");
+
+var content = {
+waste: {
+heading: ""Waste and recycling"",
+body: ""Find your bin collection day and report a missed collection."",
+links: [[""/waste/collections"", ""Bin collection days""], [""/waste/missed"", ""Report a missed collection""]]
+},
+parking: {
+heading: ""Parking"",
+body: ""Buy a permit, pay a penalty charge notice or appeal a ticket."",
+links: [[""/parking/permits"", ""Buy a parking permit""], [""/parking/pcn"", ""Pay a penalty charge notice""]]
+}
+};
+
+area.addEventListener(""change"", function () {
+var next = content[area.value];
+if (!next) return;
+panel.innerHTML = """";
+var heading = document.createElement(""h2"");
+heading.textContent = next.heading;
+var body = document.createElement(""p"");
+body.textContent = next.body;
+var list = document.createElement(""ul"");
+next.links.forEach(function (pair) {
+var item = document.createElement(""li"");
+var link = document.createElement(""a"");
+link.href = pair[0];
+link.textContent = pair[1];
+item.appendChild(link);
+list.appendChild(item);
+});
+panel.appendChild(heading);
+panel.appendChild(body);
+panel.appendChild(list);
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Council services</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+select { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+.panel { border-top: 1px solid #b1b4b6; padding-top: 12px; }
+</style></head><body><main><h1>Council services</h1><div class=""form-group""><label for=""area"">Choose an area</label><select id=""area""><option value=""waste"">Waste and recycling</option><option value=""parking"">Parking</option></select></div><div class=""panel"" id=""panel""><h2>Waste and recycling</h2><p>Find your bin collection day and report a missed collection.</p><ul><li><a href=""/waste/collections"">Bin collection days</a></li><li><a href=""/waste/missed"">Report a missed collection</a></li></ul></div></main><script>
+var area = document.getElementById(""area"");
+var panel = document.getElementById(""panel"");
+
+var content = {
+waste: {
+heading: ""Waste and recycling"",
+body: ""Find your bin collection day and report a missed collection."",
+links: [[""/waste/collections"", ""Bin collection days""], [""/waste/missed"", ""Report a missed collection""]]
+},
+parking: {
+heading: ""Parking"",
+body: ""Buy a permit, pay a penalty charge notice or appeal a ticket."",
+links: [[""/parking/permits"", ""Buy a parking permit""], [""/parking/pcn"", ""Pay a penalty charge notice""]]
+}
+};
+
+area.addEventListener(""change"", function () {
+var next = content[area.value];
+if (!next) return;
+panel.innerHTML = """";
+var heading = document.createElement(""h2"");
+heading.textContent = next.heading;
+var body = document.createElement(""p"");
+body.textContent = next.body;
+var list = document.createElement(""ul"");
+next.links.forEach(function (pair) {
+var item = document.createElement(""li"");
+var link = document.createElement(""a"");
+link.href = pair[0];
+link.textContent = pair[1];
+item.appendChild(link);
+list.appendChild(item);
+});
+panel.appendChild(heading);
+panel.appendChild(body);
+panel.appendChild(list);
+});
+</script></body></html>","[""document"",""main"",""heading, Council services, level 1"",""Choose an area"",""combobox, Choose an area, waste, has popup listbox, not expanded"",""option, Waste and recycling, waste, not selected, position 1, set size 2"",""option, Parking, parking, not selected, position 2, set size 2"",""end of combobox, Choose an area, waste, has popup listbox, not expanded"",""heading, Waste and recycling, level 2"",""paragraph"",""Find your bin collection day and report a missed collection."",""end of paragraph"",""list"",""listitem, level 1, position 1, set size 2"",""link, Bin collection days"",""end of listitem, level 1, position 1, set size 2"",""listitem, level 1, position 2, set size 2"",""link, Report a missed collection"",""end of listitem, level 1, position 2, set size 2"",""end of list"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":10,""tag"":""select"",""role"":null,""id"":""area"",""name"":""Waste and recycling Parking""},""advisory"":{""label"":""Choose an area"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":3,""removed"":7,""attributes"":0,""addedNodes"":[""<h2>Parking</h2>"",""<p>Buy a permit, pay a penalty charge notice or appeal a ticket.</p>"",""<ul><li><a href=\""/parking/permits\"">Buy a parking permit</a></li><li><a href=\""/parking/pcn\"">Pay a penalty charge notice</a></li></ul>""],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+typing-auto-advances-focus::sample-0,typing-auto-advances-focus.html,inaccessible,"<body><main><h1>Date of birth</h1><form onsubmit=""event.preventDefault()""><fieldset><legend>What is your date of birth?</legend><div class=""date-part""><label for=""dob-day"">Day</label><input type=""text"" id=""dob-day"" maxlength=""2"" inputmode=""numeric""></div><div class=""date-part""><label for=""dob-month"">Month</label><input type=""text"" id=""dob-month"" maxlength=""2"" inputmode=""numeric""></div><div class=""date-part""><label for=""dob-year"">Year</label><input type=""text"" id=""dob-year"" class=""year"" maxlength=""4"" inputmode=""numeric""></div></fieldset><button type=""submit"">Continue</button></form></main><script>
+var order = [""dob-day"", ""dob-month"", ""dob-year""];
+order.forEach(function (id, index) {
+var box = document.getElementById(id);
+box.addEventListener(""input"", function () {
+var max = parseInt(box.getAttribute(""maxlength""), 10);
+var next = document.getElementById(order[index + 1]);
+if (box.value.length >= max && next) next.focus();
+});
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Date of birth</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+legend { font-weight: bold; margin-bottom: 8px; }
+.date-part { display: inline-block; margin-right: 12px; }
+.date-part label { display: block; font-weight: normal; }
+.date-part input { border: 1px solid #999; padding: 6px; width: 48px; }
+.date-part input.year { width: 68px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Date of birth</h1><form onsubmit=""event.preventDefault()""><fieldset><legend>What is your date of birth?</legend><div class=""date-part""><label for=""dob-day"">Day</label><input type=""text"" id=""dob-day"" maxlength=""2"" inputmode=""numeric""></div><div class=""date-part""><label for=""dob-month"">Month</label><input type=""text"" id=""dob-month"" maxlength=""2"" inputmode=""numeric""></div><div class=""date-part""><label for=""dob-year"">Year</label><input type=""text"" id=""dob-year"" class=""year"" maxlength=""4"" inputmode=""numeric""></div></fieldset><button type=""submit"">Continue</button></form></main><script>
+var order = [""dob-day"", ""dob-month"", ""dob-year""];
+order.forEach(function (id, index) {
+var box = document.getElementById(id);
+box.addEventListener(""input"", function () {
+var max = parseInt(box.getAttribute(""maxlength""), 10);
+var next = document.getElementById(order[index + 1]);
+if (box.value.length >= max && next) next.focus();
+});
+});
+</script></body></html>","[""document"",""main"",""heading, Date of birth, level 1"",""form"",""group, What is your date of birth?"",""What is your date of birth?"",""Day"",""textbox, Day"",""Month"",""textbox, Month"",""Year"",""textbox, Year"",""end of group, What is your date of birth?"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":13,""tag"":""input"",""role"":null,""id"":""dob-day"",""name"":null},""advisory"":{""label"":""Day"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":{""phrase"":""textbox, Month"",""tag"":""input"",""role"":null,""name"":null,""id"":""dob-month"",""tabindex"":null,""domIndex"":16},""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""input"",""role"":null,""id"":""dob-month"",""name"":null},""advisory"":{""label"":""Month"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":{""phrase"":""textbox, Year"",""tag"":""input"",""role"":null,""name"":null,""id"":""dob-year"",""tabindex"":null,""domIndex"":19},""navigatedTo"":null},{""component"":{""domIndex"":19,""tag"":""input"",""role"":null,""id"":""dob-year"",""name"":null},""advisory"":{""label"":""Year"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+checkbox-reveals-conditional-fields::sample-0,checkbox-reveals-conditional-fields.html,accessible,"<body><main><h1>Your contact details</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""email"">Email address</label><input type=""text"" id=""email""></div><div class=""form-group""><input type=""checkbox"" id=""by-post""><label for=""by-post"">I would prefer to be contacted by post</label><div class=""conditional"" id=""postal-fields"" hidden=""""><label for=""address"">Address</label><input type=""text"" id=""address""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div></div><button type=""submit"">Save contact details</button></form></main><script>
+var byPost = document.getElementById(""by-post"");
+var fields = document.getElementById(""postal-fields"");
+byPost.addEventListener(""change"", function () {
+fields.hidden = !byPost.checked;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Your contact details</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { font-weight: bold; }
+.form-group { margin-bottom: 20px; }
+.conditional { border-left: 4px solid #b1b4b6; padding-left: 12px; margin-top: 12px; }
+input[type=""text""] { border: 1px solid #999; padding: 6px; width: 280px; display: block; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Your contact details</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""email"">Email address</label><input type=""text"" id=""email""></div><div class=""form-group""><input type=""checkbox"" id=""by-post""><label for=""by-post"">I would prefer to be contacted by post</label><div class=""conditional"" id=""postal-fields"" hidden=""""><label for=""address"">Address</label><input type=""text"" id=""address""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div></div><button type=""submit"">Save contact details</button></form></main><script>
+var byPost = document.getElementById(""by-post"");
+var fields = document.getElementById(""postal-fields"");
+byPost.addEventListener(""change"", function () {
+fields.hidden = !byPost.checked;
+});
+</script></body></html>","[""document"",""main"",""heading, Your contact details, level 1"",""form"",""Email address"",""textbox, Email address"",""checkbox, I would prefer to be contacted by post, not checked"",""I would prefer to be contacted by post"",""button, Save contact details"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""email"",""name"":null},""advisory"":{""label"":""Email address"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":13,""tag"":""input"",""role"":null,""id"":""by-post"",""name"":null},""advisory"":{""label"":""I would prefer to be contacted by post"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":1,""addedNodes"":[],""attributeTargets"":[{""tag"":""div"",""role"":null,""id"":""postal-fields"",""ariaModal"":null,""attribute"":""hidden""}]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+plain-form-no-change-handlers::sample-0,plain-form-no-change-handlers.html,accessible,"<body><main><h1>Register for updates</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""email"">Email address</label><p class=""hint"" id=""email-hint"">We will only use this to send you updates.</p><input type=""email"" id=""email"" aria-describedby=""email-hint""></div><div class=""form-group""><label for=""topic"">Topic</label><select id=""topic""><option>Planning</option><option>Licensing</option></select></div><div class=""form-group""><input type=""checkbox"" id=""confirm""><label for=""confirm"">I confirm I am over 16</label></div><div class=""form-group""><label for=""notes"">Anything else?</label><textarea id=""notes"" rows=""3""></textarea></div><button type=""submit"">Register</button></form></main></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Register for updates</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input, select, textarea { border: 1px solid #999; padding: 6px; width: 300px; }
+.form-group { margin-bottom: 20px; }
+.hint { color: #505a5f; font-size: 0.9em; margin: 0 0 4px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Register for updates</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""email"">Email address</label><p class=""hint"" id=""email-hint"">We will only use this to send you updates.</p><input type=""email"" id=""email"" aria-describedby=""email-hint""></div><div class=""form-group""><label for=""topic"">Topic</label><select id=""topic""><option>Planning</option><option>Licensing</option></select></div><div class=""form-group""><input type=""checkbox"" id=""confirm""><label for=""confirm"">I confirm I am over 16</label></div><div class=""form-group""><label for=""notes"">Anything else?</label><textarea id=""notes"" rows=""3""></textarea></div><button type=""submit"">Register</button></form></main></body></html>","[""document"",""main"",""heading, Register for updates, level 1"",""form"",""Email address"",""paragraph"",""We will only use this to send you updates."",""end of paragraph"",""textbox, Email address, We will only use this to send you updates."",""Topic"",""combobox, Topic, Planning, has popup listbox, not expanded"",""option, Planning, not selected, position 1, set size 2"",""option, Licensing, not selected, position 2, set size 2"",""end of combobox, Topic, Planning, has popup listbox, not expanded"",""checkbox, I confirm I am over 16, not checked"",""I confirm I am over 16"",""Anything else?"",""textbox, Anything else?"",""button, Register"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":12,""tag"":""input"",""role"":null,""id"":""email"",""name"":null},""advisory"":{""label"":""Email address"",""describedBy"":[""We will only use this to send you updates.""],""precedingText"":""We will only use this to send you updates."",""hasText"":true},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":15,""tag"":""select"",""role"":null,""id"":""topic"",""name"":""Planning Licensing""},""advisory"":{""label"":""Topic"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":19,""tag"":""input"",""role"":null,""id"":""confirm"",""name"":null},""advisory"":{""label"":""I confirm I am over 16"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":23,""tag"":""textarea"",""role"":null,""id"":""notes"",""name"":null},""advisory"":{""label"":""Anything else?"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+select-navigates-on-change-with-warning::sample-0,select-navigates-on-change-with-warning.html,accessible,"<body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><p class=""warning"" id=""service-warning"">
+Selecting a service takes you straight to that service's page.
+</p><select id=""service"" aria-describedby=""service-warning""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""change"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose a service</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+.warning { color: #0b0c0c; font-size: 0.95em; margin: 0 0 6px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><p class=""warning"" id=""service-warning"">
+Selecting a service takes you straight to that service's page.
+</p><select id=""service"" aria-describedby=""service-warning""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""change"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body></html>","[""document"",""main"",""heading, Choose a service, level 1"",""paragraph"",""link, Get help choosing"",""end of paragraph"",""form"",""Your reference"",""textbox, Your reference"",""Service"",""paragraph"",""Selecting a service takes you straight to that service's page."",""end of paragraph"",""combobox, Service, Selecting a service takes you straight to that service's page., has popup listbox, not expanded"",""option, Choose a service, not selected, position 1, set size 3"",""option, Renew a licence, /renew, not selected, position 2, set size 3"",""option, Apply for a licence, /apply, not selected, position 3, set size 3"",""end of combobox, Service, Selecting a service takes you straight to that service's page., has popup listbox, not expanded"",""Postcode"",""textbox, Postcode"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":13,""tag"":""input"",""role"":null,""id"":""reference"",""name"":null},""advisory"":{""label"":""Your reference"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":17,""tag"":""select"",""role"":null,""id"":""service"",""name"":""Choose a service Renew a licence Apply for a licence""},""advisory"":{""label"":""Service"",""describedBy"":[""Selecting a service takes you straight to that service's page.""],""precedingText"":""Selecting a service takes you straight to that service's page."",""hasText"":true},""settingChanged"":true,""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":true,""focusMovedTo"":null,""navigatedTo"":""/renew""},{""component"":{""domIndex"":23,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""advisory"":{""label"":""Postcode"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+select-requires-go-button::sample-0,select-requires-go-button.html,accessible,"<body><main><h1>Choose a service</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select><button type=""button"" id=""go"">Go</button></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+document.getElementById(""go"").addEventListener(""click"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose a service</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Choose a service</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select><button type=""button"" id=""go"">Go</button></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+document.getElementById(""go"").addEventListener(""click"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body></html>","[""document"",""main"",""heading, Choose a service, level 1"",""form"",""Your reference"",""textbox, Your reference"",""Service"",""combobox, Service, has popup listbox, not expanded"",""option, Choose a service, not selected, position 1, set size 3"",""option, Renew a licence, /renew, not selected, position 2, set size 3"",""option, Apply for a licence, /apply, not selected, position 3, set size 3"",""end of combobox, Service, has popup listbox, not expanded"",""button, Go"",""Postcode"",""textbox, Postcode"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""reference"",""name"":null},""advisory"":{""label"":""Your reference"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":14,""tag"":""select"",""role"":null,""id"":""service"",""name"":""Choose a service Renew a licence Apply for a licence""},""advisory"":{""label"":""Service"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":21,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""advisory"":{""label"":""Postcode"",""describedBy"":[],""precedingText"":null,""hasText"":false},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"
+typing-updates-result-count::sample-0,typing-updates-result-count.html,accessible,"<body><main><h1>Search the register</h1><form onsubmit=""event.preventDefault()""><div><label for=""query"">Search by name or registration number</label><input type=""text"" id=""query"" aria-describedby=""result-count""><p class=""count"" id=""result-count"" role=""status"" aria-live=""polite"">3 results</p></div><button type=""submit"">Search</button></form><div class=""results""><p><a href=""/register/1"">Ashworth Building Services</a></p></div></main><script>
+var query = document.getElementById(""query"");
+var count = document.getElementById(""result-count"");
+query.addEventListener(""input"", function () {
+var matches = query.value.length === 0 ? 3 : Math.max(0, 3 - query.value.length);
+count.textContent = matches + (matches === 1 ? "" result"" : "" results"");
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Search the register</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 300px; }
+.count { margin: 8px 0 0; color: #505a5f; }
+.results { border-top: 1px solid #b1b4b6; margin-top: 16px; padding-top: 12px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Search the register</h1><form onsubmit=""event.preventDefault()""><div><label for=""query"">Search by name or registration number</label><input type=""text"" id=""query"" aria-describedby=""result-count""><p class=""count"" id=""result-count"" role=""status"" aria-live=""polite"">3 results</p></div><button type=""submit"">Search</button></form><div class=""results""><p><a href=""/register/1"">Ashworth Building Services</a></p></div></main><script>
+var query = document.getElementById(""query"");
+var count = document.getElementById(""result-count"");
+query.addEventListener(""input"", function () {
+var matches = query.value.length === 0 ? 3 : Math.max(0, 3 - query.value.length);
+count.textContent = matches + (matches === 1 ? "" result"" : "" results"");
+});
+</script></body></html>","[""document"",""main"",""heading, Search the register, level 1"",""form"",""Search by name or registration number"",""textbox, Search by name or registration number, 3 results"",""status"",""3 results"",""end of status"",""button, Search"",""end of form"",""paragraph"",""link, Ashworth Building Services"",""end of paragraph"",""end of main"",""end of document""]",,,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""query"",""name"":null},""advisory"":{""label"":""Search by name or registration number"",""describedBy"":[""3 results""],""precedingText"":null,""hasText"":true},""settingChanged"":true,""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":1,""removed"":1,""attributes"":0,""addedNodes"":[""0 results""],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""changedVia"":""dispatched"",""truncated"":false}"

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Your details</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 300px; }
+    .form-group { margin-bottom: 20px; }
+    .hint { color: #505a5f; font-size: 0.9em; margin: 4px 0 0; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Your details</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        PASS: focusing the passport field reveals a hint underneath it. Content is
+        ADDED to the page — so the probe records a DOM mutation, exactly as the failing
+        fixtures do — but nothing about the user's context changes: focus stays in the
+        field they moved to, the page does not navigate, no window opens, no form
+        submits, and the rest of the page is untouched. The hint is supplementary
+        content that helps the user complete the field they are in.
+
+        This is the decisive pass case for 3.2.1: a change of CONTENT on focus is
+        ordinary and expected, and only a change of CONTEXT fails.
+      -->
+      <div class="form-group">
+        <label for="passport">Passport number</label>
+        <input type="text" id="passport" aria-describedby="passport-hint-container" />
+        <div id="passport-hint-container"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="issued">Date of issue</label>
+        <input type="text" id="issued" />
+      </div>
+
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+
+  <script>
+    var passport = document.getElementById("passport");
+    var container = document.getElementById("passport-hint-container");
+
+    passport.addEventListener("focus", function () {
+      if (container.firstChild) return;
+      var hint = document.createElement("p");
+      hint.className = "hint";
+      hint.textContent = "9 characters, on the photo page of your passport.";
+      container.appendChild(hint);
+    });
+  </script>
+</body>
+</html>

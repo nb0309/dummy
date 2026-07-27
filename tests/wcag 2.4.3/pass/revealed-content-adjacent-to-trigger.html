@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Checkout - Passing Example</title>
+  <style>
+    .disclosure { margin-bottom: 24px; }
+    .panel { border-left: 4px solid #1d70b8; padding: 8px 16px; margin-top: 8px; }
+    footer { margin-top: 40px; border-top: 1px solid #b1b4b6; padding-top: 16px; }
+    footer a { margin-right: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Checkout</h1>
+
+    <div class="disclosure">
+      <!--
+        PASS: the expanded panel sits immediately after the button that controls
+        it, in the DOM and on screen. Tabbing off "Delivery options" goes straight
+        into the radio buttons it revealed, and only then on to the footer -- so
+        the keyboard sequence follows the same path the eye does.
+      -->
+      <button type="button" aria-expanded="true" aria-controls="deliveryPanel">
+        Delivery options
+      </button>
+
+      <div class="panel" id="deliveryPanel">
+        <p>Choose a delivery speed:</p>
+        <label><input type="radio" name="delivery" value="standard"> Standard (3 to 5 days)</label><br>
+        <label><input type="radio" name="delivery" value="express"> Express (next day)</label>
+      </div>
+    </div>
+
+    <p>Your order will be confirmed on the next screen.</p>
+
+    <footer>
+      <a href="/help">Help</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/contact">Contact us</a>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>About the service - Passing Example</title>
+  <style>
+    .article {
+      column-count: 2;
+      column-gap: 40px;
+      max-width: 760px;
+    }
+    .article p { margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>About the service</h1>
+
+    <!--
+      PASS, and deliberately adversarial for the geometry check: this is a genuine
+      two-column layout. The DOM order is linear and correct, and the reader
+      exposes it in that order -- but on screen the text flows DOWN the left
+      column and then DOWN the right one. Checking reading order against a
+      top-to-bottom, left-to-right sweep alone would call this an inversion and
+      flag a page that is completely fine. It matches COLUMN-MAJOR order, which is
+      exactly what a multi-column layout is supposed to do.
+    -->
+    <div class="article">
+      <p>The service lets you apply for, renew and track a licence without having
+         to visit an office in person.</p>
+      <p>You will need proof of identity and a payment card. Most applications are
+         decided within ten working days.</p>
+      <p>If you have applied before, signing in will pre-fill most of the form
+         using the details we already hold.</p>
+      <p>Support is available by phone and email if you would rather not apply
+         online, or if you need help part way through.</p>
+    </div>
+  </main>
+</body>
+</html>

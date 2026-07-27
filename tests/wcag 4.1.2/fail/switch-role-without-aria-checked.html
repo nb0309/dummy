@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Notification settings - Failing Example</title>
+  <style>
+    .switch { display: inline-block; width: 40px; height: 20px; border-radius: 10px; background: #b1b4b6; cursor: pointer; }
+    .switch.on { background: #00703c; }
+  </style>
+  <script>
+    function toggleFake(el) {
+      // FAIL: role="switch" is present, but no aria-checked is ever set, so
+      // the switch has no exposed state at all -- just a CSS class flip.
+      el.classList.toggle("on");
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Notification settings</h1>
+    <div class="switch" role="switch" tabindex="0" aria-label="Email notifications" onclick="toggleFake(this)"></div>
+  </main>
+</body>
+</html>

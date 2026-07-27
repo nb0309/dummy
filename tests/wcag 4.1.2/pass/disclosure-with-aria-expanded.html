@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Help with this question - Passing Example</title>
+  <script>
+    function toggleDisclosure(el) {
+      // PASS: aria-expanded tracks the panel's real hidden state, so the
+      // disclosure's open/closed state is exposed on interaction.
+      var expanded = el.getAttribute("aria-expanded") === "true";
+      el.setAttribute("aria-expanded", String(!expanded));
+      document.getElementById("help-panel").hidden = expanded;
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>What is your national insurance number?</h1>
+    <button type="button" aria-expanded="false" aria-controls="help-panel" onclick="toggleDisclosure(this)">
+      I don't know my national insurance number
+    </button>
+    <div id="help-panel" hidden>
+      <p>It's on your payslip, P60 or letters about tax, pensions or benefits.</p>
+    </div>
+  </main>
+</body>
+</html>

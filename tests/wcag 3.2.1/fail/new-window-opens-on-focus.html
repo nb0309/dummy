@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Terms and conditions</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { font-weight: bold; }
+    .form-group { margin-bottom: 20px; }
+    input[type="text"] { border: 1px solid #999; padding: 6px; width: 260px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Confirm your application</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="applicant">Applicant name</label><br />
+        <input type="text" id="applicant" />
+      </div>
+
+      <!--
+        FAIL: focusing the checkbox opens the terms in a new window. The new window
+        takes over, the user is moved to a different document they did not ask for, and
+        a screen reader user in particular may not realise the context has changed at
+        all. Opening a window is a change of user agent context, and doing it on focus
+        rather than on activation is what breaks 3.2.1 — a LINK to the same terms would
+        be perfectly fine.
+      -->
+      <div class="form-group">
+        <input type="checkbox" id="accept" />
+        <label for="accept">I accept the terms and conditions</label>
+      </div>
+
+      <div class="form-group">
+        <label for="signature">Type your name to sign</label><br />
+        <input type="text" id="signature" />
+      </div>
+
+      <button type="submit">Submit application</button>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById("accept").addEventListener("focus", function () {
+      window.open("/terms", "_blank");
+    });
+  </script>
+</body>
+</html>

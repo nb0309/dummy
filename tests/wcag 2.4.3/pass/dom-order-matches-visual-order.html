@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Request a callback - Passing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Request a callback</h1>
+
+    <!--
+      PASS: no tabindex anywhere, and the DOM order is the visual order. Tabbing
+      walks Your name -> Phone number -> Best time to call -> Request callback,
+      which is exactly the order the fields are displayed and read in.
+    -->
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="name">Your name</label>
+        <input type="text" class="form-control" id="name">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input type="tel" class="form-control" id="phone">
+      </div>
+
+      <div class="form-group">
+        <label for="besttime">Best time to call</label>
+        <input type="text" class="form-control" id="besttime">
+      </div>
+
+      <button type="submit">Request callback</button>
+    </form>
+  </main>
+</body>
+</html>

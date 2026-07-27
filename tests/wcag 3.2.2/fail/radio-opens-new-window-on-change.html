@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Delivery options</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    fieldset { border: 1px solid #b1b4b6; padding: 12px; margin-bottom: 20px; }
+    legend { font-weight: bold; }
+    .option { margin-bottom: 6px; }
+    input[type="text"] { border: 1px solid #999; padding: 6px; width: 260px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Delivery options</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        FAIL: selecting a delivery option pops open a new window with that option's
+        terms. The user asked to choose a delivery speed, not to be moved into another
+        document — and a screen reader user in particular may not realise the window
+        they are now in is a different one. Nothing warns them beforehand. A LINK to
+        the same terms beside each option would have been fine: that would be a change
+        of context the user requested.
+      -->
+      <fieldset>
+        <legend>How should we deliver this?</legend>
+        <div class="option">
+          <input type="radio" id="standard" name="delivery" value="standard" />
+          <label for="standard">Standard, 3 to 5 working days</label>
+        </div>
+        <div class="option">
+          <input type="radio" id="express" name="delivery" value="express" />
+          <label for="express">Express, next working day</label>
+        </div>
+      </fieldset>
+
+      <div>
+        <label for="instructions">Delivery instructions</label><br />
+        <input type="text" id="instructions" />
+      </div>
+
+      <button type="submit">Confirm delivery</button>
+    </form>
+  </main>
+
+  <script>
+    var options = document.querySelectorAll("input[name='delivery']");
+    [].forEach.call(options, function (option) {
+      option.addEventListener("change", function () {
+        window.open("/delivery-terms/" + option.value, "_blank");
+      });
+    });
+  </script>
+</body>
+</html>

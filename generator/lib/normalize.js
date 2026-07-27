@@ -22,6 +22,16 @@ export function normalizeHtml(html) {
   // inside the captured form, and data-error-fill's value would leak the very
   // input that provoked the error into a feature column.
   out = out.replace(/\s*data-error-(?:trigger|fill)(?:="[^"]*")?/g, "");
+  // drop the 4.1.2 probe marker. Matters like the 3.3.1 ones: the `after` html
+  // in sr_role_state_value is snapshotted post-click, with the marker still in
+  // the subtree.
+  out = out.replace(/\s*data-role-trigger(?:="[^"]*")?/g, "");
+  // drop HTML comments. The fixtures annotate themselves with the defect they
+  // demonstrate ("FAIL: success message is a plain div with no role=status…"),
+  // and any such comment sitting inside a captured element would hand the model
+  // the verdict as part of its own evidence. Documentation for whoever reads the
+  // fixture, never a feature.
+  out = out.replace(/<!--[\s\S]*?-->/g, "");
   // collapse runs of whitespace between tags / inside text to single spaces,
   // but keep it readable rather than fully minified.
   out = out.replace(/>\s+</g, "><");

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Subscribe to newsletter - Failing Example</title>
+  <style>
+    .checkbox { display: inline-block; width: 16px; height: 16px; border: 1px solid #0b0c0c; }
+    .checkbox.checked { background: #0b0c0c; }
+  </style>
+  <script>
+    function toggleVisualOnly(el) {
+      // FAIL: the checkmark is purely a CSS class. aria-checked is set once at
+      // load and never touched again, so the accessibility-tree state goes
+      // stale the moment a sighted user's eyes and a screen reader's ears
+      // start disagreeing about whether the box is checked.
+      el.classList.toggle("checked");
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Subscribe to newsletter</h1>
+    <div class="checkbox" role="checkbox" tabindex="0" aria-checked="false" aria-label="Subscribe to newsletter"
+      onclick="toggleVisualOnly(this)"></div>
+  </main>
+</body>
+</html>

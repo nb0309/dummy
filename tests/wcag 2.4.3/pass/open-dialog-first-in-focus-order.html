@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Your account - Passing Example</title>
+  <style>
+    body { margin: 0; }
+    main { padding: 16px; }
+    .overlay { position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); z-index: 1; }
+    /* The dialog comes FIRST in the DOM so it is first in the tab order, so it
+       needs an explicit z-index to stay painted above the overlay -- without one,
+       equally-positioned elements paint in DOM order and the overlay would cover
+       the dialog it is meant to sit behind. */
+    .dialog {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      width: 420px; background: #fff; padding: 24px;
+      border: 2px solid #0b0c0c; z-index: 2;
+    }
+    .dialog button { margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <!--
+    PASS: while the dialog is open it comes first in the DOM, so it is also first
+    in the tab sequence -- the keyboard lands on the decision the user is being
+    asked to make. The obscured page behind it is marked inert, which takes its
+    links out of the sequence entirely, so the order cannot wander off behind the
+    overlay and the sequence matches what is actually visible.
+  -->
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <h2 id="confirmTitle">Close your account?</h2>
+    <p>This cannot be undone.</p>
+    <button type="button">Yes, close it</button>
+    <button type="button">Cancel</button>
+  </div>
+
+  <div class="overlay"></div>
+
+  <main inert>
+    <h1>Your account</h1>
+    <p><a href="/account/details">Change your details</a></p>
+    <p><a href="/account/password">Change your password</a></p>
+    <p><a href="/account/close">Close your account</a></p>
+  </main>
+</body>
+</html>

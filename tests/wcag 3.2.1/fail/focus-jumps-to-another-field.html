@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Card payment</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 260px; }
+    .form-group { margin-bottom: 20px; }
+    .hint { color: #505a5f; font-size: 0.9em; margin: 0 0 4px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Card payment</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <!--
+        FAIL: focus is moved out from under the user. Focusing the card number field
+        pushes focus to the security code, on the theory that "most people have already
+        filled the number in". A keyboard user Tabs to the card number and lands
+        somewhere else entirely, with no way to tell why. Moving focus IS a change of
+        context, and it is the failure this fixture is here for.
+      -->
+      <div class="form-group">
+        <label for="card-number">Card number</label>
+        <p class="hint" id="card-hint">16 digits on the front of your card</p>
+        <input type="text" id="card-number" aria-describedby="card-hint" />
+      </div>
+
+      <div class="form-group">
+        <label for="security-code">Security code</label>
+        <input type="text" id="security-code" />
+      </div>
+
+      <div class="form-group">
+        <label for="name-on-card">Name on card</label>
+        <input type="text" id="name-on-card" />
+      </div>
+
+      <button type="submit">Pay now</button>
+    </form>
+  </main>
+
+  <script>
+    var cardNumber = document.getElementById("card-number");
+    var securityCode = document.getElementById("security-code");
+    cardNumber.addEventListener("focus", function () {
+      securityCode.focus();
+    });
+  </script>
+</body>
+</html>

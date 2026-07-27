@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>How to renew - Failing Example</title>
+  <style>
+    .steps { display: flex; flex-direction: column; max-width: 620px; }
+    .step { border-left: 4px solid #1d70b8; padding: 8px 16px; margin-bottom: 16px; }
+    /* Presented 1, 2, 3 -- exposed 3, 1, 2. */
+    .step-1 { order: 1; }
+    .step-2 { order: 2; }
+    .step-3 { order: 3; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>How to renew your licence</h1>
+
+    <!--
+      FAIL: numbered, dependent steps -- about as order-dependent as content gets.
+      On screen they run 1, 2, 3. In the DOM, and therefore to a screen reader,
+      they run 3, 1, 2, so the reader is told to "check your confirmation email"
+      before being told to start the application at all.
+    -->
+    <div class="steps">
+      <div class="step step-3">
+        <h2>Step 3: Check your confirmation email</h2>
+        <p>We send confirmation within one hour. Keep the reference number safe.</p>
+      </div>
+      <div class="step step-1">
+        <h2>Step 1: Sign in to your account</h2>
+        <p>Use the email address you registered with when you first applied.</p>
+      </div>
+      <div class="step step-2">
+        <h2>Step 2: Pay the renewal fee</h2>
+        <p>The fee is £42 and can be paid by debit or credit card.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

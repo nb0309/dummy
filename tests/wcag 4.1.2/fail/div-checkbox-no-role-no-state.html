@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Sign up for updates - Failing Example</title>
+  <style>
+    .fake-checkbox { display: inline-block; width: 16px; height: 16px; border: 1px solid #0b0c0c; }
+    .fake-checkbox.checked { background: #0b0c0c; }
+  </style>
+  <script>
+    function toggleFake(el) {
+      // FAIL: only a CSS class changes. No role, no tabindex, no aria-checked
+      // -- a screen reader user cannot even tell this is a control.
+      el.classList.toggle("checked");
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Sign up for updates</h1>
+    <div class="fake-checkbox" onclick="toggleFake(this)"></div>
+    <span>Email me about new features</span>
+  </main>
+</body>
+</html>

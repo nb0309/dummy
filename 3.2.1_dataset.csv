@@ -1,0 +1,233 @@
+﻿sample_id,source_file,label,element_html,parent_html,sr_transcript,sr_status_announcement,sr_role_state_value,sr_label_instruction,sr_focus_order,sr_headings_labels,sr_reading_order,sr_keyboard_trap,sr_focus_context
+focus-jumps-to-another-field::sample-0,focus-jumps-to-another-field.html,inaccessible,"<body><main><h1>Card payment</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""card-number"">Card number</label><p class=""hint"" id=""card-hint"">16 digits on the front of your card</p><input type=""text"" id=""card-number"" aria-describedby=""card-hint""></div><div class=""form-group""><label for=""security-code"">Security code</label><input type=""text"" id=""security-code""></div><div class=""form-group""><label for=""name-on-card"">Name on card</label><input type=""text"" id=""name-on-card""></div><button type=""submit"">Pay now</button></form></main><script>
+var cardNumber = document.getElementById(""card-number"");
+var securityCode = document.getElementById(""security-code"");
+cardNumber.addEventListener(""focus"", function () {
+securityCode.focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Card payment</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+.hint { color: #505a5f; font-size: 0.9em; margin: 0 0 4px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Card payment</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""card-number"">Card number</label><p class=""hint"" id=""card-hint"">16 digits on the front of your card</p><input type=""text"" id=""card-number"" aria-describedby=""card-hint""></div><div class=""form-group""><label for=""security-code"">Security code</label><input type=""text"" id=""security-code""></div><div class=""form-group""><label for=""name-on-card"">Name on card</label><input type=""text"" id=""name-on-card""></div><button type=""submit"">Pay now</button></form></main><script>
+var cardNumber = document.getElementById(""card-number"");
+var securityCode = document.getElementById(""security-code"");
+cardNumber.addEventListener(""focus"", function () {
+securityCode.focus();
+});
+</script></body></html>","[""document"",""main"",""heading, Card payment, level 1"",""form"",""Card number"",""paragraph"",""16 digits on the front of your card"",""end of paragraph"",""textbox, Card number, 16 digits on the front of your card"",""Security code"",""textbox, Security code"",""Name on card"",""textbox, Name on card"",""button, Pay now"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":12,""tag"":""input"",""role"":null,""id"":""card-number"",""name"":null},""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":{""phrase"":""textbox, Security code"",""tag"":""input"",""role"":null,""name"":null,""id"":""security-code"",""tabindex"":null,""domIndex"":15},""navigatedTo"":null},{""component"":{""domIndex"":15,""tag"":""input"",""role"":null,""id"":""security-code"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":18,""tag"":""input"",""role"":null,""id"":""name-on-card"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":19,""tag"":""button"",""role"":null,""id"":null,""name"":""Pay now""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+form-auto-submits-on-focus::sample-0,form-auto-submits-on-focus.html,inaccessible,"<body><main><h1>Filter your results</h1><form id=""filters"" action=""/results"" method=""get""><div class=""form-group""><label for=""keyword"">Keyword</label><input type=""text"" id=""keyword"" name=""keyword""></div><div class=""form-group""><label for=""sort"">Sort by</label><select id=""sort"" name=""sort""><option value=""relevance"">Relevance</option><option value=""date"">Date</option></select></div><button type=""submit"">Apply filters</button></form><div class=""results""><h2>3 results</h2><p><a href=""/results/1"">Planning application 24/0193</a></p></div></main><script>
+document.getElementById(""sort"").addEventListener(""focus"", function () {
+document.getElementById(""filters"").submit();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Filter your results</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input, select { border: 1px solid #999; padding: 6px; width: 240px; }
+.form-group { margin-bottom: 20px; }
+button { padding: 8px 12px; }
+.results { border-top: 1px solid #b1b4b6; margin-top: 20px; padding-top: 12px; }
+</style></head><body><main><h1>Filter your results</h1><form id=""filters"" action=""/results"" method=""get""><div class=""form-group""><label for=""keyword"">Keyword</label><input type=""text"" id=""keyword"" name=""keyword""></div><div class=""form-group""><label for=""sort"">Sort by</label><select id=""sort"" name=""sort""><option value=""relevance"">Relevance</option><option value=""date"">Date</option></select></div><button type=""submit"">Apply filters</button></form><div class=""results""><h2>3 results</h2><p><a href=""/results/1"">Planning application 24/0193</a></p></div></main><script>
+document.getElementById(""sort"").addEventListener(""focus"", function () {
+document.getElementById(""filters"").submit();
+});
+</script></body></html>","[""document"",""main"",""heading, Filter your results, level 1"",""form"",""Keyword"",""textbox, Keyword"",""Sort by"",""combobox, Sort by, relevance, has popup listbox, not expanded"",""option, Relevance, relevance, not selected, position 1, set size 2"",""option, Date, date, not selected, position 2, set size 2"",""end of combobox, Sort by, relevance, has popup listbox, not expanded"",""button, Apply filters"",""end of form"",""heading, 3 results, level 2"",""paragraph"",""link, Planning application 24/0193"",""end of paragraph"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""keyword"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":14,""tag"":""select"",""role"":null,""id"":""sort"",""name"":""Relevance Date""},""focusHeld"":true,""opened"":[],""submitted"":[""filters""],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":17,""tag"":""button"",""role"":null,""id"":null,""name"":""Apply filters""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":21,""tag"":""a"",""role"":null,""id"":null,""name"":""Planning application 24/0193""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+modal-dialog-opens-on-focus::sample-0,modal-dialog-opens-on-focus.html,inaccessible,"<body><main><h1>Update your address</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><div class=""form-group""><label for=""address-line"">Address line 1</label><input type=""text"" id=""address-line""></div><div class=""form-group""><label for=""town"">Town or city</label><input type=""text"" id=""town""></div><button type=""submit"">Save address</button></form></main><div class=""overlay"" id=""overlay"" hidden=""""></div><div role=""dialog"" aria-modal=""true"" aria-labelledby=""verify-title"" id=""verify-dialog"" class=""dialog"" hidden=""""><h2 id=""verify-title"">Verify your identity</h2><p>Enter the code we sent to your phone before changing your address.</p><label for=""code"">Security code</label><input type=""text"" id=""code""><button type=""button"" id=""verify"">Verify</button></div><script>
+var addressLine = document.getElementById(""address-line"");
+var dialog = document.getElementById(""verify-dialog"");
+var overlay = document.getElementById(""overlay"");
+
+addressLine.addEventListener(""focus"", function () {
+dialog.hidden = false;
+overlay.hidden = false;
+document.getElementById(""code"").focus();
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Update your address</title><style>
+body { font-family: system-ui, sans-serif; margin: 0; }
+main { padding: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+.overlay { position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); }
+.dialog {
+position: fixed; top: 90px; left: 50%; transform: translateX(-50%);
+width: 360px; background: #fff; border: 4px solid #0b0c0c; padding: 20px;
+}
+.dialog h2 { margin-top: 0; }
+button { padding: 8px 12px; }
+[hidden] { display: none; }
+</style></head><body><main><h1>Update your address</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><div class=""form-group""><label for=""address-line"">Address line 1</label><input type=""text"" id=""address-line""></div><div class=""form-group""><label for=""town"">Town or city</label><input type=""text"" id=""town""></div><button type=""submit"">Save address</button></form></main><div class=""overlay"" id=""overlay"" hidden=""""></div><div role=""dialog"" aria-modal=""true"" aria-labelledby=""verify-title"" id=""verify-dialog"" class=""dialog"" hidden=""""><h2 id=""verify-title"">Verify your identity</h2><p>Enter the code we sent to your phone before changing your address.</p><label for=""code"">Security code</label><input type=""text"" id=""code""><button type=""button"" id=""verify"">Verify</button></div><script>
+var addressLine = document.getElementById(""address-line"");
+var dialog = document.getElementById(""verify-dialog"");
+var overlay = document.getElementById(""overlay"");
+
+addressLine.addEventListener(""focus"", function () {
+dialog.hidden = false;
+overlay.hidden = false;
+document.getElementById(""code"").focus();
+});
+</script></body></html>","[""document"",""main"",""heading, Update your address, level 1"",""form"",""Postcode"",""textbox, Postcode"",""Address line 1"",""textbox, Address line 1"",""Town or city"",""textbox, Town or city"",""button, Save address"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":14,""tag"":""input"",""role"":null,""id"":""address-line"",""name"":null},""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":2,""addedNodes"":[],""attributeTargets"":[{""tag"":""div"",""role"":""dialog"",""id"":""verify-dialog"",""ariaModal"":""true"",""attribute"":""hidden""},{""tag"":""div"",""role"":null,""id"":""overlay"",""ariaModal"":null,""attribute"":""hidden""}]},""urlChanged"":false,""focusMovedTo"":{""phrase"":""textbox, Security code"",""tag"":""input"",""role"":null,""name"":null,""id"":""code"",""tabindex"":null,""domIndex"":24},""navigatedTo"":null},{""component"":{""domIndex"":17,""tag"":""input"",""role"":null,""id"":""town"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":18,""tag"":""button"",""role"":null,""id"":null,""name"":""Save address""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+new-window-opens-on-focus::sample-0,new-window-opens-on-focus.html,inaccessible,"<body><main><h1>Confirm your application</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""applicant"">Applicant name</label><br><input type=""text"" id=""applicant""></div><div class=""form-group""><input type=""checkbox"" id=""accept""><label for=""accept"">I accept the terms and conditions</label></div><div class=""form-group""><label for=""signature"">Type your name to sign</label><br><input type=""text"" id=""signature""></div><button type=""submit"">Submit application</button></form></main><script>
+document.getElementById(""accept"").addEventListener(""focus"", function () {
+window.open(""/terms"", ""_blank"");
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Terms and conditions</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { font-weight: bold; }
+.form-group { margin-bottom: 20px; }
+input[type=""text""] { border: 1px solid #999; padding: 6px; width: 260px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Confirm your application</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""applicant"">Applicant name</label><br><input type=""text"" id=""applicant""></div><div class=""form-group""><input type=""checkbox"" id=""accept""><label for=""accept"">I accept the terms and conditions</label></div><div class=""form-group""><label for=""signature"">Type your name to sign</label><br><input type=""text"" id=""signature""></div><button type=""submit"">Submit application</button></form></main><script>
+document.getElementById(""accept"").addEventListener(""focus"", function () {
+window.open(""/terms"", ""_blank"");
+});
+</script></body></html>","[""document"",""main"",""heading, Confirm your application, level 1"",""form"",""Applicant name"",""textbox, Applicant name"",""checkbox, I accept the terms and conditions, not checked"",""I accept the terms and conditions"",""Type your name to sign"",""textbox, Type your name to sign"",""button, Submit application"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":12,""tag"":""input"",""role"":null,""id"":""applicant"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":14,""tag"":""input"",""role"":null,""id"":""accept"",""name"":null},""focusHeld"":true,""opened"":[""/terms""],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":19,""tag"":""input"",""role"":null,""id"":""signature"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":20,""tag"":""button"",""role"":null,""id"":null,""name"":""Submit application""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+select-navigates-on-focus::sample-0,select-navigates-on-focus.html,inaccessible,"<body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""focus"", function () {
+window.location.href = service.value;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose a service</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""focus"", function () {
+window.location.href = service.value;
+});
+</script></body></html>","[""document"",""main"",""heading, Choose a service, level 1"",""paragraph"",""link, Get help choosing"",""end of paragraph"",""form"",""Your reference"",""textbox, Your reference"",""Service"",""combobox, Service, /renew, has popup listbox, not expanded"",""option, Renew a licence, /renew, not selected, position 1, set size 2"",""option, Apply for a licence, /apply, not selected, position 2, set size 2"",""end of combobox, Service, /renew, has popup listbox, not expanded"",""Postcode"",""textbox, Postcode"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":9,""tag"":""a"",""role"":null,""id"":null,""name"":""Get help choosing""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":13,""tag"":""input"",""role"":null,""id"":""reference"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""select"",""role"":null,""id"":""service"",""name"":""Renew a licence Apply for a licence""},""focusHeld"":false,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":true,""focusMovedTo"":null,""navigatedTo"":""/renew""},{""component"":{""domIndex"":21,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":22,""tag"":""button"",""role"":null,""id"":null,""name"":""Continue""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+combobox-expands-on-focus::sample-0,combobox-expands-on-focus.html,accessible,"<body><main><h1>Find your country</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""country"">Country</label><input type=""text"" id=""country"" role=""combobox"" aria-expanded=""false"" aria-controls=""country-list"" aria-autocomplete=""list""><ul class=""listbox"" id=""country-list"" role=""listbox"" aria-label=""Countries"" hidden=""""></ul></div><div class=""form-group""><label for=""postcode"">Postcode or ZIP</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var country = document.getElementById(""country"");
+var list = document.getElementById(""country-list"");
+var options = [""United Kingdom"", ""United States"", ""Ireland""];
+
+country.addEventListener(""focus"", function () {
+if (list.children.length === 0) {
+options.forEach(function (name) {
+var option = document.createElement(""li"");
+option.setAttribute(""role"", ""option"");
+option.textContent = name;
+list.appendChild(option);
+});
+}
+list.hidden = false;
+country.setAttribute(""aria-expanded"", ""true"");
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Find your country</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 280px; }
+.listbox { border: 1px solid #999; width: 280px; margin: 0; padding: 0; list-style: none; }
+.listbox li { padding: 4px 6px; }
+.form-group { margin-bottom: 20px; }
+button { padding: 8px 12px; }
+[hidden] { display: none; }
+</style></head><body><main><h1>Find your country</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""country"">Country</label><input type=""text"" id=""country"" role=""combobox"" aria-expanded=""false"" aria-controls=""country-list"" aria-autocomplete=""list""><ul class=""listbox"" id=""country-list"" role=""listbox"" aria-label=""Countries"" hidden=""""></ul></div><div class=""form-group""><label for=""postcode"">Postcode or ZIP</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var country = document.getElementById(""country"");
+var list = document.getElementById(""country-list"");
+var options = [""United Kingdom"", ""United States"", ""Ireland""];
+
+country.addEventListener(""focus"", function () {
+if (list.children.length === 0) {
+options.forEach(function (name) {
+var option = document.createElement(""li"");
+option.setAttribute(""role"", ""option"");
+option.textContent = name;
+list.appendChild(option);
+});
+}
+list.hidden = false;
+country.setAttribute(""aria-expanded"", ""true"");
+});
+</script></body></html>","[""document"",""main"",""heading, Find your country, level 1"",""form"",""Country"",""combobox, Country, has popup listbox, not expanded, autocomplete in list, 1 control"",""Postcode or ZIP"",""textbox, Postcode or ZIP"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":""combobox"",""id"":""country"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":3,""removed"":0,""attributes"":2,""addedNodes"":[""<li role=\""option\"">United Kingdom</li>"",""<li role=\""option\"">United States</li>"",""<li role=\""option\"">Ireland</li>""],""attributeTargets"":[{""tag"":""ul"",""role"":""listbox"",""id"":""country-list"",""ariaModal"":null,""attribute"":""hidden""},{""tag"":""input"",""role"":""combobox"",""id"":""country"",""ariaModal"":null,""attribute"":""aria-expanded""}]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":15,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""button"",""role"":null,""id"":null,""name"":""Continue""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+highlight-styling-on-focus::sample-0,highlight-styling-on-focus.html,accessible,"<body><main><h1>Report a repair</h1><form onsubmit=""event.preventDefault()""><div class=""form-group"" id=""group-location""><label for=""location"">Where is the repair needed?</label><input type=""text"" id=""location""></div><div class=""form-group"" id=""group-details""><label for=""details"">Describe the problem</label><textarea id=""details"" rows=""3""></textarea></div><button type=""submit"">Report repair</button></form></main><script>
+var fields = document.querySelectorAll(""#location, #details"");
+[].forEach.call(fields, function (field) {
+var group = field.closest("".form-group"");
+field.addEventListener(""focus"", function () {
+group.classList.add(""active"");
+});
+field.addEventListener(""blur"", function () {
+group.classList.remove(""active"");
+});
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Report a repair</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input, textarea { border: 1px solid #999; padding: 6px; width: 320px; }
+.form-group { margin-bottom: 20px; padding: 8px; border-left: 4px solid transparent; }
+.form-group.active { border-left-color: #1d70b8; background: #f3f2f1; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Report a repair</h1><form onsubmit=""event.preventDefault()""><div class=""form-group"" id=""group-location""><label for=""location"">Where is the repair needed?</label><input type=""text"" id=""location""></div><div class=""form-group"" id=""group-details""><label for=""details"">Describe the problem</label><textarea id=""details"" rows=""3""></textarea></div><button type=""submit"">Report repair</button></form></main><script>
+var fields = document.querySelectorAll(""#location, #details"");
+[].forEach.call(fields, function (field) {
+var group = field.closest("".form-group"");
+field.addEventListener(""focus"", function () {
+group.classList.add(""active"");
+});
+field.addEventListener(""blur"", function () {
+group.classList.remove(""active"");
+});
+});
+</script></body></html>","[""document"",""main"",""heading, Report a repair, level 1"",""form"",""Where is the repair needed?"",""textbox, Where is the repair needed?"",""Describe the problem"",""textbox, Describe the problem"",""button, Report repair"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""location"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":1,""addedNodes"":[],""attributeTargets"":[{""tag"":""div"",""role"":null,""id"":""group-location"",""ariaModal"":null,""attribute"":""class""}]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":14,""tag"":""textarea"",""role"":null,""id"":""details"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":1,""addedNodes"":[],""attributeTargets"":[{""tag"":""div"",""role"":null,""id"":""group-details"",""ariaModal"":null,""attribute"":""class""}]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":15,""tag"":""button"",""role"":null,""id"":null,""name"":""Report repair""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+hint-revealed-on-focus::sample-0,hint-revealed-on-focus.html,accessible,"<body><main><h1>Your details</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""passport"">Passport number</label><input type=""text"" id=""passport"" aria-describedby=""passport-hint-container""><div id=""passport-hint-container""></div></div><div class=""form-group""><label for=""issued"">Date of issue</label><input type=""text"" id=""issued""></div><button type=""submit"">Continue</button></form></main><script>
+var passport = document.getElementById(""passport"");
+var container = document.getElementById(""passport-hint-container"");
+
+passport.addEventListener(""focus"", function () {
+if (container.firstChild) return;
+var hint = document.createElement(""p"");
+hint.className = ""hint"";
+hint.textContent = ""9 characters, on the photo page of your passport."";
+container.appendChild(hint);
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Your details</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input { border: 1px solid #999; padding: 6px; width: 300px; }
+.form-group { margin-bottom: 20px; }
+.hint { color: #505a5f; font-size: 0.9em; margin: 4px 0 0; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Your details</h1><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""passport"">Passport number</label><input type=""text"" id=""passport"" aria-describedby=""passport-hint-container""><div id=""passport-hint-container""></div></div><div class=""form-group""><label for=""issued"">Date of issue</label><input type=""text"" id=""issued""></div><button type=""submit"">Continue</button></form></main><script>
+var passport = document.getElementById(""passport"");
+var container = document.getElementById(""passport-hint-container"");
+
+passport.addEventListener(""focus"", function () {
+if (container.firstChild) return;
+var hint = document.createElement(""p"");
+hint.className = ""hint"";
+hint.textContent = ""9 characters, on the photo page of your passport."";
+container.appendChild(hint);
+});
+</script></body></html>","[""document"",""main"",""heading, Your details, level 1"",""form"",""Passport number"",""textbox, Passport number"",""Date of issue"",""textbox, Date of issue"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":11,""tag"":""input"",""role"":null,""id"":""passport"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":1,""removed"":0,""attributes"":0,""addedNodes"":[""<p class=\""hint\"">9 characters, on the photo page of your passport.</p>""],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":15,""tag"":""input"",""role"":null,""id"":""issued"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""button"",""role"":null,""id"":null,""name"":""Continue""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+navigation-on-activation-not-focus::sample-0,navigation-on-activation-not-focus.html,accessible,"<body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""change"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Choose a service</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+.form-group { margin-bottom: 20px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Choose a service</h1><p><a href=""/help"">Get help choosing</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""reference"">Your reference</label><input type=""text"" id=""reference""></div><div class=""form-group""><label for=""service"">Service</label><select id=""service""><option value="""">Choose a service</option><option value=""/renew"">Renew a licence</option><option value=""/apply"">Apply for a licence</option></select></div><div class=""form-group""><label for=""postcode"">Postcode</label><input type=""text"" id=""postcode""></div><button type=""submit"">Continue</button></form></main><script>
+var service = document.getElementById(""service"");
+service.addEventListener(""change"", function () {
+if (service.value) window.location.href = service.value;
+});
+</script></body></html>","[""document"",""main"",""heading, Choose a service, level 1"",""paragraph"",""link, Get help choosing"",""end of paragraph"",""form"",""Your reference"",""textbox, Your reference"",""Service"",""combobox, Service, has popup listbox, not expanded"",""option, Choose a service, not selected, position 1, set size 3"",""option, Renew a licence, /renew, not selected, position 2, set size 3"",""option, Apply for a licence, /apply, not selected, position 3, set size 3"",""end of combobox, Service, has popup listbox, not expanded"",""Postcode"",""textbox, Postcode"",""button, Continue"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":9,""tag"":""a"",""role"":null,""id"":null,""name"":""Get help choosing""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":13,""tag"":""input"",""role"":null,""id"":""reference"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":16,""tag"":""select"",""role"":null,""id"":""service"",""name"":""Choose a service Renew a licence Apply for a licence""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":22,""tag"":""input"",""role"":null,""id"":""postcode"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":23,""tag"":""button"",""role"":null,""id"":null,""name"":""Continue""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"
+plain-form-no-focus-handlers::sample-0,plain-form-no-focus-handlers.html,accessible,"<body><main><h1>Join the mailing list</h1><p><a href=""/privacy"">How we use your details</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""email"">Email address</label><p class=""hint"" id=""email-hint"">We will only use this to send the newsletter.</p><input type=""email"" id=""email"" aria-describedby=""email-hint""></div><div class=""form-group""><label for=""frequency"">How often?</label><select id=""frequency""><option>Weekly</option><option>Monthly</option></select></div><div class=""form-group""><input type=""checkbox"" id=""confirm""><label for=""confirm"">I confirm I am over 16</label></div><button type=""submit"">Subscribe</button></form></main></body>","<html lang=""en""><head><meta charset=""utf-8""><title>Join the mailing list</title><style>
+body { font-family: system-ui, sans-serif; margin: 16px; }
+label { display: block; font-weight: bold; margin-bottom: 4px; }
+input, select { border: 1px solid #999; padding: 6px; width: 300px; }
+.form-group { margin-bottom: 20px; }
+.hint { color: #505a5f; font-size: 0.9em; margin: 0 0 4px; }
+button { padding: 8px 12px; }
+</style></head><body><main><h1>Join the mailing list</h1><p><a href=""/privacy"">How we use your details</a></p><form onsubmit=""event.preventDefault()""><div class=""form-group""><label for=""email"">Email address</label><p class=""hint"" id=""email-hint"">We will only use this to send the newsletter.</p><input type=""email"" id=""email"" aria-describedby=""email-hint""></div><div class=""form-group""><label for=""frequency"">How often?</label><select id=""frequency""><option>Weekly</option><option>Monthly</option></select></div><div class=""form-group""><input type=""checkbox"" id=""confirm""><label for=""confirm"">I confirm I am over 16</label></div><button type=""submit"">Subscribe</button></form></main></body></html>","[""document"",""main"",""heading, Join the mailing list, level 1"",""paragraph"",""link, How we use your details"",""end of paragraph"",""form"",""Email address"",""paragraph"",""We will only use this to send the newsletter."",""end of paragraph"",""textbox, Email address, We will only use this to send the newsletter."",""How often?"",""combobox, How often?, Weekly, has popup listbox, not expanded"",""option, Weekly, not selected, position 1, set size 2"",""option, Monthly, not selected, position 2, set size 2"",""end of combobox, How often?, Weekly, has popup listbox, not expanded"",""checkbox, I confirm I am over 16, not checked"",""I confirm I am over 16"",""button, Subscribe"",""end of form"",""end of main"",""end of document""]",,,,,,,,"{""components"":[{""component"":{""domIndex"":9,""tag"":""a"",""role"":null,""id"":null,""name"":""How we use your details""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":14,""tag"":""input"",""role"":null,""id"":""email"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":17,""tag"":""select"",""role"":null,""id"":""frequency"",""name"":""Weekly Monthly""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":21,""tag"":""input"",""role"":null,""id"":""confirm"",""name"":null},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null},{""component"":{""domIndex"":23,""tag"":""button"",""role"":null,""id"":null,""name"":""Subscribe""},""focusHeld"":true,""opened"":[],""submitted"":[],""mutations"":{""added"":0,""removed"":0,""attributes"":0,""addedNodes"":[],""attributeTargets"":[]},""urlChanged"":false,""focusMovedTo"":null,""navigatedTo"":null}],""focusedVia"":""programmatic"",""truncated"":false}"

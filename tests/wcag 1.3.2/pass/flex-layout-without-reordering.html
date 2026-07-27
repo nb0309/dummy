@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Applying from abroad - Passing Example</title>
+  <style>
+    .layout { display: flex; gap: 24px; align-items: flex-start; max-width: 820px; padding: 16px; }
+    .article { flex: 1 1 auto; }
+    /* Placed after the article in the DOM as well as beside it on screen. */
+    .aside {
+      flex: 0 0 240px;
+      background: #f3f2f1; padding: 12px; border-left: 4px solid #b1b4b6;
+    }
+    p { margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Applying from abroad</h1>
+
+    <!--
+      PASS: flex places the note beside the article rather than below it, but no
+      `order` is used, so the note still comes after the article it annotates in
+      both the DOM and the reading sequence. Side-by-side layout is not itself a
+      sequence problem -- reordering is.
+    -->
+    <div class="layout">
+      <div class="article">
+        <p>If you live outside the UK you must apply online and post your
+           supporting documents to the overseas processing centre.</p>
+        <p>Applications from abroad take up to twelve weeks, and you cannot use
+           the fast track service.</p>
+      </div>
+
+      <div class="aside">
+        <p>This does not apply to Ireland, where the common travel area rules are
+           different.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

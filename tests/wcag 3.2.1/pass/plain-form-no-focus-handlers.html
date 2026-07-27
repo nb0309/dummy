@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Join the mailing list</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input, select { border: 1px solid #999; padding: 6px; width: 300px; }
+    .form-group { margin-bottom: 20px; }
+    .hint { color: #505a5f; font-size: 0.9em; margin: 0 0 4px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <!--
+    PASS: the baseline. No scripts at all, so no component can do anything when it
+    receives focus. Included because 3.2.1 can only be violated by something that runs
+    on focus, and a suite made entirely of focus handlers would never show what their
+    absence looks like.
+  -->
+  <main>
+    <h1>Join the mailing list</h1>
+    <p><a href="/privacy">How we use your details</a></p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <p class="hint" id="email-hint">We will only use this to send the newsletter.</p>
+        <input type="email" id="email" aria-describedby="email-hint" />
+      </div>
+
+      <div class="form-group">
+        <label for="frequency">How often?</label>
+        <select id="frequency">
+          <option>Weekly</option>
+          <option>Monthly</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <input type="checkbox" id="confirm" />
+        <label for="confirm">I confirm I am over 16</label>
+      </div>
+
+      <button type="submit">Subscribe</button>
+    </form>
+  </main>
+</body>
+</html>

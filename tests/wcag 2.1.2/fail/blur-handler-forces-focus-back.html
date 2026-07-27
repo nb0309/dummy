@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Contact details</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 320px; }
+    .error { color: #d4351c; font-weight: bold; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Contact details</h1>
+    <p><a href="/account">Back to your account</a></p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="name">Your name</label>
+        <input type="text" id="name" value="A Nonymous" />
+      </div>
+
+      <!--
+        FAIL: inline validation implemented as a focus jail. A document-level
+        focusin handler pulls focus straight back to the email field for as long as
+        its value is invalid, and the field ships pre-filled with an invalid value,
+        so the trap is armed at load. Every Tab, every Shift+Tab and every attempt
+        to reach any other control is undone. The user cannot even reach the field
+        that would let them read the rest of the form, and nothing offers a way out.
+      -->
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" value="a.nonymous.example.com" aria-describedby="email-error" />
+        <p class="error" id="email-error">Enter an email address in the correct format</p>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" />
+      </div>
+
+      <button type="submit">Save contact details</button>
+    </form>
+  </main>
+
+  <script>
+    var email = document.getElementById("email");
+
+    function emailIsValid() {
+      return email.value.indexOf("@") > -1;
+    }
+
+    // Bounce focus back the instant it lands anywhere else. Written on focusin
+    // rather than blur because focus changes made during blur are unreliable.
+    document.addEventListener("focusin", function (event) {
+      if (event.target === email) return;
+      if (emailIsValid()) return;
+      email.focus();
+    });
+  </script>
+</body>
+</html>

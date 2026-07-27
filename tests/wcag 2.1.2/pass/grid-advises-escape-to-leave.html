@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose an appointment date</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input[type="text"] { border: 1px solid #999; padding: 6px; width: 220px; }
+    .calendar { border: 2px solid #0b0c0c; padding: 8px; width: 300px; margin-top: 12px; }
+    .calendar .instruction { margin: 0 0 8px; font-size: 0.9em; color: #0b0c0c; }
+    .week { display: flex; }
+    .day {
+      width: 40px; height: 34px; border: 1px solid #b1b4b6; background: #fff;
+      margin: 1px; cursor: pointer;
+    }
+    .day:focus { outline: 3px solid #ffdd00; }
+    button.continue { margin-top: 16px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Choose an appointment date</h1>
+
+    <label for="reference">Your reference</label>
+    <input type="text" id="reference" />
+
+    <!--
+      PASS: the same arrow-key grid as
+      ../fail/date-grid-consumes-tab-both-directions.html, which also consumes Tab.
+      It conforms on both halves of 2.1.2's second clause: there IS a keyboard way
+      out — Escape moves focus to the Continue button after the calendar — and the
+      user is ADVISED of it, by an instruction inside the widget that a screen
+      reader announces on the way in, and by aria-keyshortcuts on the focused day.
+      Consuming Tab is allowed; consuming it silently is not.
+    -->
+    <div class="calendar" role="grid" aria-label="August 2026" aria-describedby="calendar-instruction" id="calendar">
+      <p class="instruction" id="calendar-instruction">
+        Use the arrow keys to choose a date, then press Escape to leave the calendar.
+      </p>
+      <div class="week" role="row">
+        <button class="day" role="gridcell" type="button" tabindex="0" id="day-10" aria-keyshortcuts="Escape">10</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1" aria-keyshortcuts="Escape">11</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1" aria-keyshortcuts="Escape">12</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1" aria-keyshortcuts="Escape">13</button>
+        <button class="day" role="gridcell" type="button" tabindex="-1" aria-keyshortcuts="Escape">14</button>
+      </div>
+    </div>
+
+    <button type="button" class="continue" id="continue">Continue</button>
+  </main>
+
+  <script>
+    var calendar = document.getElementById("calendar");
+    var days = [].slice.call(calendar.querySelectorAll(".day"));
+    var continueButton = document.getElementById("continue");
+
+    calendar.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        continueButton.focus();
+        return;
+      }
+      if (event.key === "Tab") {
+        event.preventDefault();
+        return;
+      }
+      var current = days.indexOf(document.activeElement);
+      if (current < 0) return;
+      var next = current;
+      if (event.key === "ArrowRight") next = Math.min(current + 1, days.length - 1);
+      else if (event.key === "ArrowLeft") next = Math.max(current - 1, 0);
+      else return;
+      event.preventDefault();
+      days[current].setAttribute("tabindex", "-1");
+      days[next].setAttribute("tabindex", "0");
+      days[next].focus();
+    });
+  </script>
+</body>
+</html>

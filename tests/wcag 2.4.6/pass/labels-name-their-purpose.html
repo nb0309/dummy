@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Apply for a licence - Passing Example</title>
+  <style>
+    section { margin-bottom: 32px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    button { padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Apply for a licence</h1>
+
+    <section>
+      <!--
+        PASS: every label names what the field is FOR, not what shape the data
+        takes, so each one identifies its field on its own in a form-controls
+        list. The buttons say what they do rather than "Click here".
+      -->
+      <h2>Your identity</h2>
+      <div class="form-group">
+        <label for="passport">Passport number</label>
+        <input type="text" class="form-control" id="passport">
+      </div>
+      <div class="form-group">
+        <label for="dob">Date of birth</label>
+        <input type="text" class="form-control" id="dob">
+      </div>
+    </section>
+
+    <section>
+      <h2>Licence you are applying for</h2>
+      <div class="form-group">
+        <label for="licence-type">Type of licence</label>
+        <select id="licence-type" class="form-control">
+          <option>Standard</option>
+          <option>Provisional</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="start-date">Date you want the licence to start</label>
+        <input type="text" class="form-control" id="start-date">
+      </div>
+    </section>
+
+    <button type="button">Save and continue</button>
+    <button type="button">Save and come back later</button>
+  </main>
+</body>
+</html>

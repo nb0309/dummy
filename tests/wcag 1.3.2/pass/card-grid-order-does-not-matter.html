@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Popular services - Passing Example</title>
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 260px);
+      grid-auto-flow: column;
+      gap: 16px;
+      max-width: 560px;
+      padding: 16px;
+    }
+    .card { border: 1px solid #b1b4b6; padding: 12px; }
+    .card h2 { margin: 0 0 6px; font-size: 1rem; }
+    .card p { margin: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Popular services</h1>
+
+    <!--
+      PASS, and deliberately adversarial for the MEANING gate rather than the
+      geometry. grid-auto-flow: column fills down the first column then down the
+      second, so the reading order genuinely does not match a top-to-bottom,
+      left-to-right sweep. But these are four independent, self-contained service
+      tiles: no card refers to another, none continues from another, and reading
+      them in any order loses nothing. The sequence does not affect meaning, so
+      1.3.2 does not apply -- a checker that flags this on geometry alone is
+      reporting a defect that is not there.
+    -->
+    <div class="grid">
+      <div class="card">
+        <h2>Renew a passport</h2>
+        <p>Renew an adult or child passport online.</p>
+      </div>
+      <div class="card">
+        <h2>Book a driving test</h2>
+        <p>Book, move or cancel a practical test.</p>
+      </div>
+      <div class="card">
+        <h2>Check your State Pension</h2>
+        <p>See your forecast and contribution record.</p>
+      </div>
+      <div class="card">
+        <h2>Register to vote</h2>
+        <p>Register or update your details on the roll.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Edit your listing description</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .toolbar { border: 2px solid #0b0c0c; display: inline-flex; padding: 4px; }
+    .toolbar button { margin: 2px; padding: 6px 10px; }
+    .editor { border: 1px solid #999; padding: 8px; width: 420px; min-height: 90px; }
+    button.save { margin-top: 16px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Edit your listing description</h1>
+    <p><a href="/listings">Back to your listings</a></p>
+
+    <!--
+      FAIL: the formatting toolbar cycles focus inside itself. Its keydown handler
+      wraps Tab from the last button to the first and Shift+Tab from the first to
+      the last, so the three buttons form a closed loop that focus enters and never
+      leaves. The editor below and the Save button after it become unreachable by
+      keyboard. Unlike a modal dialog there is not even a notional reason to contain
+      focus here, and no Escape handler or instruction offers a way out.
+    -->
+    <div class="toolbar" role="toolbar" aria-label="Text formatting" id="toolbar">
+      <button type="button" id="bold">Bold</button>
+      <button type="button" id="italic">Italic</button>
+      <button type="button" id="link">Insert link</button>
+    </div>
+
+    <div class="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Listing description">Sunny two-bedroom flat close to the station.</div>
+
+    <button type="button" class="save">Save description</button>
+  </main>
+
+  <script>
+    var toolbar = document.getElementById("toolbar");
+    var buttons = [].slice.call(toolbar.querySelectorAll("button"));
+    var firstButton = buttons[0];
+    var lastButton = buttons[buttons.length - 1];
+
+    toolbar.addEventListener("keydown", function (event) {
+      if (event.key !== "Tab") return;
+      if (event.shiftKey && document.activeElement === firstButton) {
+        event.preventDefault();
+        lastButton.focus();
+      } else if (!event.shiftKey && document.activeElement === lastButton) {
+        event.preventDefault();
+        firstButton.focus();
+      }
+    });
+  </script>
+</body>
+</html>

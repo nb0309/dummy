@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Terms and conditions - Failing Example</title>
+  <style>
+    .icon-checkbox { display: inline-block; width: 16px; height: 16px; border: 1px solid #0b0c0c; }
+    .icon-checkbox[aria-checked="true"] { background: #0b0c0c; }
+  </style>
+  <script>
+    function toggleChecked(el) {
+      // The state itself is wired up correctly (aria-checked updates on
+      // interaction) -- this fixture isolates a DIFFERENT defect: there is no
+      // accessible name at all, so the reader can only ever announce
+      // "checkbox, not checked" / "checkbox, checked" with nothing to say
+      // which field that is.
+      var on = el.getAttribute("aria-checked") === "true";
+      el.setAttribute("aria-checked", String(!on));
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Terms and conditions</h1>
+    <div class="icon-checkbox" role="checkbox" tabindex="0" aria-checked="false" onclick="toggleChecked(this)"></div>
+    <span aria-hidden="true">I agree to the terms and conditions</span>
+  </main>
+</body>
+</html>

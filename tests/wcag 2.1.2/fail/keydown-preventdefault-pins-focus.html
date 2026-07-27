@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Report a problem</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    textarea { border: 1px solid #999; padding: 6px; width: 420px; height: 120px; font-family: monospace; }
+    .hint { color: #505a5f; font-size: 0.9em; }
+    button { margin-top: 16px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Report a problem</h1>
+    <p><a href="/help">Read the troubleshooting guide first</a></p>
+
+    <!--
+      FAIL: the editor swallows the Tab key to insert an indent character, so once
+      focus is in the textarea no number of Tab presses moves it anywhere. The
+      handler tests only `event.key === "Tab"`, which matches Shift+Tab too, so
+      backing out is blocked as well. There is no Escape handler and nothing tells
+      the user which key would release focus. Focus is pinned on one control: the
+      most literal form of a keyboard trap.
+    -->
+    <label for="details">What went wrong?</label>
+    <p class="hint" id="details-hint">Paste any error text you saw.</p>
+    <textarea id="details" aria-describedby="details-hint"></textarea>
+
+    <button type="button" id="send">Send report</button>
+  </main>
+
+  <script>
+    var editor = document.getElementById("details");
+    editor.addEventListener("keydown", function (event) {
+      if (event.key !== "Tab") return;
+      event.preventDefault();
+      var at = editor.selectionStart;
+      editor.value = editor.value.slice(0, at) + "\t" + editor.value.slice(editor.selectionEnd);
+      editor.selectionStart = editor.selectionEnd = at + 1;
+    });
+  </script>
+</body>
+</html>

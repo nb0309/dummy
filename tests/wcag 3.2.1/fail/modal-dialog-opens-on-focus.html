@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Update your address</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; }
+    main { padding: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 260px; }
+    .form-group { margin-bottom: 20px; }
+    .overlay { position: fixed; inset: 0; background: rgba(11, 12, 12, 0.6); }
+    .dialog {
+      position: fixed; top: 90px; left: 50%; transform: translateX(-50%);
+      width: 360px; background: #fff; border: 4px solid #0b0c0c; padding: 20px;
+    }
+    .dialog h2 { margin-top: 0; }
+    button { padding: 8px 12px; }
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Update your address</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <input type="text" id="postcode" />
+      </div>
+
+      <!--
+        FAIL: focusing the address line throws up a modal asking the user to verify
+        their identity first. The dialog is already in the DOM and merely un-hidden, so
+        NOTHING IS ADDED to the document — the only trace is the `hidden` attribute
+        coming off a role="dialog" element, plus focus moving into it. A probe that
+        only counted added nodes would see nothing at all here.
+      -->
+      <div class="form-group">
+        <label for="address-line">Address line 1</label>
+        <input type="text" id="address-line" />
+      </div>
+
+      <div class="form-group">
+        <label for="town">Town or city</label>
+        <input type="text" id="town" />
+      </div>
+
+      <button type="submit">Save address</button>
+    </form>
+  </main>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <div role="dialog" aria-modal="true" aria-labelledby="verify-title" id="verify-dialog" class="dialog" hidden>
+    <h2 id="verify-title">Verify your identity</h2>
+    <p>Enter the code we sent to your phone before changing your address.</p>
+    <label for="code">Security code</label>
+    <input type="text" id="code" />
+    <button type="button" id="verify">Verify</button>
+  </div>
+
+  <script>
+    var addressLine = document.getElementById("address-line");
+    var dialog = document.getElementById("verify-dialog");
+    var overlay = document.getElementById("overlay");
+
+    addressLine.addEventListener("focus", function () {
+      dialog.hidden = false;
+      overlay.hidden = false;
+      document.getElementById("code").focus();
+    });
+  </script>
+</body>
+</html>

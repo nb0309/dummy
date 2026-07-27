@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Update your details - Passing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .hint { color: #505a5f; display: block; font-weight: normal; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Update your details</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <!--
+          PASS: the <label> wraps the control, so the association needs no `for`
+          at all, and the instruction is inside the label -- it becomes part of
+          the field's accessible name and cannot be separated from it.
+        -->
+        <label>
+          Full name
+          <span class="hint">Include any middle names</span>
+          <input type="text" class="form-control" id="fullname">
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Telephone number
+          <span class="hint">Include the area code, for example 01632 960001</span>
+          <input type="tel" class="form-control" id="phone">
+        </label>
+      </div>
+
+      <button type="submit">Save</button>
+    </form>
+  </main>
+</body>
+</html>

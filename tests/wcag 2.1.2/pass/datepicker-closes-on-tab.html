@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>When did the problem start?</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { border: 1px solid #999; padding: 6px; width: 220px; }
+    .picker { border: 2px solid #0b0c0c; padding: 8px; width: 260px; margin: 8px 0; }
+    .picker button { width: 40px; height: 32px; margin: 1px; }
+    .form-group { margin-bottom: 20px; }
+    button.submit { padding: 8px 12px; }
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>When did the problem start?</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="start-date">Start date</label>
+        <input type="text" id="start-date" value="10 August 2026" aria-describedby="picker-hint" />
+
+        <!--
+          PASS: the picker is open at load and has its own key handling, but it
+          releases focus rather than holding it. Tab closes the picker and moves
+          focus on to the next field; Shift+Tab closes it and returns focus to the
+          date input. The forward sweep therefore runs cleanly off the end of the
+          page. A widget may handle Tab itself — what 2.1.2 requires is that
+          handling it still lets focus leave.
+        -->
+        <p id="picker-hint">Press Tab to close the calendar and carry on.</p>
+        <div class="picker" role="group" aria-label="August 2026" id="picker">
+          <button type="button">10</button>
+          <button type="button">11</button>
+          <button type="button">12</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reference">Reference number</label>
+        <input type="text" id="reference" />
+      </div>
+
+      <button type="submit" class="submit">Continue</button>
+    </form>
+  </main>
+
+  <script>
+    var picker = document.getElementById("picker");
+    var dateField = document.getElementById("start-date");
+    var reference = document.getElementById("reference");
+
+    picker.addEventListener("keydown", function (event) {
+      if (event.key !== "Tab") return;
+      event.preventDefault();
+      picker.hidden = true;
+      if (event.shiftKey) dateField.focus();
+      else reference.focus();
+    });
+  </script>
+</body>
+</html>

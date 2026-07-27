@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Filter your results</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input, select { border: 1px solid #999; padding: 6px; width: 240px; }
+    .form-group { margin-bottom: 20px; }
+    button { padding: 8px 12px; }
+    .results { border-top: 1px solid #b1b4b6; margin-top: 20px; padding-top: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Filter your results</h1>
+
+    <form id="filters" action="/results" method="get">
+      <div class="form-group">
+        <label for="keyword">Keyword</label>
+        <input type="text" id="keyword" name="keyword" />
+      </div>
+
+      <!--
+        FAIL: the filter form submits itself as soon as the sort control receives
+        focus, reloading the results before the user has changed anything. Tabbing
+        through the form is enough to throw away whatever they had typed above and
+        replace the page. Submitting a form is a change of context; doing it on focus
+        means the user cannot even pass through the control.
+      -->
+      <div class="form-group">
+        <label for="sort">Sort by</label>
+        <select id="sort" name="sort">
+          <option value="relevance">Relevance</option>
+          <option value="date">Date</option>
+        </select>
+      </div>
+
+      <button type="submit">Apply filters</button>
+    </form>
+
+    <div class="results">
+      <h2>3 results</h2>
+      <p><a href="/results/1">Planning application 24/0193</a></p>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("sort").addEventListener("focus", function () {
+      document.getElementById("filters").submit();
+    });
+  </script>
+</body>
+</html>

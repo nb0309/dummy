@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Choose a service</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    select, input { border: 1px solid #999; padding: 6px; width: 260px; }
+    .form-group { margin-bottom: 20px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Choose a service</h1>
+    <p><a href="/help">Get help choosing</a></p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="reference">Your reference</label>
+        <input type="text" id="reference" />
+      </div>
+
+      <!--
+        FAIL: the jump menu navigates as soon as the selection CHANGES, and nothing
+        anywhere on the page warns that it will. A keyboard user opening the menu and
+        arrowing down the options is taken away on the first one they land on, before
+        reaching the option they wanted.
+
+        This is the same page as ../../wcag 3.2.1/pass/navigation-on-activation-not-focus.html,
+        which PASSES 3.2.1 — merely focusing the select does nothing. One page, two
+        criteria, opposite verdicts, and the trigger is the only difference.
+
+        Compare ../pass/select-navigates-on-change-with-warning.html, which behaves
+        identically and conforms purely because it says so beforehand.
+      -->
+      <div class="form-group">
+        <label for="service">Service</label>
+        <select id="service">
+          <option value="">Choose a service</option>
+          <option value="/renew">Renew a licence</option>
+          <option value="/apply">Apply for a licence</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <input type="text" id="postcode" />
+      </div>
+
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+
+  <script>
+    var service = document.getElementById("service");
+    service.addEventListener("change", function () {
+      if (service.value) window.location.href = service.value;
+    });
+  </script>
+</body>
+</html>

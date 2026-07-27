@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Search results - Failing Example</title>
+  <style>
+    body { margin: 0; }
+    main { position: relative; padding: 140px 16px 16px; }
+    /* The filter panel is painted across the top of the page ... */
+    .filters {
+      position: absolute; top: 0; left: 0; right: 0;
+      background: #f3f2f1; padding: 16px; border-bottom: 2px solid #b1b4b6;
+    }
+    .filters a { margin-right: 16px; }
+    .result { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Search results</h1>
+
+    <div class="result"><a href="/result/1">Apply for a provisional licence</a></div>
+    <div class="result"><a href="/result/2">Renew your provisional licence</a></div>
+    <div class="result"><a href="/result/3">Replace a lost licence</a></div>
+
+    <nav class="filters" aria-label="Filter results">
+      <!--
+        FAIL: ... but it is the LAST thing in the DOM, so the keyboard reaches it
+        only after every search result. A sighted user reads the filters first and
+        expects to reach them first; a keyboard user has to tab past the entire
+        result list to get to controls that are drawn above it.
+      -->
+      <a href="?filter=guides">Guides</a>
+      <a href="?filter=forms">Forms</a>
+      <a href="?filter=news">News</a>
+    </nav>
+  </main>
+</body>
+</html>

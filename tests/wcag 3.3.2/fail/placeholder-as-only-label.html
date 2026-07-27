@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Sign up for updates - Failing Example</title>
+  <style>
+    .form-group { margin-bottom: 24px; }
+    .form-control { border: 1px solid #999; padding: 6px; width: 320px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Sign up for updates</h1>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <!--
+          FAIL: the placeholder is the only thing naming this field. There is no
+          <label>, no aria-label and no aria-labelledby, so the only visible
+          prompt is painted inside the box and disappears the moment the user
+          types. Nothing tells the user what the field wanted once it has a value.
+        -->
+        <input type="email" class="form-control" id="email" placeholder="Email address">
+      </div>
+
+      <div class="form-group">
+        <!-- Same defect on the second field. -->
+        <input type="text" class="form-control" id="postcode" placeholder="Postcode, for example SW1A 1AA">
+      </div>
+
+      <button type="submit">Subscribe</button>
+    </form>
+  </main>
+</body>
+</html>

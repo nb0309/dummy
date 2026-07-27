@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Notification settings - Passing Example</title>
+  <style>
+    .switch { display: inline-block; width: 40px; height: 20px; border-radius: 10px; background: #b1b4b6; cursor: pointer; }
+    .switch[aria-checked="true"] { background: #00703c; }
+  </style>
+  <script>
+    function toggleSwitch(el) {
+      // PASS: the control's own state attribute is updated on interaction, so
+      // the change is exposed to assistive tech, not just drawn on screen.
+      var on = el.getAttribute("aria-checked") === "true";
+      el.setAttribute("aria-checked", String(!on));
+    }
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Notification settings</h1>
+    <p id="notifLabel">Email notifications</p>
+    <div class="switch" role="switch" tabindex="0" aria-checked="false" aria-labelledby="notifLabel"
+      onclick="toggleSwitch(this)" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleSwitch(this);}">
+    </div>
+  </main>
+</body>
+</html>
