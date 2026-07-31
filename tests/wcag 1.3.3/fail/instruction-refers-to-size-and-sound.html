@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Upload your evidence</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .drop { border: 3px dashed #b1b4b6; padding: 40px; margin: 16px 0; width: 460px; }
+    .drop.compact { padding: 8px; width: 200px; }
+    button { padding: 8px 12px; }
+    input[type="file"] { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Upload your evidence</h1>
+
+    <!--
+      FAIL, on two characteristics at once, and neither can be corroborated by any
+      measurement — which is exactly why this fixture exists.
+
+      "The large panel below" identifies a target by size and position. Size is
+      recorded (font-size, box dimensions) but a probe cannot know which element an
+      author called "large", and here there are two panels of different sizes with no
+      names to tell them apart.
+
+      "Wait for the beep" is worse: nothing in the DOM represents a sound at all, so
+      there is nothing to resolve it against and no non-auditory equivalent anywhere on
+      the page. A deaf user has no way to know when the upload finished.
+
+      Both are honest cases for the probe reporting a bare lexicon match and the
+      judgement being handed to the reader.
+    -->
+    <p>Drop your files onto the large panel below. Wait for the beep before you
+      press Continue.</p>
+
+    <div class="drop">
+      <input type="file" id="evidence" />
+    </div>
+
+    <div class="drop compact">
+      <input type="file" id="extras" />
+    </div>
+
+    <button type="button">Continue</button>
+  </main>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Appeals and complaints</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; max-width: 40em; }
+    dl { margin: 16px 0; }
+    dt { font-weight: bold; margin-top: 12px; }
+    button { padding: 8px 12px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Appeals and complaints</h1>
+
+    <!--
+      PASS, and the fixture the whole "candidate, not finding" caveat exists for.
+
+      This page is stuffed with words the sensory lexicon matches, and not one of them
+      is a sensory reference:
+
+        "the right to appeal"        - right, meaning entitlement
+        "see below for our address"  - below, pointing at a section, not a control
+        "a large number of appeals"  - large, describing a quantity
+        "the green belt"             - green, part of a proper noun
+        "in the round"               - round, an idiom
+        "we take a dim view"         - no control is being identified anywhere
+
+      Every one of these will come back as a lexicon hit, and that is correct
+      behaviour: the probe finds candidates and does not judge them. What must not
+      happen is any of them being reported as a defect. None of these sentences is an
+      instruction for operating a component, and several do not concern a component at
+      all — which is the first question the criterion asks and the first thing the
+      skill is told to establish.
+    -->
+    <dl>
+      <dt>Do I have the right to appeal?</dt>
+      <dd>Yes. Everyone has the right to appeal a penalty charge notice within 28 days.
+        We receive a large number of appeals, so please allow three weeks for a reply.</dd>
+
+      <dt>Where do I send it?</dt>
+      <dd>See below for our address. Appeals about green belt land go to a different
+        team, and we will forward yours if it arrives here by mistake.</dd>
+
+      <dt>How is my appeal considered?</dt>
+      <dd>An officer who was not involved in the original decision looks at your case
+        in the round before deciding.</dd>
+    </dl>
+
+    <h2>Our address</h2>
+    <p>Appeals Team, Civic Centre, Ashworth, AS1 2CD.</p>
+
+    <button type="button">Start an appeal</button>
+  </main>
+</body>
+</html>

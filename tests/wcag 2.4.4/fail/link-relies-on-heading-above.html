@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Benefits and support - Failing Example</title>
+</head>
+<body>
+  <main>
+    <h1>Benefits and support</h1>
+
+    <!--
+      FAIL: each "More information" link is intelligible ONLY because of the <h2>
+      above it. A heading is not programmatically determined link context — WCAG
+      limits that to the same sentence, paragraph, list item or table cell, the
+      header cell of a containing table cell, or aria-describedby/title. A user
+      who reaches these links from a links list, or tabs straight onto one, never
+      hears the heading.
+
+      Sighted users reading in flow see this as perfectly clear, which is exactly
+      why it survives review so often.
+    -->
+    <h2>Universal Credit</h2>
+    <p>A payment to help with your living costs.</p>
+    <p><a href="/benefits/universal-credit">More information</a></p>
+
+    <h2>Personal Independence Payment</h2>
+    <p>Help with extra costs caused by a long-term health condition.</p>
+    <p><a href="/benefits/pip">More information</a></p>
+
+    <h2>Attendance Allowance</h2>
+    <p>Support if you need help with personal care.</p>
+    <p><a href="/benefits/attendance-allowance">More information</a></p>
+  </main>
+</body>
+</html>

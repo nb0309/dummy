@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Latest updates - Passing Example</title>
+  <style>
+    article { margin-bottom: 28px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Latest updates</h1>
+
+    <!--
+      PASS, and the most important file in this suite.
+
+      Four links are all announced "link, Read more" and all go somewhere
+      different — the exact shape a duplicate-detector flags. It is NOT a 2.4.4
+      failure, because 2.4.4 is Link Purpose (IN CONTEXT): each link ends a
+      sentence that names its own destination, and that sentence is
+      programmatically determined context a reader can offer alongside the link.
+
+      What this page does fail is 2.4.9 Link Purpose (Link Only), which requires
+      the name to work with no context at all. 2.4.9 is Level AAA and out of
+      scope, so the correct answer here is "accessible" plus a note — applying the
+      AAA standard by accident is the failure mode this fixture exists to catch.
+
+      Compare tests/wcag 2.4.4/fail/read-more-links-without-context.html.
+    -->
+    <article>
+      <h2>Changes to passport fees</h2>
+      <p>Standard adult renewal fees rise from April.
+        <a href="/news/passport-fees">Read more</a> about the passport fee changes.</p>
+    </article>
+
+    <article>
+      <h2>New driving test centres</h2>
+      <p>Six new centres open across the north west.
+        <a href="/news/test-centres">Read more</a> about the new driving test centres.</p>
+    </article>
+
+    <article>
+      <h2>Winter fuel payment dates</h2>
+      <p>Payments will be made between November and December.
+        <a href="/news/winter-fuel">Read more</a> about winter fuel payment dates.</p>
+    </article>
+
+    <article>
+      <h2>Tax return deadline</h2>
+      <p>Online returns must be filed by 31 January.
+        <a href="/news/tax-deadline">Read more</a> about the tax return deadline.</p>
+    </article>
+  </main>
+</body>
+</html>

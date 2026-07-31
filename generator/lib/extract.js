@@ -9,10 +9,10 @@
 //   - 4.1.3 status messages   (role=status/alert/log/progressbar/…, aria-live, output/progress)
 //   - 3.3.1 error identification / 3.3.2 labels & instructions (form) -- opt-in
 //     via --sc 3.3.1 or --sc 3.3.2, see CANDIDATES
-//   - 2.4.3 focus order / 2.4.6 headings & labels / 1.3.2 meaningful sequence /
-//     2.1.2 no keyboard trap / 3.2.1 on focus / 3.2.2 on input (the page itself) --
-//     opt-in via --sc, which takes an early branch: page-level criteria, so one
-//     sample per file
+//   - 2.4.3 focus order / 2.4.4 link purpose / 2.4.6 headings & labels /
+//     1.3.2 meaningful sequence / 2.1.2 no keyboard trap / 3.2.1 on focus /
+//     3.2.2 on input (the page itself) -- opt-in via --sc, which takes an early
+//     branch: page-level criteria, so one sample per file
 // with a fallback content block so every file yields at least one sample.
 // Media/image inside an interactive control escalate to that control (so the
 // link/button is the sample), and structural containers suppress their
@@ -153,9 +153,14 @@ export async function extractSamples(page, { sc = null } = {}) {
     // the focus SEQUENCE (2.4.3), the SET of headings and labels (2.4.6), the
     // READING sequence (1.3.2), whether focus can ESCAPE at all (2.1.2), what
     // happens when each component RECEIVES focus (3.2.1) or has its SETTING CHANGED
-    // (3.2.2) -- not in any one element. These replace the candidate sweep rather
-    // than adding to it, so each file yields one row.
-    const PAGE_SC = ["2.4.3", "2.4.6", "1.3.2", "2.1.2", "3.2.1", "3.2.2"];
+    // (3.2.2), or whether each link is distinguishable from the OTHER links (2.4.4)
+    // -- not in any one element. These replace the candidate sweep rather than
+    // adding to it, so each file yields one row.
+    //
+    // 2.4.4 belongs here and not in the element sweep even though a link IS a single
+    // element, because "ambiguous" is a comparison: one "Read more" is only a defect
+    // relative to the other three, and a per-link sample can never see them.
+    const PAGE_SC = ["2.4.3", "2.4.4", "2.4.6", "1.3.2", "1.3.3", "2.1.2", "3.2.1", "3.2.2"];
     if (PAGE_SC.includes(sc)) {
       // <body>, deliberately NOT <main>: these criteria are judged on content that
       // routinely sits OUTSIDE main -- skip links, banner nav and footers carry

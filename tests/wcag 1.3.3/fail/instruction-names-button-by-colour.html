@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Review your application</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .actions { margin-top: 20px; }
+    .actions button {
+      padding: 10px 18px; margin-right: 10px; border: 0; color: #fff;
+      font-size: 1rem; border-radius: 4px;
+    }
+    .go { background: #00703c; }
+    .stop { background: #d4351c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Review your application</h1>
+    <p>You are applying for a residents' parking permit for 14 Ashworth Road.</p>
+
+    <!--
+      FAIL: the instruction identifies the control by colour and by nothing else.
+      "The green button" tells a sighted user exactly which one to press and tells a
+      screen reader user nothing at all — both buttons announce as buttons, and neither
+      announces its colour. The two are otherwise identical in shape, size and position,
+      so colour is genuinely the only thing distinguishing them.
+
+      Compare ../pass/instruction-names-button-and-colour.html, which is the same page
+      with the same two buttons and the same colours, and conforms because the sentence
+      also names the button.
+    -->
+    <p>When you are happy with your answers, press the green button to submit your
+      application. Press the red button to discard it.</p>
+
+    <div class="actions">
+      <button type="button" class="go">Confirm</button>
+      <button type="button" class="stop">Discard</button>
+    </div>
+  </main>
+</body>
+</html>

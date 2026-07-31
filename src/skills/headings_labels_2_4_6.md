@@ -7,11 +7,11 @@ applies_when:
   requires_column: [sr_headings_labels]
 signals:
   - field: sr_headings_labels
-    look_for: "PRIMARY. The rotor view: `{headings, labels, links}`, every entry carrying what the reader ANNOUNCES for it. Read each list AS A LIST — out of document order, ignoring the page around it — because that is how assistive-tech users consume them: a headings menu, a form-controls list, a links list. Each heading carries `introduces` (the content it heads), each label its `tag`/`type` and `underHeading`, each link its `href` and `underHeading`. Ask two separate questions of every entry: does it identify itself among its peers, and is it TRUE of what it introduces?"
+    look_for: "PRIMARY. The rotor view: `{headings, labels, links}`, every entry carrying what the reader ANNOUNCES for it. Read each list AS A LIST — out of document order, ignoring the page around it — because that is how assistive-tech users consume them: a headings menu, a form-controls list. Each heading carries `introduces` (the content it heads) and each label its `tag`/`type` and `underHeading`. Ask two separate questions of every entry: does it identify itself among its peers, and is it TRUE of what it introduces? Judge HEADINGS and LABELS only — `links` is listed for background and is 2.4.4's to decide."
   - field: sr_transcript
     look_for: "SECONDARY. The reading-order walk. An item can read perfectly well here — anchored by the paragraph before it — and still be useless in the rotor list. Use this to confirm what surrounding context a sighted or in-flow reader gets, which is exactly the context the list takes away."
   - field: element_html
-    look_for: "CORROBORATION. The markup behind an entry: whether a heading's text comes from nested markup or aria-label, whether a label is a <label for> or an aria-label, whether repeated link text really does point at different destinations."
+    look_for: "CORROBORATION. The markup behind an entry: whether a heading's text comes from nested markup or aria-label, and whether a label is a <label for> or an aria-label."
   - field: parent_html
     look_for: "the <html> element, for anything in <head> (page <title>) that establishes what the page as a whole is about, against which the h1 can be judged"
 ---
@@ -60,25 +60,30 @@ Flag `inaccessible` under `2.4.6` when any of the following holds:
   announced "button, Click here" where one requests a statement and another
   cancels a claim irreversibly.
 
-## Link text — report under `2.4.4`
-This skill also inspects `links`, because ambiguous link text is the same class of
-defect. But link purpose is formally **WCAG 2.4.4 Link Purpose (In Context)**, not
-2.4.6. So when the finding is about a link:
+## Link text — NOT judged here
+The rotor view lists `links` because a links list is part of how readers navigate,
+and repeated link text is worth seeing while you read the page. But **do not report
+any finding about a link from this row**, under `2.4.4` or any other key.
 
-- put it in `reason` under the key **`2.4.4`**, not `2.4.6`;
-- flag it when the **same announced link text resolves to different `href`s** —
-  four "Read more" links going to four different articles cannot be told apart in
-  a links list;
-- do **not** flag repeated link text that always resolves to the **same** `href`.
-  A "Contact us" link in the header, body and footer is ordinary, useful markup.
-  The destinations are what make repetition ambiguous, never the repetition itself.
+Link purpose is **WCAG 2.4.4 Link Purpose (In Context)**, and "in context" is the
+operative half: 2.4.4 lets the sentence, paragraph, list item or table cell around
+a link be what makes it unambiguous. Four "Read more" links going to four different
+articles **pass** 2.4.4 when each ends its own article's paragraph — what they fail
+is 2.4.9 (Link Only), which is Level AAA and out of scope.
+
+This view cannot tell those two cases apart. It records `underHeading`, a
+nearest-preceding heading, which is *not* programmatically determined link context
+at all, and it does not capture the sentence or block that is. Judging link purpose
+from it would decide a Level A criterion by the wrong standard.
+
+Pages are captured for 2.4.4 separately, with `--sc 2.4.4`, which collects that
+context. Leave it to that capture.
 
 ## Pass criteria
 - Every heading is distinguishable from the others in the list, and describes the
   content it actually introduces.
 - Labels name what the field is **for**, so each identifies its control on its own.
 - Controls that do different things are labelled differently.
-- Repeated link text always resolves to the same destination.
 - An `aria-label` supplying a more descriptive name than the visible text is fine —
   it is the announced form this criterion is judged on.
 
@@ -104,7 +109,8 @@ Four neighbours are close, and this skill judges only **descriptiveness**:
 - **4.1.2** owns whether an accessible name is **exposed** to assistive tech. If
   nothing is announced, that is 4.1.2. If something is announced but says nothing,
   that is 2.4.6.
-- **2.4.4** owns link purpose — see the reporting rule above.
+- **2.4.4** owns link purpose entirely, and is captured separately — see the
+  section above. Never emit a `2.4.4` key from this row.
 
 ## Examples
 - INACCESSIBLE (2.4.6): three `<h2>Overview</h2>` headings introducing Universal
@@ -119,14 +125,14 @@ Four neighbours are close, and this skill judges only **descriptiveness**:
   only next to their heading; announced alone they identify nothing.
 - INACCESSIBLE (2.4.6): three `button, Click here` controls that report a change,
   request a statement, and permanently cancel a claim.
-- INACCESSIBLE (**2.4.4**): four `link, Read more` entries with hrefs
+- NOT A FINDING HERE: four `link, Read more` entries with hrefs
   `/news/passport-fees`, `/news/test-centres`, `/news/winter-fuel`,
-  `/news/tax-deadline` → same text, four destinations.
+  `/news/tax-deadline`. Same text, four destinations — and still possibly a pass,
+  because the paragraph around each one may name its article. That is 2.4.4's
+  question and needs the `--sc 2.4.4` capture. Report nothing for it here.
 - ACCESSIBLE: headings "Universal Credit" / "Personal Independence Payment" /
   "Attendance Allowance" → each names its own section.
 - ACCESSIBLE: labels "Passport number", "Date of birth", "Date you want the licence
   to start" → each states a purpose.
-- ACCESSIBLE: `link, Contact us` appearing in header, body and footer, every one
-  pointing at `/contact` → repeated text, one destination, not ambiguous.
 - ACCESSIBLE: `<h2>Delivery address</h2>` introducing "Street address Town or city
   Postcode" → the heading is true of its content.

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Review your application</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .actions { margin-top: 20px; }
+    .actions button {
+      padding: 10px 18px; margin-right: 10px; border: 0; color: #fff;
+      font-size: 1rem; border-radius: 4px;
+    }
+    .go { background: #00703c; }
+    .stop { background: #d4351c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Review your application</h1>
+    <p>You are applying for a residents' parking permit for 14 Ashworth Road.</p>
+
+    <!--
+      PASS, and the decisive case. This is ../fail/instruction-names-button-by-colour.html
+      with one word changed per sentence: the same two buttons, the same colours, the
+      same layout, the same sentence shape. It conforms because the instruction ALSO
+      names its referent — "the green Confirm button" — so the colour is an additional
+      cue rather than the only one.
+
+      1.3.3 forbids relying SOLELY on a sensory characteristic. Mentioning colour is
+      not the defect and never was; mentioning nothing else is.
+    -->
+    <p>When you are happy with your answers, press the green Confirm button to submit
+      your application. Press the red Discard button to throw it away.</p>
+
+    <div class="actions">
+      <button type="button" class="go">Confirm</button>
+      <button type="button" class="stop">Discard</button>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Report a problem - Passing Example</title>
+  <style>
+    header, footer { background: #f3f2f1; padding: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav aria-label="Main">
+      <p><a href="/contact">Contact us</a></p>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Report a problem</h1>
+
+    <!--
+      PASS: "Contact us" is announced three times, but all three point at
+      /contact. Repetition on its own is never the defect — the destinations are
+      what make repeated text ambiguous. A links list showing three identical
+      entries that all go to one page costs the user nothing.
+    -->
+    <p>Tell us about a problem with a service so we can fix it.
+      If you would rather speak to someone, <a href="/contact">Contact us</a>.</p>
+
+    <p>Reports are usually acknowledged within five working days.</p>
+  </main>
+
+  <footer>
+    <p><a href="/contact">Contact us</a></p>
+  </footer>
+</body>
+</html>

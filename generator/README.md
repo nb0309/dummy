@@ -33,6 +33,10 @@ node capture.mjs --sc 3.3.2 --dir "tests/wcag 3.3.2/pass" --label accessible   -
 node capture.mjs --sc 2.4.3 --dir "tests/wcag 2.4.3/fail" --label inaccessible --out ds_243_bad
 node capture.mjs --sc 2.4.3 --dir "tests/wcag 2.4.3/pass" --label accessible   --out ds_243_good
 
+# 2.4.4, page-level, with the link-purpose/context probe:
+node capture.mjs --sc 2.4.4 --dir "tests/wcag 2.4.4/fail" --label inaccessible --out ds_244_bad
+node capture.mjs --sc 2.4.4 --dir "tests/wcag 2.4.4/pass" --label accessible   --out ds_244_good
+
 # 2.4.6 is page-level too, with the headings/labels rotor view:
 node capture.mjs --sc 2.4.6 --dir "tests/wcag 2.4.6/fail" --label inaccessible --out ds_246_bad
 node capture.mjs --sc 2.4.6 --dir "tests/wcag 2.4.6/pass" --label accessible   --out ds_246_good
@@ -52,12 +56,17 @@ node capture.mjs --sc 3.2.1 --dir "tests/wcag 3.2.1/pass" --label accessible   -
 # 3.2.2, page-level, with the on-input context probe:
 node capture.mjs --sc 3.2.2 --dir "tests/wcag 3.2.2/fail" --label inaccessible --out ds_322_bad
 node capture.mjs --sc 3.2.2 --dir "tests/wcag 3.2.2/pass" --label accessible   --out ds_322_good
+
+# 1.3.3, page-level, with the sensory-characteristics scan:
+node capture.mjs --sc 1.3.3 --dir "tests/wcag 1.3.3/fail" --label inaccessible --out ds_133_bad
+node capture.mjs --sc 1.3.3 --dir "tests/wcag 1.3.3/pass" --label accessible   --out ds_133_good
 ```
 
 `--label` applies to the **whole run**, not per `--dir`, which is why pass and
 defect fixtures are captured separately and merged afterwards (into
 `../4.1.3_dataset.csv`, `../3.3.1_dataset.csv`, `../3.3.2_dataset.csv`,
-`../2.4.3_dataset.csv`, `../2.4.6_dataset.csv`, `../1.3.2_dataset.csv`). The `--dir`
+`../2.4.3_dataset.csv`, `../2.4.4_dataset.csv`, `../2.4.6_dataset.csv`,
+`../1.3.2_dataset.csv`). The `--dir`
 walk is flat: point it at `…/fail` and `…/pass` individually, not at their parent.
 
 ## 4.1.3 fixture markers
@@ -250,29 +259,111 @@ above it. `sr_transcript` (reading order) hides this; the list exposes it.
   `select`, `textarea`, `button`), not `<label>` elements: a control may be named by
   `aria-label` with no `<label>` at all, and it is the announced *name* 2.4.6 judges.
   Each carries `underHeading`, the visual context the rotor strips.
-- `links` — `{phrase, text, href, underHeading}`. `href` drives the one fully
-  objective link check.
+- `links` — `{phrase, text, href, underHeading}`. Listed for background only; see
+  "Links are not judged here" below.
 
 ### What the rotor view can and cannot settle
 
-Three signals are objective, and `src/evidence.py` computes them: duplicate
-headings, duplicate control labels, and **repeated link text resolving to different
-destinations**. Measured against the ten fixtures they catch three of the five defect
-fixtures.
+Two signals are objective, and `src/evidence.py` computes them: duplicate headings
+and duplicate control labels. Measured against the ten fixtures they catch two of
+the five defect fixtures.
 
-The remaining two are the criterion itself and are deliberately **not** mechanised:
-whether a heading is *generic* ("Section 1", "More information") and whether it is
-*accurate* about its section. A keyword blocklist would only fake that judgement, so
-the evidence renders the objective findings as **observations** and states plainly
-that a clean result is not a pass.
+The rest is the criterion itself and is deliberately **not** mechanised: whether a
+heading is *generic* ("Section 1", "More information") and whether it is *accurate*
+about its section. A keyword blocklist would only fake that judgement, so the
+evidence renders the objective findings as **observations** and states plainly that
+a clean result is not a pass.
 
-The link check is careful in one direction that matters: repetition alone is not the
-defect. `"Contact us"` in header, body and footer all pointing at `/contact` is
-ordinary markup and must not be flagged — only differing destinations make repeated
-text ambiguous. One pass fixture exists purely to hold that line.
+### Links are not judged here
 
-Link findings belong to **2.4.4 Link Purpose**, not 2.4.6, so the skill reports them
-under a `2.4.4` reason key while headings/labels/buttons stay under `2.4.6`.
+Repeated link text resolving to different destinations **is** computed and rendered,
+but explicitly as background, and the skill is told not to emit a finding for it.
+
+The reason is that this view cannot settle the question. Link purpose is **2.4.4
+Link Purpose (In Context)**, and "in context" does the work: 2.4.4 lets the sentence
+or block around a link be what tells it apart. Four `"Read more"` links going to four
+different articles **pass** 2.4.4 when each ends its own article's paragraph; what
+they fail is 2.4.9 (Link Only), which is AAA and out of scope. The rotor records
+`underHeading` — a nearest-preceding heading, which is not programmatically
+determined link context at all — and never captures the sentence that is. Reporting
+a 2.4.4 verdict from it decides a Level A criterion by the AAA standard.
+
+Pages are captured for link purpose separately, with `--sc 2.4.4`, which collects
+that context. See the next section.
+
+## 2.4.4 fixture markers
+
+**None**, and no interaction — `linkPurposeProbe()` is a plain read. Page-level
+(`<body>`, one row per file, same `PAGE_SC` branch as 2.4.3 and 2.4.6).
+
+Page-level is a deliberate choice for a criterion that is *about* a single element.
+A link is one element, but "ambiguous" is a **comparison**: one `"Read more"` is only
+a defect relative to the other three, and a per-link sample can never see them.
+
+`sr_link_purpose` holds `{links, truncated}`, each link carrying:
+
+- `phrase` / `text` / `href` — what the reader announces, the visible text, and where
+  it goes.
+- `ariaLabel`, `labelledBy`, `title`, `imgAlt` — **how the announced name is
+  supplied**. Techniques ARIA7/ARIA8 pass this criterion by giving a name the visible
+  text does not, and it is the announced form that is judged; `imgAlt` is recorded
+  with `null` for a missing `alt`, which is why a reader falls back to the URL.
+- `context` — `{sentence, block, blockTag, tableHeaders, describedBy}`, the
+  **programmatically determined link context**.
+
+### The context is the whole feature
+
+WCAG limits that context to a **closed list**: text in the same sentence, paragraph,
+list item or table cell, the header cell of a table cell containing the link, and
+text wired to it by `aria-describedby`/`title`. The probe collects exactly those and
+nothing else — deliberately, because the tempting extras (the heading above, the
+neighbouring link, whatever sits next to it visually) are not offered to the user
+alongside the link and must not be allowed to excuse it.
+
+Two details are load-bearing:
+
+- **`sentence` is captured separately from `block`** because they are separate items
+  on WCAG's list and they routinely disagree. A link at the end of a six-sentence
+  paragraph is disambiguated by the paragraph but not by its own sentence; a probe
+  that only recorded the block would call that a pass without noticing it had a
+  weaker one.
+- **A block whose entire text *is* the link is recorded as no context.**
+  `<p><a>Read more</a></p>` has an enclosing paragraph containing nothing but the
+  link. Storing `"Read more"` as its own context would make a bare link look
+  disambiguated by itself, which is precisely the defect in
+  `fail/read-more-links-without-context.html`.
+
+### What is objective and what is not
+
+`src/evidence.py` computes three observations: one announced name serving several
+destinations, a name on the closed F63/H30 action/position list ("click here", "read
+more", "details", …), and a name that is a bare URL. **None of them is a verdict**,
+and each is rendered *paired with the context that is allowed to rescue it* — because
+2.4.4 permits every one of those phrases when the surrounding text supplies the
+purpose.
+
+That pairing is what the fixtures test. `fail/read-more-links-without-context.html`
+and `pass/read-more-links-with-context.html` are the same four ambiguous links; only
+the context differs, and it flips the answer. The failure mode this suite is built to
+catch is a classifier that flags repeated link text on sight.
+
+One defect is not mechanisable at all: a name that is unique, specific and
+**untrue** of its destination (`"Download the 2024 price list"` →
+`href="/contact-us"`). No duplicate check or phrase list reaches it — only comparing
+the name against the `href` does. `fail/link-name-misdescribes-destination.html`
+holds that case, and it is why the evidence closes by telling the model that a clean
+observation list is not a pass.
+
+Two scope boundaries are enforced in the evidence rather than left to the prompt: a
+link that announces **no name at all** is called out as 4.1.2's finding (and 1.1.1's
+where an image with no `alt` caused it), and identical text separated by distinct
+contexts is called out as **2.4.9, out of scope**.
+
+Table headers are resolved from `headers="…"` where present, otherwise positionally
+(the `<th>`s of the cell's own row, plus the nearest `<th>` above it in the same
+column). Positional indexing means a table using `colspan`/`rowspan` may attribute
+the wrong column header, so headers are recorded as context and never as the
+deciding evidence.
 
 ## 1.3.2 fixture markers
 
@@ -574,23 +665,133 @@ same recorded measurement**, differing on nothing but `advisory`. One fails and 
 conforms. That pair is the reason the advisory is captured rather than inferred, and it
 is what the isolation between behaviour and exception is measured against.
 
+## 1.3.3 fixture markers
+
+**None, and no `<script>` either** — the first new suite since 2.4.6 that is pure markup
+and CSS, because nothing has to *happen* for this defect to exist. Annotations stay in
+HTML comments as always.
+
+> Design rationale, including the two bugs the fixtures caught:
+> [`docs/1.3.3-sensory-characteristics.md`](../docs/1.3.3-sensory-characteristics.md).
+
+### A criterion that fails in prose
+
+1.3.3 is shaped unlike anything else here. 2.1.2, 3.2.1 and 3.2.2 fail in **behaviour**;
+2.4.3, 2.4.4, 2.4.6 and 1.3.2 fail in **structure**. This one fails in **language**:
+"click the round button on the right" is a defect and "click the round Submit button on
+the right" is not, and the markup is byte-identical either way.
+
+That forces the page-level sample — an instruction and the component it points at are
+different elements, often far apart, and the per-element sweep would capture the
+component and drop the sentence that fails.
+
+It also makes the probe's job narrow. Most of what this criterion needs is already in
+`element_html` (the `<body>` sample carries the prose *and* the components) and
+`parent_html` (the stylesheet). `sensoryReferenceProbe()` deliberately does not restate
+any of that. It adds three things:
+
+| | why |
+|---|---|
+| **resolved layout geometry** | what is actually left/right/above/below is the product of flex, grid, float and absolute positioning. CSS rules are not positions; only the rendered box is one. |
+| **computed colour** | `class="go"` says nothing until the cascade runs. |
+| `namesInSentence` | derivable, but it is the decisive test, and the probe already knows every component's real accessible name. |
+
+One fail fixture exists purely to prove the first row is a measurement and not an
+inference: `instruction-refers-to-position-only.html` uses `flex-direction: row-reverse`,
+so the links the instruction calls "on the right" are the ones written **first** in
+source. They resolve to `x=1044` against a page midline of `640`.
+
+### The lexicon is crude, and one fixture proves it
+
+`sr_sensory_reference` holds `{references, candidates, truncated}`. Detection is a word
+list covering all six characteristics; **position and colour are resolved against
+measurement, shape/size/orientation/sound are reported as text matches only**, and every
+reference says which of its categories carry corroboration.
+
+The list matches ordinary prose constantly. `position-word-is-not-an-instruction.html`
+is built entirely out of such matches — "the **right** to appeal", "see **below** for our
+address", "a **large** number of appeals", "**green** belt land", "in the **round**" —
+and is a **pass**. Four candidates, no instruction among them, no component identified.
+The evidence therefore presents references as candidates and makes the model answer two
+questions in order: *is this an instruction identifying a component at all?* and only
+then *is the sensory characteristic the sole identifier?*
+
+`candidates` is deliberately wider than "controls": interactive elements, `<label>`s
+(the usual carrier of a colour an instruction refers to), **and** named regions and
+headings — without the last, "the Refine results panel on the right" has nothing to
+match against and a conforming page reads as a failing one.
+
+### What the scan can and cannot settle
+
+Against the ten fixtures the decisive pair is
+`instruction-names-button-by-colour` / `instruction-names-button-and-colour`: the same
+two buttons, the same computed colours, the same sentence shape, and one word of
+difference. `namesInSentence` is `[]` on one and `["Confirm"]` on the other, and that is
+the whole distinction between a failure and a conforming page.
+
+What is left to the model is everything the lexicon cannot know: whether a sentence is
+an instruction, whether a name in a sentence is being used as a name (in "press the red
+button to **discard** it" the word matches a button called "Discard", but it is a verb),
+and whether "round" or "large" or "the beep" refers to anything at all.
+
 Flags:
 - `--dir <path>`  input suite folder, relative to the repo root; repeatable.
   Default: `tests/SC 1.3.1`, `tests/wcag 1.1.1`, `tests/wcag 4.1.3/fail`,
-  `tests/wcag 4.1.2/fail`.
+  `tests/wcag 4.1.2/fail`. Skipped entirely if `--url` is given instead (see below).
+- `--url <address>`  seed a same-origin crawl of a live page/site instead of (or
+  alongside) local fixtures; repeatable. See "Crawling live URLs" below.
+- `--max-pages <n>`  cap on pages captured per `--url` seed (default `30`).
 - `--sc <value>`  opt into a criterion's extra sample sweep. `3.3.1` and `3.3.2`
   both add `form` to the candidate set, and `3.3.2` additionally switches on the
   labels/instructions probe. `2.4.3` and `2.4.6` each replace the sweep entirely
   with a single page-level sample, switching on the focus-order Tab sweep and the
-  headings/labels rotor view respectively; `1.3.2`, `2.1.2`, `3.2.1` and `3.2.2` do the same,
-  switching on the reading-order walk, the keyboard-trap escape ladder, the on-focus
-  context probe and the on-input context probe respectively. Unset for every other
-  suite. There is no inference from folder or file names.
+  headings/labels rotor view respectively; `1.3.2`, `1.3.3`, `2.1.2`, `3.2.1` and `3.2.2` do the same,
+  switching on the reading-order walk, the sensory-characteristics scan, the
+  keyboard-trap escape ladder, the on-focus context probe and the on-input context probe
+  respectively. Unset for every other suite. There is no inference from folder or file
+  names.
 - `--label <value>`  ground-truth label for every row (default `inaccessible`;
   these suites are all-inaccessible examples).
 - `--out <base>`  output base name written to the repo root (default
   `dataset_generated`) → `<base>.csv` (+ BOM, Excel-safe) and `<base>.jsonl`.
 - `--no-sr`  skip the virtual screen reader.
+
+## Crawling live URLs
+
+`--url <address>` points the capture pipeline at a real, deployed page instead
+of a local fixture. Unlike `--dir`, which walks a fixed folder of files, `--url`
+**crawls**: it captures the seed page, reads every `<a href>` on it, and queues
+same-origin links for capture too, breadth-first, until `--max-pages` is
+reached or the queue empties. Every downstream step — DOM extraction, the
+virtual screen reader, every `--sc` probe — is identical to fixture capture;
+only how the page was reached differs, so `lib/extract.js` and `lib/vsr.js`
+needed no changes at all.
+
+```bash
+node capture.mjs --url https://example.com --max-pages 15 --out live_site
+node capture.mjs --url https://a.example --url https://b.example --max-pages 10
+node capture.mjs --dir "tests/wcag 1.1.1" --url https://example.com --out mixed
+```
+
+- **Same-origin only.** Links are filtered to the seed's own origin (resolved
+  *after* following any redirect, so `http://` seeds that redirect to `https://`
+  still crawl correctly); external links are recorded nowhere and never queued.
+- **`sample_id`/`source_file`** for a crawled row are derived from the page's
+  URL (`lib/crawl.js`'s `urlToFile`) rather than a filename, e.g.
+  `example.com_about::el3`.
+- **No local server involved.** `--dir` fixtures are served off disk through the
+  ephemeral static server (`lib/server.js`); `--url` targets are navigated to
+  directly and never touch it.
+- **Safety of the interaction probes on real pages:** the 3.2.1/3.2.2 context
+  probes never let a real `window.open` or form submission happen — both are
+  intercepted and only the *attempt* is recorded (see `lib/vsr.js`'s
+  `armContextRecorders`) — and 3.3.1's `triggerErrors` is self-gated on a
+  `data-error-trigger` marker that only this repo's own fixtures carry, so it's
+  a no-op on real pages. The one probe that does perform a real interaction is
+  4.1.2's role/state/value probe, which genuinely clicks real controls
+  (checkboxes, toggles, etc.) to observe the accessible-name change — harmless
+  on most pages, but only point `--url` at sites you're authorized to crawl and
+  interact with at scale.
 
 ## How it scales across criteria
 
@@ -607,11 +808,13 @@ does a single document-order sweep over a candidate set covering:
 | 3.3.1 | `form` — **only under `--sc 3.3.1`**. The whole form is the sample, because the SC needs the field, its label and the error text judged together; a bare error `<p>` in isolation cannot show whether the item in error is identified. The form suppresses everything inside it, so an error summary carrying `role="alert"` does not also surface as a second, evidence-poor row. |
 | 3.3.2 | `form` — **only under `--sc 3.3.2`**. Same sample as 3.3.1 and for the same reason: a bare `<input>` cannot show whether the label beside it is actually associated with it, nor whether a hint elsewhere in the form is wired to it. |
 | 2.4.3 | `body` — **only under `--sc 2.4.3`**, and it *replaces* the sweep rather than adding to it. Focus order is a property of the whole page, so the page is the sample and each file yields exactly one row. |
+| 2.4.4 | `body` — **only under `--sc 2.4.4`**, same page-level branch. A link is a single element, but "ambiguous" is a comparison against the OTHER links, which a per-link sample cannot see; and the context that decides the criterion (a table's header cells) can sit far outside the link's own parent. |
 | 2.4.6 | `body` — **only under `--sc 2.4.6`**, same page-level branch. Headings and labels are judged as a *set* (is each one distinguishable from its peers?), which no single element can show. |
 | 1.3.2 | `body` — **only under `--sc 1.3.2`**, same page-level branch. The reading *sequence* is a property of the whole document, and covers all content, not just the focusable subset 2.4.3 sees. |
 | 2.1.2 | `body` — **only under `--sc 2.1.2`**, same page-level branch. Whether focus can escape is a property of the page: the trap is wherever the keyboard ends up stuck, which no single element can be nominated in advance. |
 | 3.2.1 | `body` — **only under `--sc 3.2.1`**, same page-level branch. *Any* component may change context when focused, and the effect (focus moving, the page navigating, a dialog opening elsewhere) lands outside the component that caused it, so the page is the sample. |
 | 3.2.2 | `body` — **only under `--sc 3.2.2`**, same page-level branch and the same reasoning as 3.2.1, with the trigger changed from receiving focus to having a setting changed. |
+| 1.3.3 | `body` — **only under `--sc 1.3.3`**, same page-level branch. An instruction and the component it points at are different elements, often far apart; the per-element sweep would capture the component and drop the sentence that fails. |
 
 Media/images nested inside an interactive control escalate to that control
 (e.g. an image-only link is captured as the `<a>`). Containers suppress their
@@ -655,7 +858,8 @@ split into characters.
   3.3.2 labels/instructions probe, the 2.4.3 focus-order Tab sweep — which also
   drives Playwright's keyboard, since synthetic key events cannot move native focus
   — the 2.4.6 headings/labels rotor view, the 1.3.2 reading-order walk, the 2.1.2
-  keyboard-trap escape ladder, and the 3.2.1/3.2.2 context probes). The two context
+  keyboard-trap escape ladder, the 3.2.1/3.2.2 context probes, and the 1.3.3
+  sensory-characteristics scan). The two context
   probes share their recorders (`armContextRecorders`), their element enumeration
   (`visibleHandles`) and their record shape, differing only in what triggers the change.
   The keyboard probes share one in-page stop reader,

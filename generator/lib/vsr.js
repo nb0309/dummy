@@ -679,6 +679,172 @@ export async function headingLabelProbe(page, { sectionChars = 200 } = {}) {
 }
 
 /**
+ * WCAG 2.4.4 link-purpose probe. Every link on the page with what the reader
+ * ANNOUNCES for it, where it goes, and — the part this criterion actually turns
+ * on — its **programmatically determined link context**.
+ *
+ * That context is why this is a separate probe rather than a reading of the 2.4.6
+ * rotor view. WCAG defines it as a CLOSED list: text in the same sentence,
+ * paragraph, list item or table cell as the link, or in the header cell of a table
+ * cell containing it, plus whatever is wired to the link by aria-describedby or
+ * title. The rotor view records `underHeading` instead, and a nearest-preceding
+ * heading is NOT on that list — a reader does not offer it alongside the link. So
+ * the rotor can only ever see that four links say "Read more"; it cannot see the
+ * sentence that makes each of them unambiguous, which is the whole of 2.4.4.
+ *
+ * The distinction that follows matters, and the skill leans on it: repeated link
+ * text going to different destinations fails 2.4.4 only when the CONTEXT also
+ * fails to tell them apart. Four "Read more" links each ending their own article's
+ * paragraph pass this criterion (they fail 2.4.9 Link Only, which is AAA and out
+ * of scope). Recording the context is what makes that judgeable instead of guessed.
+ *
+ * `sentence` is captured separately from `block` because they are separate items on
+ * WCAG's list and they routinely disagree: a link at the end of a six-sentence
+ * paragraph is disambiguated by the paragraph but not by its own sentence, and a
+ * skill that only ever saw the paragraph would call that a pass without noticing it
+ * had a weaker one.
+ *
+ * Read-only: no clicks, no focus changes, no navigation. Safe to run beside the
+ * per-element transcripts.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {{contextChars?: number, maxLinks?: number}} opts
+ * @returns {Promise<{links: Array<object>, truncated: boolean}|null>}
+ */
+export async function linkPurposeProbe(page, { contextChars = 320, maxLinks = 60 } = {}) {
+  return page.evaluate(
+    async ({ contextChars, maxLinks }) => {
+      const mod = window.__vsrMod;
+      if (!mod || !document.body) return null;
+
+      const say = async (el) => {
+        const v = new mod.Virtual();
+        await v.start({ container: el });
+        const phrase = (await v.lastSpokenPhrase()) || "";
+        await v.stop();
+        return phrase;
+      };
+      const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
+      const cap = (s) => (s.length > contextChars ? s.slice(0, contextChars) + "..." : s);
+
+      // The containers WCAG names as link context. <th>/<dt>/<figcaption>/
+      // <blockquote> are not literally on the list, but they are the same
+      // relationship -- the nearest block that a reader can be sent to as a unit.
+      const BLOCK = "p, li, td, th, dd, dt, figcaption, blockquote";
+
+      /** Text of the elements named by an id-list attribute (describedby/labelledby). */
+      const textFromIds = (el, attr) =>
+        (el.getAttribute(attr) || "")
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((id) => {
+            const target = document.getElementById(id);
+            return target ? clean(target.textContent) : "";
+          })
+          .filter(Boolean)
+          .join(" ") || null;
+
+      /**
+       * The sentence containing the link, out of its block's text. Split on
+       * terminal punctuation followed by space; if the link's text cannot be
+       * located in any one sentence (it spans two, or the block is a fragment
+       * with no punctuation at all) the whole block IS the sentence, which is
+       * the honest answer rather than a guess.
+       */
+      const sentenceAround = (blockText, linkText) => {
+        if (!blockText || !linkText) return null;
+        const sentences = blockText.split(/(?<=[.!?])\s+/).filter(Boolean);
+        const hit = sentences.find((s) => s.includes(linkText));
+        return hit ? clean(hit) : null;
+      };
+
+      /**
+       * Header cells for a link sitting in a table cell. `headers="…"` wins where
+       * it is present; otherwise the <th>s of the cell's own row plus the nearest
+       * <th> above it in the same column. Column indexing is positional, so a table
+       * using colspan/rowspan may attribute the wrong column header -- recorded as
+       * context, never as the deciding evidence.
+       */
+      const headersFor = (el) => {
+        const cell = el.closest("td, th");
+        if (!cell) return [];
+        const explicit = (cell.getAttribute("headers") || "").split(/\s+/).filter(Boolean);
+        if (explicit.length) {
+          return explicit
+            .map((id) => {
+              const target = document.getElementById(id);
+              return target ? clean(target.textContent) : "";
+            })
+            .filter(Boolean);
+        }
+        const table = cell.closest("table");
+        const row = cell.parentElement;
+        if (!table || !row) return [];
+        const cells = [...row.children];
+        const colIndex = cells.indexOf(cell);
+        const found = [];
+        for (const c of cells) {
+          if (c !== cell && c.tagName === "TH") found.push(clean(c.textContent));
+        }
+        const rows = [...(table.rows || [])];
+        const rowIndex = rows.indexOf(row);
+        for (let r = rowIndex - 1; r >= 0; r--) {
+          const candidate = rows[r].children[colIndex];
+          if (candidate && candidate.tagName === "TH") {
+            found.push(clean(candidate.textContent));
+            break;
+          }
+        }
+        return [...new Set(found.filter(Boolean))];
+      };
+
+      const linkEls = [...document.querySelectorAll("a[href], [role='link']")];
+      const truncated = linkEls.length > maxLinks;
+
+      const links = [];
+      for (const el of linkEls.slice(0, maxLinks)) {
+        const text = clean(el.textContent);
+        const block = el.closest(BLOCK);
+        // A link that is its own block (a bare <a> under <nav>, a card wrapper)
+        // has no enclosing context to be disambiguated BY -- record null rather
+        // than falling back to a parent that is really the whole page.
+        const enclosing = block && block !== el ? clean(block.textContent) : null;
+        // ...and a block whose ENTIRE text is the link adds nothing either.
+        // `<p><a>Read more</a></p>` has an enclosing paragraph, but there is no
+        // context inside it: recording "Read more" here would make a bare link
+        // look as though it were disambiguated by itself.
+        const blockText = enclosing && enclosing !== text ? enclosing : null;
+        const images = [...el.querySelectorAll("img, svg, [role='img']")];
+
+        links.push({
+          phrase: await say(el),
+          text,
+          href: el.getAttribute("href"),
+          // How the announced name is arrived at -- ARIA7/ARIA8 supply a name the
+          // visible text does not, and that name is what the criterion is judged on.
+          ariaLabel: el.getAttribute("aria-label") || null,
+          labelledBy: textFromIds(el, "aria-labelledby"),
+          title: el.getAttribute("title") || null,
+          // Image-only links: the name comes from alt, and a missing alt is why
+          // the reader falls back to announcing the URL.
+          imgAlt: images.length ? images.map((i) => i.getAttribute("alt")) : null,
+          context: {
+            sentence: blockText ? cap(sentenceAround(blockText, text) || "") || null : null,
+            block: blockText ? cap(blockText) : null,
+            blockTag: blockText ? block.tagName.toLowerCase() : null,
+            tableHeaders: headersFor(el),
+            describedBy: textFromIds(el, "aria-describedby"),
+          },
+        });
+      }
+
+      return { links, truncated };
+    },
+    { contextChars, maxLinks }
+  );
+}
+
+/**
  * WCAG 1.3.2 reading-order probe. Walks the reader's virtual cursor over the whole
  * page and records, for every step, what was announced AND where on the page it
  * came from.
@@ -1647,4 +1813,325 @@ export async function inputContextProbe(page, { url, settleMs = 120, maxComponen
 
   await disposeAll();
   return { components, changedVia: "dispatched", truncated: total > maxComponents };
+}
+
+/**
+ * The six sensory characteristics 1.3.3 names, as a word lexicon.
+ *
+ * Crude on purpose, and the consumer is told so. "Right" also means correct, "below"
+ * usually points at a section rather than a control, and "Green Party" is not a colour
+ * reference. This finds CANDIDATE sentences; whether one is an instruction identifying
+ * a component is a judgement the probe does not make and cannot make.
+ */
+const SENSORY_LEXICON = {
+  position: [
+    "on the right", "on the left", "to the right", "to the left", "right-hand",
+    "left-hand", "above", "below", "at the top", "at the bottom", "top of the",
+    "bottom of the", "beside", "next to", "adjacent", "opposite", "first column",
+    "second column", "left column", "right column", "in the corner", "upper", "lower",
+  ],
+  colour: [
+    "red", "green", "blue", "yellow", "orange", "purple", "pink", "grey", "gray",
+    "black", "white", "coloured", "colored", "in colour", "in color", "highlighted in",
+  ],
+  shape: [
+    "round", "circular", "circle", "square", "rectangular", "rectangle", "triangular",
+    "triangle", "oval", "star-shaped", "arrow-shaped", "diamond", "shaped",
+  ],
+  size: [
+    "large", "larger", "largest", "small", "smaller", "smallest", "big", "bigger",
+    // "narrow" and "short" are deliberately absent: "narrow your search" and "short
+    // delay" are ordinary prose, and they fired on two fixtures that mean neither.
+    "tiny", "wide", "tall",
+  ],
+  orientation: [
+    "portrait", "landscape", "horizontal", "vertical", "sideways", "upright",
+    "top-left", "top-right", "bottom-left", "bottom-right",
+  ],
+  sound: [
+    "beep", "chime", "tone sounds", "audio cue", "the sound", "a sound", "alarm",
+    "when it rings", "audible",
+  ],
+};
+
+/** Position and colour are the two categories a measurement can corroborate. */
+const RESOLVABLE = ["position", "colour"];
+
+/**
+ * WCAG 1.3.3 sensory-characteristics probe. Finds candidate sensory references in the
+ * page's prose and resolves them, where resolution is possible, against what is
+ * actually rendered.
+ *
+ * This criterion is shaped unlike the others here. 2.1.2, 3.2.1 and 3.2.2 fail in
+ * BEHAVIOUR; 2.4.3, 1.3.2 and 2.4.6 fail in STRUCTURE. 1.3.3 fails in PROSE: "click the
+ * round button on the right" is a defect and "click the round Submit button on the
+ * right" is not, and the markup is identical either way. So most of what the criterion
+ * needs is already in `element_html` (the page-level sample carries the prose AND the
+ * controls) and `parent_html` (the stylesheet). This probe deliberately does not restate
+ * any of that. It supplies three things:
+ *
+ *  1. **Resolved layout geometry.** What is actually left/right/above/below is the
+ *     product of flex, grid, float and absolute positioning. CSS rules are not
+ *     positions; only the rendered box is one. No amount of reading the stylesheet
+ *     yields this -- one fixture puts the "right-hand" links FIRST in source order
+ *     precisely to prove the difference.
+ *  2. **Computed colour.** `class="btn-primary"` says nothing until the cascade runs.
+ *  3. **`namesInSentence`** -- for each sensory sentence, which controls' real
+ *     accessible names appear inside that same sentence. A convenience rather than
+ *     something underivable, but it is the decisive test: "press the green Submit
+ *     button" names its referent, "press the green button" does not. The 1.3.3
+ *     equivalent of 2.4.6's same-text-different-destination check.
+ *
+ * Four of the six characteristics -- shape, size, orientation, sound -- are detected but
+ * NOT resolved: no measurement corroborates "round" or "after the beep". Each reference
+ * says which of its categories carry corroboration, so a reader can tell measured
+ * evidence from a bare lexicon hit.
+ *
+ * Read-only: no clicks, no key presses, no DOM mutation, so it runs beside the other
+ * read-only page probes rather than in the post-transcript slot.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {{maxReferences?: number, maxControls?: number}} opts
+ * @returns {Promise<{references: Array<object>, candidates: Array<object>, truncated: boolean}|null>}
+ */
+export async function sensoryReferenceProbe(page, { maxReferences = 40, maxControls = 60 } = {}) {
+  return page.evaluate(
+    async ({ lexicon, resolvable, maxReferences, maxControls }) => {
+      const mod = window.__vsrMod;
+      if (!mod || !document.body) return null;
+
+      const say = async (el) => {
+        const v = new mod.Virtual();
+        await v.start({ container: el });
+        const phrase = (await v.lastSpokenPhrase()) || "";
+        await v.stop();
+        return phrase;
+      };
+      const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
+
+      /**
+       * Lexicon match on WORD boundaries, never as a substring. Plain `includes` had
+       * "red" matching inside "required" and "considered", which invented a colour
+       * reference on two pages that contain none -- and one of them is the fixture
+       * that exists to prove ordinary prose is not a finding.
+       * Multi-word and hyphenated entries are matched literally: they are specific
+       * enough already, and  behaves awkwardly around punctuation.
+       *
+       * String.raw, not a plain string: "" in a JS string literal is the
+       * BACKSPACE character, not a word boundary, so the naive spelling silently
+       * matches nothing at all and every single-word entry in the lexicon stops
+       * firing. Only the multi-word ones keep working, which makes it look like a
+       * tuning problem rather than a broken regex.
+       */
+      const wordMatch = (haystack, word) =>
+        /[\s-]/.test(word)
+          ? haystack.indexOf(word) !== -1
+          : new RegExp(String.raw`\b${word}\b`).test(haystack);
+
+      // Document-relative, the convention 2.4.3 and 1.3.2 fixed: a viewport-relative
+      // rect would encode scroll position and the capture would not be reproducible.
+      const rectOf = (el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          x: Math.round(r.left + window.scrollX),
+          y: Math.round(r.top + window.scrollY),
+          w: Math.round(r.width),
+          h: Math.round(r.height),
+        };
+      };
+
+      /** Nearest named colour for an rgb() string, via hue. null when transparent. */
+      const nameColour = (value) => {
+        const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(value || "");
+        if (!m) return null;
+        const r = +m[1], g = +m[2], b = +m[3];
+        const alpha = m[4] === undefined ? 1 : parseFloat(m[4]);
+        if (alpha === 0) return null;
+        const rn = r / 255, gn = g / 255, bn = b / 255;
+        const max = Math.max(rn, gn, bn);
+        const min = Math.min(rn, gn, bn);
+        const light = (max + min) / 2;
+        const delta = max - min;
+        if (delta < 0.08) return light > 0.85 ? "white" : light < 0.15 ? "black" : "grey";
+        let hue;
+        if (max === rn) hue = ((gn - bn) / delta) % 6;
+        else if (max === gn) hue = (bn - rn) / delta + 2;
+        else hue = (rn - gn) / delta + 4;
+        hue = Math.round(hue * 60);
+        if (hue < 0) hue += 360;
+        if (hue < 15 || hue >= 345) return "red";
+        if (hue < 45) return "orange";
+        if (hue < 70) return "yellow";
+        if (hue < 165) return "green";
+        if (hue < 255) return "blue";
+        if (hue < 290) return "purple";
+        return "pink";
+      };
+
+      // ---- the things an instruction could be pointing at ----------------------
+      // Not only controls. Three kinds of referent, and all three are needed:
+      //  - interactive elements, the usual target of "press the ... button";
+      //  - <label>s, because in a form it is the label that carries the colour an
+      //    instruction refers to ("fields in red are required");
+      //  - named regions and headings, because "the Refine results panel on the right"
+      //    points at a landmark, and without them the name in that sentence has
+      //    nothing to match against and a conforming page reads as a failing one.
+      const CANDIDATE =
+        "a[href], button, input:not([type='hidden']), select, textarea, summary, " +
+        "[role='button'], [role='link'], label, " +
+        "nav, aside, [role='region'], [role='navigation'], [aria-label], " +
+        "h1, h2, h3, h4, h5, h6";
+
+      const candidates = [];
+      for (const el of [...document.querySelectorAll(CANDIDATE)].slice(0, maxControls)) {
+        if (el.getClientRects().length === 0) continue;
+        const style = getComputedStyle(el);
+        candidates.push({
+          phrase: await say(el),
+          name:
+            el.getAttribute("aria-label") ||
+            clean(el.textContent) ||
+            el.getAttribute("title") ||
+            el.getAttribute("placeholder") ||
+            null,
+          tag: el.tagName.toLowerCase(),
+          role: el.getAttribute("role") || null,
+          id: el.id || null,
+          rect: rectOf(el),
+          colour: {
+            text: style.color,
+            textName: nameColour(style.color),
+            background: style.backgroundColor,
+            backgroundName: nameColour(style.backgroundColor),
+            borderRadius: style.borderTopLeftRadius,
+            fontSize: style.fontSize,
+          },
+        });
+      }
+
+      // ---- candidate sensory sentences -----------------------------------------
+      const BLOCK =
+        "p, li, td, th, dd, dt, figcaption, blockquote, label, legend, " +
+        "h1, h2, h3, h4, h5, h6, span, div";
+      const pageMidX = document.documentElement.scrollWidth / 2;
+      const pageHeight = document.documentElement.scrollHeight;
+
+      const references = [];
+      let truncated = false;
+
+      for (const block of document.querySelectorAll(BLOCK)) {
+        if (references.length >= maxReferences) {
+          truncated = true;
+          break;
+        }
+        // Leaf blocks only, so a wrapper does not repeat its children's prose.
+        if (block.querySelector(BLOCK)) continue;
+        if (block.getClientRects().length === 0) continue;
+        const text = clean(block.textContent);
+        if (!text) continue;
+
+        for (const sentence of text.split(/(?<=[.!?])\s+/).filter(Boolean)) {
+          const lower = sentence.toLowerCase();
+          const categories = [];
+          const matched = [];
+          for (const category of Object.keys(lexicon)) {
+            const hits = lexicon[category].filter((w) => wordMatch(lower, w));
+            if (hits.length) {
+              categories.push(category);
+              for (const h of hits) matched.push(h);
+            }
+          }
+          if (!categories.length) continue;
+
+          // The decisive check: does a real control's accessible name appear in this
+          // same sentence? Names under three characters are skipped -- a one-word
+          // name like "Go" matches far too much ordinary prose to mean anything.
+          const namesInSentence = [
+            ...new Set(
+              candidates
+                .map((c) => c.name)
+                .filter((n) => n && n.length >= 3 && lower.includes(n.toLowerCase()))
+            ),
+          ];
+
+          const here = rectOf(block);
+          const resolved = {};
+
+          if (categories.indexOf("position") !== -1) {
+            const centre = (c) => c.rect.x + c.rect.w / 2;
+            const claims = {};
+            if (lower.indexOf("right") !== -1) {
+              claims.right = candidates.filter((c) => centre(c) > pageMidX).map((c) => c.name);
+            }
+            if (lower.indexOf("left") !== -1) {
+              claims.left = candidates.filter((c) => centre(c) <= pageMidX).map((c) => c.name);
+            }
+            if (lower.indexOf("below") !== -1 || lower.indexOf("bottom") !== -1) {
+              claims.below = candidates
+                .filter((c) => c.rect.y > here.y + here.h)
+                .map((c) => c.name);
+            }
+            if (lower.indexOf("above") !== -1 || lower.indexOf("top") !== -1) {
+              claims.above = candidates
+                .filter((c) => c.rect.y + c.rect.h < here.y)
+                .map((c) => c.name);
+            }
+            resolved.position = {
+              instructionAt: here,
+              pageMidX: Math.round(pageMidX),
+              pageHeight,
+              claims,
+            };
+          }
+
+          if (categories.indexOf("colour") !== -1) {
+            const named = lexicon.colour.filter(
+              (w) => wordMatch(lower, w) && w.length <= 7
+            );
+            resolved.colour = {
+              named,
+              matching: candidates
+                .filter(
+                  (c) =>
+                    named.indexOf(c.colour.textName) !== -1 ||
+                    named.indexOf(c.colour.backgroundName) !== -1
+                )
+                .map((c) => ({
+                  name: c.name,
+                  text: c.colour.text,
+                  textName: c.colour.textName,
+                  background: c.colour.background,
+                  backgroundName: c.colour.backgroundName,
+                })),
+            };
+          }
+
+          references.push({
+            sentence,
+            element: {
+              tag: block.tagName.toLowerCase(),
+              role: block.getAttribute("role") || null,
+              id: block.id || null,
+            },
+            rect: here,
+            categories,
+            matched: [...new Set(matched)],
+            // Which of this reference's categories carry measured corroboration, so a
+            // reader can tell resolved evidence from a bare lexicon hit.
+            resolvedCategories: categories.filter((c) => resolvable.indexOf(c) !== -1),
+            unresolvedCategories: categories.filter((c) => resolvable.indexOf(c) === -1),
+            namesInSentence,
+            resolved,
+          });
+          if (references.length >= maxReferences) {
+            truncated = true;
+            break;
+          }
+        }
+      }
+
+      return { references, candidates, truncated };
+    },
+    { lexicon: SENSORY_LEXICON, resolvable: RESOLVABLE, maxReferences, maxControls }
+  );
 }

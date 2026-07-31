@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Document services - Passing Example</title>
+  <style>
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #b1b4b6; padding: 8px 12px; text-align: left; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Document services</h1>
+
+    <!--
+      PASS, and the fixture that exercises the table half of the context rule.
+
+      Six links are announced "link, Renew" or "link, Apply" — three of each, all
+      going somewhere different. What tells them apart is the table cell they sit
+      in: WCAG names the header cell of a containing table cell as
+      programmatically determined link context, so "Renew" in the Passport row
+      under the Adult column resolves to "renew an adult passport".
+
+      A reader gives the user those headers when it moves into the cell, so this
+      is genuinely available — unlike a heading further up the page.
+    -->
+    <table>
+      <caption>Renewals and applications</caption>
+      <thead>
+        <tr>
+          <th scope="col">Document</th>
+          <th scope="col">Adult</th>
+          <th scope="col">Child</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Passport</th>
+          <td><a href="/passport/adult/renew">Renew</a></td>
+          <td><a href="/passport/child/renew">Renew</a></td>
+        </tr>
+        <tr>
+          <th scope="row">Driving licence</th>
+          <td><a href="/licence/adult/renew">Renew</a></td>
+          <td><a href="/licence/provisional/apply">Apply</a></td>
+        </tr>
+        <tr>
+          <th scope="row">Bus pass</th>
+          <td><a href="/bus-pass/adult/apply">Apply</a></td>
+          <td><a href="/bus-pass/child/apply">Apply</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

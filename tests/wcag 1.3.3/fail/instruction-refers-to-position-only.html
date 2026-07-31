@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Search results</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    /* row-reverse: the filter panel is FIRST in the DOM and LAST on screen, so the
+       links the instruction calls "on the right" are the ones written first. */
+    .layout { display: flex; flex-direction: row-reverse; gap: 24px; }
+    .panel { width: 220px; }
+    .results { flex: 1; }
+    .panel ul { list-style: none; padding: 0; }
+    .panel li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Search results</h1>
+
+    <!--
+      FAIL: the instruction identifies the controls purely by where they appear.
+      "The links on the right" means nothing to a screen reader user, who receives the
+      page in DOM order and has no notion of right — and nothing else in the sentence
+      names the panel or any of its links.
+
+      The layout is row-reverse on purpose: the filter links are FIRST in source and
+      LAST on screen. Reading the stylesheet does not tell you where they render; only
+      measuring the laid-out boxes does. That is what the probe's geometry resolution
+      is for, and this fixture is the one that proves it is a measurement rather than
+      an inference from DOM order.
+    -->
+    <p>Use the links on the right to narrow these results down.</p>
+
+    <div class="layout">
+      <div class="panel">
+        <ul>
+          <li><a href="?status=open">Open</a></li>
+          <li><a href="?status=closed">Closed</a></li>
+          <li><a href="?status=appealed">Appealed</a></li>
+        </ul>
+      </div>
+
+      <div class="results">
+        <h2>3 applications</h2>
+        <p><a href="/applications/1">Application 24/0193</a></p>
+        <p><a href="/applications/2">Application 24/0207</a></p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

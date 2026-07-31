@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Report a missed bin collection</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; max-width: 40em; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .hint { color: #505a5f; font-size: 0.9em; margin: 0 0 4px; }
+    input, select { border: 1px solid #999; padding: 6px; width: 300px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <!--
+    PASS: the baseline. Every instruction on this page names what it is talking about —
+    the field by its label, the control by its accessible name — and none of them
+    reaches for shape, colour, size, position, orientation or sound to do it. Included
+    because a suite made entirely of sensory references would never show what their
+    absence looks like, and because it is the shape most instructions should take.
+  -->
+  <main>
+    <h1>Report a missed bin collection</h1>
+
+    <p>Enter your postcode, choose which collection was missed, then select
+      Send report. We will reply within two working days.</p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label for="postcode">Postcode</label>
+        <p class="hint" id="postcode-hint">For example, AS1 2CD.</p>
+        <input type="text" id="postcode" aria-describedby="postcode-hint" />
+      </div>
+
+      <div class="form-group">
+        <label for="collection">Which collection was missed?</label>
+        <select id="collection">
+          <option>General waste</option>
+          <option>Recycling</option>
+          <option>Garden waste</option>
+        </select>
+      </div>
+
+      <button type="submit">Send report</button>
+    </form>
+  </main>
+</body>
+</html>

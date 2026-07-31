@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Apply for a licence - Failing Example</title>
+</head>
+<body>
+  <main>
+    <h1>Apply for a licence</h1>
+
+    <!--
+      FAIL: the links DO have context — each sits in a full sentence — but the
+      sentence names no destination either. "To apply, click here." tells a user
+      what to do, not where they are going, so name-plus-context is still
+      ambiguous. This is the case that a context check alone would wave through:
+      context being PRESENT is not the test, context naming the DESTINATION is.
+    -->
+    <p>To apply for a standard licence, <a href="/licence/standard/apply">click here</a>.</p>
+
+    <p>If your licence has expired, <a href="/licence/renew">click here</a> instead.</p>
+
+    <p>For anything else, <a href="/contact">click here</a>.</p>
+
+    <h2>Guidance</h2>
+    <p>Read the guidance before you start. <a href="/licence/guidance">More</a>.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Contact details</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    label.must { color: #d4351c; }
+    input { border: 1px solid #999; padding: 6px; width: 300px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Contact details</h1>
+
+    <!--
+      PASS: the same red labels as ../fail/required-fields-marked-by-colour-only.html,
+      and the instruction still mentions the colour. It conforms because the colour is
+      now redundant three times over: the instruction says "marked (required)", the
+      label text carries that suffix so a reader announces it, and the input carries a
+      real `required` attribute so the reader announces the state as well.
+
+      Colour is left in deliberately. Removing it would help nobody — for a sighted
+      user it is the fastest cue on the page. What matters is that it is not the only
+      one, and this fixture exists to hold the line that mentioning colour is not
+      itself the defect.
+    -->
+    <p>Fields shown in red and marked (required) must be filled in.</p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label class="must" for="name">Full name (required)</label>
+        <input type="text" id="name" required />
+      </div>
+
+      <div class="form-group">
+        <label class="must" for="email">Email address (required)</label>
+        <input type="text" id="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input type="text" id="phone" />
+      </div>
+
+      <button type="submit">Save contact details</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Useful resources - Failing Example</title>
+  <style>
+    ul { line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Useful resources</h1>
+
+    <!--
+      FAIL: the link text is the raw address. A screen reader announces it as a
+      URL, often character by character or in awkward fragments ("h t t p s colon
+      slash slash…"), and the user has to decode a path to work out where it goes.
+      Each <li> holds nothing but the link, so there is no context to fall back
+      on either.
+
+      The second list shows the same defect wearing a different hat: an image link
+      with no alt, where the reader falls back to announcing the href. The missing
+      alt itself is 1.1.1's finding — recorded here because the CONSEQUENCE is a
+      2.4.4-shaped one, and the skill is told which criterion owns which half.
+    -->
+    <ul>
+      <li><a href="/svc/2024/ct-red/apply.html">/svc/2024/ct-red/apply.html</a></li>
+      <li><a href="/svc/2024/hb/forms/hb1.pdf">/svc/2024/hb/forms/hb1.pdf</a></li>
+      <li><a href="https://example.gov/appeals/tribunal/start">https://example.gov/appeals/tribunal/start</a></li>
+    </ul>
+
+    <h2>Partner organisations</h2>
+    <p><a href="/partners/citizens-advice"><img src="../../../assets/test_images/bbc-blocks-dark.png" /></a></p>
+  </main>
+</body>
+</html>

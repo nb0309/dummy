@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Contact details</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    label.must { color: #d4351c; }
+    input { border: 1px solid #999; padding: 6px; width: 300px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Contact details</h1>
+
+    <!--
+      FAIL: which fields are mandatory is conveyed by the colour of their labels and by
+      nothing else. There is no `required` attribute, no aria-required, no asterisk and
+      no "(required)" in the label text — so a screen reader user, or anyone who cannot
+      distinguish the red, hears "Full name" and "Email address" exactly as they hear
+      "Phone number" and has no way to know which they must fill in.
+
+      Note the neighbouring criterion: information conveyed by colour alone is also
+      1.4.1 Use of Color. What makes this 1.3.3 is that a sentence gives an INSTRUCTION
+      for completing the form and identifies its subject purely by colour. Report both
+      if both apply, under their own keys.
+
+      Compare ../pass/required-fields-marked-by-colour-and-text.html.
+    -->
+    <p>Fields shown in red are required.</p>
+
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label class="must" for="name">Full name</label>
+        <input type="text" id="name" />
+      </div>
+
+      <div class="form-group">
+        <label class="must" for="email">Email address</label>
+        <input type="text" id="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input type="text" id="phone" />
+      </div>
+
+      <button type="submit">Save contact details</button>
+    </form>
+  </main>
+</body>
+</html>

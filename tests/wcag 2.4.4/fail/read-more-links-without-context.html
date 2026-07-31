@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Latest updates - Failing Example</title>
+  <style>
+    .card { border: 1px solid #ccc; padding: 12px; margin-bottom: 16px; }
+    .card p { margin: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Latest updates</h1>
+
+    <!--
+      FAIL: four links all announced "link, Read more", each going somewhere
+      different, and each ALONE in its own paragraph. The enclosing <p> contains
+      nothing but the link, so there is no programmatically determined context to
+      fall back on: the name has to carry the purpose by itself, and "Read more"
+      does not. The article title above each one is a HEADING, which is not
+      context a reader offers alongside the link.
+
+      Contrast tests/wcag 2.4.4/pass/read-more-links-with-context.html, which is
+      the same four links WITH a sentence naming each destination. That one
+      passes 2.4.4 — the difference between the two files is the whole criterion.
+    -->
+    <div class="card">
+      <h2>Changes to passport fees</h2>
+      <p><a href="/news/passport-fees">Read more</a></p>
+    </div>
+
+    <div class="card">
+      <h2>New driving test centres</h2>
+      <p><a href="/news/test-centres">Read more</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Winter fuel payment dates</h2>
+      <p><a href="/news/winter-fuel">Read more</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Tax return deadline</h2>
+      <p><a href="/news/tax-deadline">Read more</a></p>
+    </div>
+  </main>
+</body>
+</html>

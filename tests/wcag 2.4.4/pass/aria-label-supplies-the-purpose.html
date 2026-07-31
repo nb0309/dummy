@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>News archive - Passing Example</title>
+  <style>
+    article { margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>News archive</h1>
+
+    <!--
+      PASS: the VISIBLE text is "Read more" every time — the layout the designer
+      wanted — but each link carries an aria-label naming its destination, so the
+      ANNOUNCED name is unique and self-sufficient (technique ARIA8). This
+      criterion is judged on what is announced, not on what is painted.
+
+      The last one uses aria-describedby instead, which is the other supported
+      route: the name stays short and the description supplies the purpose.
+    -->
+    <article>
+      <h2>Changes to passport fees</h2>
+      <p><a href="/news/passport-fees" aria-label="Read more about changes to passport fees">Read more</a></p>
+    </article>
+
+    <article>
+      <h2>New driving test centres</h2>
+      <p><a href="/news/test-centres" aria-label="Read more about new driving test centres">Read more</a></p>
+    </article>
+
+    <article>
+      <h2>Winter fuel payment dates</h2>
+      <p id="winter-desc">When winter fuel payments will be made this year.</p>
+      <p><a href="/news/winter-fuel" aria-describedby="winter-desc">Read more</a></p>
+    </article>
+  </main>
+</body>
+</html>

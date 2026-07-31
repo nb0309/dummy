@@ -27,6 +27,16 @@ visual order vs source order, obscured stops, revealed content not reached).
 Those comparisons are deliberately framed as observations rather than a verdict:
 whether an order preserves *meaning* is the judgement handed to the model.
 
+Page (WCAG 2.4.4) rows carry ``sr_link_purpose``: every link with what the reader
+announces, its destination, and its *programmatically determined link context* —
+the sentence, block, table header cells and aria-describedby text WCAG limits that
+context to. Rendered per link, with the objective observations (one name serving
+several destinations, generic action/position text, bare URLs) each PAIRED with the
+context that is allowed to rescue it. That pairing is the whole section: the same
+observation is a failure or a pass depending on it, and reporting it without the
+context — which is what the 2.4.6 rotor view can only do — decides the criterion by
+the wrong standard.
+
 Page (WCAG 2.4.6) rows carry ``sr_headings_labels``: the rotor view — every
 heading, control and link as announced, out of document order, with the context a
 rotor list strips away. Rendered as three lists plus the objectively checkable
@@ -60,6 +70,14 @@ decides the criterion: 3.2.2 permits a change of context on input when the user 
 advised of it beforehand, so each component also carries the text that might be that
 advisory. A change of context alone is therefore not a verdict here — the pairing of
 the change with the absence of a warning is.
+
+Page (WCAG 1.3.3) rows carry ``sr_sensory_reference``: candidate sensory phrases found
+in the page's prose, each resolved against measurement where measurement is possible.
+This is the only criterion here whose defect lives in *language* rather than in
+behaviour or structure, so the section is framed differently from all the others — a
+lexicon hit is a **candidate**, never a finding. Two of the six characteristics
+(position, colour) carry resolved evidence; the other four are text matches the model
+must weigh unaided.
 """
 
 from __future__ import annotations
@@ -833,6 +851,289 @@ def _input_context_findings(data: Mapping[str, Any]) -> List[str]:
     return findings
 
 
+# Link text naming an ACTION or a POSITION rather than a destination — the classic
+# F63/H30 list. Deliberately closed, and deliberately only an OBSERVATION: 2.4.4
+# permits every one of these phrases when the surrounding context supplies the
+# purpose, so "this says nothing on its own" is the finding and whether the context
+# rescues it is the skill's judgement.
+_GENERIC_LINK_TEXT = frozenset(
+    {
+        "click here", "click", "here", "read more", "more", "learn more",
+        "find out more", "see more", "view more", "details", "more details",
+        "more information", "more info", "info", "link", "this link", "this page",
+        "this", "continue", "go", "start", "open", "view", "download", "next",
+        "previous", "back", "full story", "read", "see", "apply",
+    }
+)
+
+# A name the reader has to announce as a bare address — "https://…", "www.…", or a
+# path like "/news/2024/passport-fees.html".
+_URL_LIKE = re.compile(r"^(?:https?://|www\.|/[\w\-./%~]*$)", re.I)
+
+
+def _link_purpose(raw: str) -> Mapping[str, Any] | None:
+    """Parse the sr_link_purpose JSON object column, or None if absent."""
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    if not isinstance(parsed, dict) or not isinstance(parsed.get("links"), list):
+        return None
+    return parsed
+
+
+def _announced_name(entry: Mapping[str, Any]) -> str:
+    """The link's NAME as announced, with the reader's role word removed.
+
+    The transcript phrase is "link, Read more"; 2.4.4 is about the name, so the
+    leading role word goes. Only a leading "link"/"visited link" is stripped, and
+    only up to the FIRST comma, so a name that itself contains commas survives.
+    Falls back to the visible text when nothing was announced.
+    """
+    phrase = str(entry.get("phrase") or "").strip()
+    if not phrase:
+        return str(entry.get("text") or "").strip()
+    head, sep, tail = phrase.partition(",")
+    if sep and head.strip().casefold() in ("link", "visited link"):
+        return tail.strip()
+    # A phrase that is ONLY the role word is a link with NO accessible name --
+    # not a link whose name happens to be "link". The difference decides which
+    # criterion owns it: nameless is 4.1.2's, and treating it as generic text
+    # would silently report it here instead.
+    if phrase.strip().casefold() in ("link", "visited link"):
+        return ""
+    return phrase
+
+
+def _context_text(entry: Mapping[str, Any]) -> str:
+    """The strongest programmatically determined context this link has, or "".
+
+    Ordered by how tightly WCAG binds it to the link: the sentence first, then the
+    enclosing block, then a table's header cells, then aria-describedby. The first
+    non-empty one is what the user would actually be given alongside the link.
+    """
+    context = entry.get("context")
+    if not isinstance(context, dict):
+        return ""
+    for key in ("sentence", "block"):
+        value = str(context.get(key) or "").strip()
+        if value:
+            return value
+    headers = context.get("tableHeaders")
+    if isinstance(headers, list) and headers:
+        return " / ".join(str(h) for h in headers if h)
+    return str(context.get("describedBy") or "").strip()
+
+
+def _link_purpose_findings(links: List[Mapping[str, Any]]) -> List[str]:
+    """Compute only the OBJECTIVE observations about link purpose.
+
+    Three things are checkable without judgement: whether one announced name is
+    used for more than one destination, whether a name is on the closed
+    action/position list, and whether a name is a bare URL. None of them is a
+    verdict — 2.4.4 is "In Context", so each observation is paired with the context
+    that is allowed to rescue it, and the skill decides whether it does.
+    """
+    findings: List[str] = []
+
+    groups: dict = {}
+    for entry in links:
+        name = _announced_name(entry)
+        if name:
+            groups.setdefault(name.casefold(), []).append(entry)
+
+    # 1. One name, several destinations. The context check is the whole point: the
+    #    same finding is a failure or a pass depending on it.
+    for entries in groups.values():
+        destinations = {str(e.get("href") or "") for e in entries}
+        if len(entries) < 2 or len(destinations) < 2:
+            continue
+        display = _announced_name(entries[0])
+        contexts = [_context_text(e) for e in entries]
+        distinct = {c.casefold() for c in contexts if c}
+        if all(contexts) and len(distinct) == len(entries):
+            findings.append(
+                f'"{display}" is announced {len(entries)} times for {len(destinations)} '
+                f"different destinations, BUT each one sits in a DIFFERENT context "
+                f"(listed per link above). 2.4.4 allows the context to be what "
+                f"distinguishes them, so this is only a failure if those contexts do "
+                f"not actually name where each link goes. Identical link text that IS "
+                f"separated by context fails 2.4.9 Link Purpose (Link Only) — that is "
+                f"Level AAA and out of scope here."
+            )
+        else:
+            missing = [c for c in contexts if not c]
+            why = (
+                f"{len(missing)} of them have NO enclosing sentence, paragraph, list "
+                f"item or table cell at all"
+                if missing
+                else "their contexts are identical too"
+            )
+            findings.append(
+                f'"{display}" is announced {len(entries)} times for {len(destinations)} '
+                f"different destinations ({', '.join(sorted(destinations))}), and the "
+                f"context does not separate them — {why}. Nothing available to the user "
+                f"tells these links apart."
+            )
+
+    # 2. Names that say nothing on their own, reported once per distinct name.
+    for entries in groups.values():
+        display = _announced_name(entries[0])
+        flat = display.casefold().strip(" .!?…:,")
+        contexts = [_context_text(e) for e in entries]
+        count = f" (used {len(entries)} times)" if len(entries) > 1 else ""
+        if flat in _GENERIC_LINK_TEXT:
+            kind = "names an action or a position rather than a destination"
+        elif _URL_LIKE.match(display):
+            kind = "is a bare address, read out character by character"
+        else:
+            continue
+        if all(contexts):
+            findings.append(
+                f'"{display}"{count} {kind}. It DOES have context (shown above) — judge '
+                f"whether that context names the destination."
+            )
+        else:
+            findings.append(
+                f'"{display}"{count} {kind}, and has NO enclosing sentence, paragraph, '
+                f"list item or table cell to fall back on. There is nothing but the "
+                f"name, so the name has to carry the purpose by itself."
+            )
+
+    # 3. Links the reader announces with no name at all. Named here because it
+    #    changes what the other observations mean, but it is not this criterion's
+    #    finding to make -- see the scope note in the skill.
+    nameless = [e for e in links if not _announced_name(e)]
+    if nameless:
+        hrefs = ", ".join(str(e.get("href") or "?") for e in nameless[:5])
+        findings.append(
+            f"{len(nameless)} link(s) announce NO name at all ({hrefs}). A link with no "
+            f"accessible name is 4.1.2's finding (and 1.1.1's if it wraps an image with "
+            f"no alt); note it, but do not report it under 2.4.4."
+        )
+
+    return findings
+
+
+def _sensory_reference(raw: str) -> Mapping[str, Any] | None:
+    """Parse the sr_sensory_reference JSON object column, or None if absent."""
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    if not isinstance(parsed, dict) or not isinstance(parsed.get("references"), list):
+        return None
+    return parsed
+
+
+def _sensory_reference_findings(data: Mapping[str, Any]) -> List[str]:
+    """Report each candidate sensory phrase with whatever corroborates it.
+
+    Framed harder than any other section in this module, because the detector is a word
+    lexicon and a word lexicon cannot tell an instruction from ordinary prose. "You have
+    the right to appeal", "see below for our address" and "a large number of appeals"
+    all match, and none of them is a 1.3.3 anything. So nothing here resolves to a
+    verdict: the findings say what was matched, what measurement corroborates it, and
+    whether the sentence also names a real component — and then stop.
+    """
+    findings: List[str] = []
+    references = [r for r in data.get("references", []) if isinstance(r, dict)]
+
+    if not references:
+        findings.append(
+            "No sentence on the page matched the sensory-characteristic lexicon "
+            "(shape, colour, size, position, orientation, sound). Nothing to weigh — "
+            "though note the lexicon is word-based, so a paraphrase it does not know "
+            "would not appear here either."
+        )
+        return findings
+
+    named = [r for r in references if r.get("namesInSentence")]
+    findings.append(
+        f"{len(references)} candidate sensory phrase(s) found; {len(named)} of them "
+        f"also contain the accessible name of a real component on the page. These are "
+        f"CANDIDATES, not findings: the detector is a word lexicon and cannot tell an "
+        f"instruction from ordinary prose."
+    )
+
+    for index, reference in enumerate(references, start=1):
+        categories = ", ".join(reference.get("categories") or [])
+        matched = ", ".join(f'"{m}"' for m in reference.get("matched") or [])
+        element = reference.get("element") or {}
+        findings.append(
+            f'{index}. In <{element.get("tag", "?")}>: "{reference.get("sentence", "")}"'
+        )
+        findings.append(f"      matched {categories} on {matched}")
+
+        names = reference.get("namesInSentence") or []
+        if names:
+            findings.append(
+                "      a component name also appears in this sentence: "
+                + ", ".join(f'"{n}"' for n in names)
+                + ". If the sentence is using that name to identify what it is talking "
+                "about, the sensory characteristic is an ADDITIONAL cue and not the "
+                "only one — check it is not a coincidence of wording."
+            )
+        else:
+            findings.append(
+                "      NO component's accessible name appears in this sentence. If it "
+                "is an instruction identifying a component, the sensory characteristic "
+                "is the only identifier it offers."
+            )
+
+        resolved = reference.get("resolved") or {}
+        position = resolved.get("position") or {}
+        for claim, matches in (position.get("claims") or {}).items():
+            listed = ", ".join(f'"{m}"' for m in matches if m) or "nothing"
+            findings.append(
+                f'      resolved "{claim}": {listed} (measured from the rendered '
+                f"layout, not from source order)"
+            )
+        colour = resolved.get("colour") or {}
+        if colour.get("named"):
+            matches = colour.get("matching") or []
+            if matches:
+                for match in matches:
+                    findings.append(
+                        f'      resolved colour: "{match.get("name")}" computes to '
+                        f'{match.get("backgroundName") or match.get("textName")} '
+                        f'({match.get("background") or match.get("text")})'
+                    )
+            else:
+                findings.append(
+                    f"      resolved colour: nothing on the page computes to "
+                    f"{', '.join(colour['named'])} — the reference may be to something "
+                    f"other than a component, or to a colour the page does not use."
+                )
+
+        unresolved = reference.get("unresolvedCategories") or []
+        if unresolved:
+            # Say WHY each one is unresolvable rather than repeating one generic
+            # sentence: "no measurement exists" and "the measurement exists but proves
+            # nothing" are different limitations and the reader should know which.
+            why = {
+                "sound": "nothing in a page represents a sound at all",
+                "shape": "border-radius is measurable, but whether an author meant a "
+                "given element by \"round\" is not",
+                "size": "dimensions are measurable, but which element counts as "
+                "\"large\" is a comparison the page does not state",
+                "orientation": "no rendered property corresponds to it",
+            }
+            detail = "; ".join(f"{c} — {why.get(c, 'no measurement applies')}" for c in unresolved)
+            findings.append(f"      TEXT MATCH ONLY for {detail}.")
+
+    if data.get("truncated"):
+        findings.append(
+            "The scan stopped at its cap, so later prose on the page was not examined."
+        )
+
+    return findings
+
+
 def _headings_labels(raw: str) -> Mapping[str, Any] | None:
     """Parse the sr_headings_labels JSON object column, or None if absent."""
     if not raw:
@@ -889,16 +1190,23 @@ def _headings_labels_findings(data: Mapping[str, Any]) -> List[str]:
                 f"be told apart in a form-controls list."
             )
 
-    # The one fully objective link check: same announced text, different
-    # destinations. Repetition alone is NOT the defect -- a "Contact us" link in
-    # header, body and footer pointing at one page is ordinary markup.
+    # Same announced text, different destinations. Reported as context for the
+    # headings/labels judgement only -- NOT as a finding to act on. Whether that is
+    # a defect is WCAG 2.4.4's question, and settling it needs the programmatically
+    # determined context of each link (the sentence or block around it), which this
+    # rotor view does not capture: `underHeading` is a nearest-preceding heading,
+    # which is not context a reader offers alongside a link. Capture the page with
+    # `--sc 2.4.4` to adjudicate it.
     for text, group_entries in group(links, "text").items():
         destinations = {str(e.get("href") or "") for e in group_entries}
         if len(group_entries) > 1 and len(destinations) > 1:
             findings.append(
-                f'AMBIGUOUS link text "{text}" is used {len(group_entries)} times for '
+                f'Link text "{text}" is used {len(group_entries)} times for '
                 f"{len(destinations)} different destinations "
-                f"({', '.join(sorted(destinations))}). Report this under 2.4.4, not 2.4.6."
+                f"({', '.join(sorted(destinations))}). This is WCAG 2.4.4's question, not "
+                f"2.4.6's, and it cannot be settled from this view — 2.4.4 lets the "
+                f"surrounding sentence be what tells the links apart, and that sentence "
+                f"is not captured here. Do NOT report a 2.4.4 finding from this row."
             )
 
     empty = [
@@ -1111,6 +1419,77 @@ def build(row: Mapping[str, Any]) -> Evidence:
             "revealed it). Read the announced phrases in sequence and judge whether "
             "someone moving through the page this way could still understand and "
             "operate it."
+        )
+
+    # 2.4.4 link purpose: only present for page rows captured under --sc 2.4.4.
+    link_purpose = _link_purpose(_val(row, "sr_link_purpose"))
+    if link_purpose:
+        links = [x for x in link_purpose.get("links") or [] if isinstance(x, dict)]
+        parts.append(
+            "\n## LINK PURPOSE — 2.4.4 (every link with what the reader announces, where "
+            "it goes, and its PROGRAMMATICALLY DETERMINED CONTEXT: the sentence, block, "
+            "table header cells and aria-describedby text a screen reader can offer "
+            "alongside it. That list is what WCAG limits the context to — a heading "
+            "further up the page is NOT on it and cannot be used to excuse a link here.)"
+        )
+        for x in links:
+            context = x.get("context") if isinstance(x.get("context"), dict) else {}
+            parts.append(f"  - announced: \"{x.get('phrase', '')}\"   -> {x.get('href')}")
+            name_from = []
+            if x.get("ariaLabel"):
+                name_from.append(f"aria-label=\"{x.get('ariaLabel')}\"")
+            if x.get("labelledBy"):
+                name_from.append(f"aria-labelledby -> \"{x.get('labelledBy')}\"")
+            if x.get("title"):
+                name_from.append(f"title=\"{x.get('title')}\"")
+            if isinstance(x.get("imgAlt"), list):
+                name_from.append(
+                    "image alt: "
+                    + ", ".join(
+                        "(MISSING)" if a is None else f'"{a}"' for a in x["imgAlt"]
+                    )
+                )
+            if name_from:
+                parts.append(f"      name from: {'; '.join(name_from)}")
+            sentence = context.get("sentence")
+            block = context.get("block")
+            parts.append(
+                f"      sentence: \"{sentence}\"" if sentence else "      sentence: (none)"
+            )
+            if block and block != sentence:
+                parts.append(f"      {context.get('blockTag') or 'block'}: \"{block}\"")
+            if context.get("tableHeaders"):
+                parts.append(
+                    "      table headers: "
+                    + ", ".join(f'"{h}"' for h in context["tableHeaders"])
+                )
+            if context.get("describedBy"):
+                parts.append(f"      described by: \"{context.get('describedBy')}\"")
+
+        if link_purpose.get("truncated"):
+            parts.append(
+                "\n(The probe stopped at its link cap, so not every link on the page is "
+                "listed. A name that looks unique above may be repeated further down.)"
+            )
+
+        findings = _link_purpose_findings(links)
+        if findings:
+            parts.append("\nObservations:")
+            parts.extend(f"  - {f}" for f in findings)
+        elif links:
+            parts.append(
+                "\nNo announced name is used for more than one destination, none is on "
+                "the generic action/position list, and none is a bare URL."
+            )
+        parts.append(
+            "\nNote: those observations are necessary, not sufficient, and none of them "
+            "is a verdict. 2.4.4 is satisfied when the purpose of each link can be "
+            "determined FROM THE NAME ALONE **or** from the name together with the "
+            "context above — so a perfectly generic name passes when its sentence names "
+            "the destination, and a unique, specific-sounding name fails when it "
+            "describes something other than where it goes. Judge each link on whether "
+            "someone who heard the name, plus at most that context, would know what they "
+            "are about to open."
         )
 
     # 2.4.6 rotor view: only present for page rows captured under --sc 2.4.6.
@@ -1357,6 +1736,52 @@ def build(row: Mapping[str, Any]) -> Evidence:
             "conditional fields or updating a result count changes nothing about where "
             "the user is. And note the events are dispatched, not trusted, so a handler "
             "gated on `event.isTrusted` would not have fired at all."
+        )
+
+    # 1.3.3 sensory references: only present for page rows captured under --sc 1.3.3.
+    sensory = _sensory_reference(_val(row, "sr_sensory_reference"))
+    if sensory:
+        candidates = [c for c in sensory.get("candidates", []) if isinstance(c, dict)]
+        parts.append(
+            "\n## SENSORY CHARACTERISTICS — 1.3.3 (the page's prose was scanned for "
+            "references to shape, colour, size, position, orientation and sound; "
+            "position and colour were then resolved against the RENDERED page, the "
+            "other four could not be)"
+        )
+
+        findings = _sensory_reference_findings(sensory)
+        parts.extend(findings)
+
+        if candidates:
+            parts.append(
+                "\nComponents on the page an instruction could be pointing at "
+                "(interactive elements, labels, named regions and headings), with where "
+                "they actually render and what colour they actually compute to:"
+            )
+            parts.append("  name                             x,y (document)   colour")
+            for candidate in candidates[:25]:
+                rect = candidate.get("rect") or {}
+                colour = candidate.get("colour") or {}
+                shade = colour.get("backgroundName") or colour.get("textName") or "-"
+                position = f"{rect.get('x', '?')},{rect.get('y', '?')}"
+                parts.append(
+                    f"  {str(candidate.get('name') or '(unnamed)')[:32]:32} "
+                    f"{position:>14}   {shade}"
+                )
+
+        parts.append(
+            "\nNote: this section is the one place in this evidence where the detector "
+            "is a WORD LIST, and it must be read that way. \"You have the right to "
+            "appeal\", \"see below for our address\" and \"a large number of appeals\" "
+            "all match it, and none of them is a 1.3.3 anything. Two questions decide "
+            "each candidate, in order. FIRST: is this sentence an INSTRUCTION for "
+            "understanding or operating content, and does it identify a component at "
+            "all? Most matches fail here and should be dismissed in a clause. SECOND, "
+            "only if it survives: is the sensory characteristic the SOLE identifier? "
+            "Mentioning colour, shape or position is not the defect and never was — "
+            "\"the green Confirm button\" is exemplary. Relying on it alone is the "
+            "defect. Where colour conveys information but no instruction is involved, "
+            "that is 1.4.1 Use of Color; report it under that key, not this one."
         )
 
     return Evidence(

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Edit your notes</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .toolbar { margin: 16px 0; }
+    .toolbar button {
+      width: 44px; height: 44px; margin-right: 8px; border: 1px solid #b1b4b6;
+      background: #f3f2f1; font-size: 1.1rem;
+    }
+    .toolbar button.circle { border-radius: 50%; }
+    textarea { border: 1px solid #999; padding: 8px; width: 420px; height: 120px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Edit your notes</h1>
+
+    <!--
+      FAIL: the instruction identifies the control by its shape, and the buttons carry
+      no accessible names at all — each announces only as "button", so there is nothing
+      for a screen reader user to match "round" against. Shape is one of the four
+      characteristics no measurement corroborates: border-radius is recorded, but
+      whether an author meant THAT element by "round" is not something a probe can
+      settle, so the lexicon match is reported as a candidate and the judgement is
+      handed over.
+    -->
+    <p>Select the round icon to save your work. The square icon discards it.</p>
+
+    <div class="toolbar">
+      <button type="button" class="circle">&#9679;</button>
+      <button type="button">&#9632;</button>
+    </div>
+
+    <textarea>Meeting notes from 14 August.</textarea>
+  </main>
+</body>
+</html>

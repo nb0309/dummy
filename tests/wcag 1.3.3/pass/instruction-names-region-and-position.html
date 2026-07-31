@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Search results</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .layout { display: flex; flex-direction: row-reverse; gap: 24px; }
+    .panel { width: 220px; }
+    .results { flex: 1; }
+    .panel ul { list-style: none; padding: 0; }
+    .panel li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Search results</h1>
+
+    <!--
+      PASS: the same row-reverse layout as
+      ../fail/instruction-refers-to-position-only.html, and the instruction still says
+      "on the right" — which is fine, because it also names the thing it is pointing
+      at. "The Refine results panel" is a name a screen reader user can actually find:
+      it is the panel's accessible name, announced as a landmark, and it appears in the
+      heading too.
+
+      Position is a helpful extra cue for the people who can use it. The criterion only
+      bites when it is the ONLY cue.
+    -->
+    <p>Use the Refine results panel on the right to narrow these results down.</p>
+
+    <div class="layout">
+      <nav class="panel" aria-label="Refine results">
+        <h2>Refine results</h2>
+        <ul>
+          <li><a href="?status=open">Open</a></li>
+          <li><a href="?status=closed">Closed</a></li>
+          <li><a href="?status=appealed">Appealed</a></li>
+        </ul>
+      </nav>
+
+      <div class="results">
+        <h2>3 applications</h2>
+        <p><a href="/applications/1">Application 24/0193</a></p>
+        <p><a href="/applications/2">Application 24/0207</a></p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -31,6 +31,14 @@
 // the context a rotor list strips away (a heading's section content, a label's
 // control and section). `null` outside `--sc 2.4.6`.
 //
+// One extra, page-only feature: `sr_link_purpose` — the WCAG 2.4.4 link probe:
+// `{links, truncated}`, each link carrying what the reader announces, its `href`,
+// how its name is supplied (`ariaLabel`/`labelledBy`/`title`/`imgAlt`) and its
+// `context` — the sentence, block, table headers and `aria-describedby` text that
+// WCAG's definition of *programmatically determined link context* is limited to.
+// The context is the point: it is what separates a 2.4.4 failure from a merely
+// repetitive links list. `null` outside `--sc 2.4.4`.
+//
 // One extra, page-only feature: `sr_reading_order` — the WCAG 1.3.2 walk:
 // `{steps, complete, truncated}`, each step pairing an announced phrase with the
 // document-relative position it came from, which is what makes reading order and
@@ -82,6 +90,8 @@ export const COLUMNS = [
   "sr_label_instruction",
   // 2.4.3 focus-order Tab sweep (null for rows not captured under --sc 2.4.3)
   "sr_focus_order",
+  // 2.4.4 link-purpose probe (null for rows not captured under --sc 2.4.4)
+  "sr_link_purpose",
   // 2.4.6 headings/labels rotor view (null for rows not captured under --sc 2.4.6)
   "sr_headings_labels",
   // 1.3.2 reading-order walk (null for rows not captured under --sc 1.3.2)
@@ -92,6 +102,8 @@ export const COLUMNS = [
   "sr_focus_context",
   // 3.2.2 on-input context probe (null for rows not captured under --sc 3.2.2)
   "sr_input_context",
+  // 1.3.3 sensory-characteristics probe (null for rows not captured under --sc 1.3.3)
+  "sr_sensory_reference",
 ];
 
 /**
@@ -124,11 +136,13 @@ function normalizeContextProbe(probe) {
  * @param {{before: object, after: object}|null} [args.roleStateValue]  4.1.2 probe result, or null
  * @param {Array<{field: string, before: object, after: object}>|null} [args.labelInstruction]  3.3.2 probe result, or null
  * @param {{stops: Array<object>, complete: boolean}|null} [args.focusOrder]  2.4.3 sweep result, or null
+ * @param {{links: Array<object>, truncated: boolean}|null} [args.linkPurpose]  2.4.4 link probe, or null
  * @param {{headings: Array<object>, labels: Array<object>, links: Array<object>}|null} [args.headingsLabels]  2.4.6 rotor view, or null
  * @param {{steps: Array<object>, complete: boolean}|null} [args.readingOrder]  1.3.2 reading-order walk, or null
  * @param {{stops: Array<object>, outcome: string}|null} [args.keyboardTrap]  2.1.2 escape ladder, or null
  * @param {{components: Array<object>, focusedVia: string}|null} [args.focusContext]  3.2.1 on-focus probe, or null
  * @param {{components: Array<object>, changedVia: string}|null} [args.inputContext]  3.2.2 on-input probe, or null
+ * @param {{references: Array<object>, controls: Array<object>}|null} [args.sensoryReference]  1.3.3 sensory probe, or null
  */
 export function buildRow({
   file,
@@ -139,11 +153,13 @@ export function buildRow({
   roleStateValue = null,
   labelInstruction = null,
   focusOrder = null,
+  linkPurpose = null,
   headingsLabels = null,
   readingOrder = null,
   keyboardTrap = null,
   focusContext = null,
   inputContext = null,
+  sensoryReference = null,
 }) {
   const normalizeSides = (entry) => ({
     ...entry,
@@ -161,8 +177,9 @@ export function buildRow({
     sr_status_announcement: statusAnnouncement,
     sr_role_state_value: roleStateValue && normalizeSides(roleStateValue),
     sr_label_instruction: labelInstruction && labelInstruction.map(normalizeSides),
-    // No HTML in these four, so nothing to normalize.
+    // No HTML in these five, so nothing to normalize.
     sr_focus_order: focusOrder,
+    sr_link_purpose: linkPurpose,
     sr_headings_labels: headingsLabels,
     sr_reading_order: readingOrder,
     sr_keyboard_trap: keyboardTrap,
@@ -171,6 +188,9 @@ export function buildRow({
     // annotating comment cannot ride into a feature column through this route.
     sr_focus_context: normalizeContextProbe(focusContext),
     sr_input_context: normalizeContextProbe(inputContext),
+    // No markup in this one -- it carries sentences, rects and computed colours, so
+    // there is nothing for normalizeHtml to strip.
+    sr_sensory_reference: sensoryReference,
   };
 }
 
