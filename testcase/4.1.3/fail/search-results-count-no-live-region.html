@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Product Search - Failing Example</title>
+  <style>
+    .results-count { margin: 12px 0; color: #333; }
+    .product { padding: 6px 0; border-bottom: 1px solid #ddd; }
+  </style>
+  <script>
+    function search(e) {
+      e.preventDefault();
+      // Count updates in place with no aria-live -> change is silent to AT.
+      document.getElementById("count").textContent = "3 results found";
+    }
+  </script>
+</head>
+<body>
+  <h1>Search products</h1>
+
+  <form onsubmit="search(event)">
+    <label>Search:</label>
+    <input type="search" id="q" value="usb cable">
+    <button type="submit">Search</button>
+  </form>
+
+  <!-- FAIL: results count updates in place with no aria-live / role="status",
+       so screen-reader users are not told the result set changed. -->
+  <div id="count" class="results-count" data-status-target>3 results found</div>
+
+  <div class="product">USB-C Cable 1m</div>
+  <div class="product">USB-C Cable 2m</div>
+  <div class="product">USB-A to USB-C Cable</div>
+</body>
+</html>

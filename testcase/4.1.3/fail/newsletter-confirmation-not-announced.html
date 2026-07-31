@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Newsletter Signup - Failing Example</title>
+  <style>
+    .confirmation { margin-top: 16px; color: #0a6; font-weight: bold; }
+  </style>
+  <script>
+    function subscribe(e) {
+      e.preventDefault();
+      // Confirmation is injected with no live region -> never announced.
+      document.getElementById("subMsg").textContent =
+        "Thanks for subscribing! Check your inbox to confirm.";
+    }
+  </script>
+</head>
+<body>
+  <h1>Subscribe to our newsletter</h1>
+
+  <form onsubmit="subscribe(event)">
+    <label>Email address:</label>
+    <input type="email" id="subEmail" required>
+    <button type="submit">Subscribe</button>
+  </form>
+
+  <!-- FAIL: success confirmation is a plain div with no role="status" /
+       aria-live, so the screen reader is never told it appeared. -->
+  <div id="subMsg" class="confirmation" data-status-target>Thanks for subscribing! Check your inbox to confirm.</div>
+</body>
+</html>

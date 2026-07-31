@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>WCAG 3.2.1 Failure</title>
+</head>
+
+<body>
+
+<form id="newsletter-form">
+
+  <label for="email">Email Address:</label>
+  <input type="text" id="email" name="email">
+  <br><br>
+
+  <label for="topic">Choose a topic:</label>
+  <select id="topic" name="topic">
+    <option value="none">Select...</option>
+    <option value="tech">Technology</option>
+    <option value="health">Health & Wellness</option>
+  </select>
+  <br><br>
+  <button type="submit" id="submit-btn">Subscribe Now</button>
+
+
+
+
+</form>
+
+<script>
+const topicDropdown = document.getElementById("topic");
+const submitButton = document.getElementById("submit-btn");
+
+// ❌ Focus causes navigation
+topicDropdown.addEventListener("focus", function () {
+  window.location.href = "https://example.com";
+});
+
+// ❌ Focus causes form submission
+submitButton.addEventListener("focus", function () {
+  document.getElementById("newsletter-form").submit();
+});
+</script>
+
+</body>
+</html>

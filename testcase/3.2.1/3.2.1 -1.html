@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>WCAG 3.2.1 Failure</title>
+</head>
+
+<body>
+
+<form id="newsletter-form">
+
+ <label for="card">Card Number:</label>
+<input id="card" type="text">
+
+<div id="help" tabindex="-1" style="display:none; background:yellow;">
+  Enter 16-digit card number
+</div></form>
+
+<script>
+
+
+// ❌ Focus triggers popup AND moves focus away
+document.getElementById("card").addEventListener("focus", function () {
+  const help = document.getElementById("help");
+  help.style.display = "block";
+  help.focus(); // Forces focus shift
+});
+
+</script>
+
+</body>
+</html>

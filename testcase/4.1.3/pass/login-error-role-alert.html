@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Sign In - Passing Example</title>
+  <style>
+    .form-error { color: #c00; margin-top: 8px; }
+  </style>
+  <script>
+    function signIn(e) {
+      e.preventDefault();
+      // role="alert" region -> error is announced assertively without focus.
+      document.getElementById("loginError").textContent =
+        "Incorrect username or password.";
+    }
+  </script>
+</head>
+<body>
+  <h1>Sign in</h1>
+
+  <form onsubmit="signIn(event)">
+    <label>Username:</label>
+    <input type="text" id="user"><br><br>
+
+    <label>Password:</label>
+    <input type="password" id="pass"><br><br>
+
+    <button type="submit">Sign in</button>
+
+    <!-- PASS: error message carries role="alert", so it is announced
+         assertively as soon as it is inserted. -->
+    <p id="loginError" class="form-error" role="alert" data-status-target>Incorrect username or password.</p>
+  </form>
+</body>
+</html>

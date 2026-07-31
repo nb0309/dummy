@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Contact Us - Passing Example</title>
+  <style>
+    .confirmation { margin-top: 16px; color: #0a6; font-weight: bold; }
+  </style>
+  <script>
+    function sendMessage(e) {
+      e.preventDefault();
+      // role="status" region -> update is announced politely without focus.
+      document.getElementById("contactMsg").textContent =
+        "Your message has been sent. We'll reply within 2 business days.";
+    }
+  </script>
+</head>
+<body>
+  <h1>Contact us</h1>
+
+  <form onsubmit="sendMessage(event)">
+    <label>Message:</label><br>
+    <textarea id="message" rows="4"></textarea>
+    <br><br>
+    <button type="submit">Send</button>
+  </form>
+
+  <!-- PASS: success confirmation carries role="status", so the update is
+       announced to screen-reader users without moving focus. -->
+  <div id="contactMsg" class="confirmation" role="status" data-status-target>Your message has been sent. We'll reply within 2 business days.</div>
+</body>
+</html>

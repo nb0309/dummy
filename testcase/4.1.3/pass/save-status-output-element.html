@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Edit Profile - Passing Example</title>
+  <style>
+    .save-status { display: block; margin-top: 12px; color: #0a6; }
+  </style>
+  <script>
+    function save(e) {
+      e.preventDefault();
+      // <output> is a native live region -> the update is announced politely.
+      document.getElementById("saveStatus").textContent = "All changes saved.";
+    }
+  </script>
+</head>
+<body>
+  <h1>Edit profile</h1>
+
+  <form onsubmit="save(event)">
+    <label>Display name:</label>
+    <input type="text" id="name" value="Asha">
+    <button type="submit">Save changes</button>
+
+    <!-- PASS: native <output> element is an implicit live region, so the
+         status update is announced without moving focus. -->
+    <output id="saveStatus" class="save-status" data-status-target>All changes saved.</output>
+  </form>
+</body>
+</html>
