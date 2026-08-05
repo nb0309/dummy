@@ -124,10 +124,6 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
   //    unless the page carries a [data-status-target], so it is cheap on
   //    non-status pages and the page-level result can be stamped on each row.
   let statusAnnouncement = null;
-  // 2.4.3 focus-order sweep: page-level like the status probe, and gated on
-  // the flag so no other suite changes. It only presses Tab -- no clicks, no
-  // DOM mutation -- so it cannot disturb the transcripts read below.
-  let focusOrder = null;
   // 2.4.4 link purpose: every link with what the reader announces, where it
   // goes, and the sentence/block/table headers around it. Read-only.
   let linkPurpose = null;
@@ -144,7 +140,6 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
   if (!opts.noSr) {
     await injectVsr(page);
     statusAnnouncement = await statusAnnouncementProbe(page);
-    if (opts.sc === "2.4.3") focusOrder = await focusOrderProbe(page);
     if (opts.sc === "2.4.4") linkPurpose = await linkPurposeProbe(page);
     if (opts.sc === "2.4.6") headingsLabels = await headingLabelProbe(page);
     if (opts.sc === "1.3.2") readingOrder = await readingOrderProbe(page);
@@ -182,9 +177,18 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
   //    - 2.1.2's escape ladder presses Escape, which closes a dialog;
   //    - 3.2.1's on-focus probe and 3.2.2's on-input probe both change the
   //      page by design, and may re-load the fixture when an interaction
-  //      navigates away.
-  //    Either would leave the transcripts above describing a different page.
-  //    Both are --sc gated, so at most one runs per capture.
+  //      navigates away;
+  //    - 2.4.3's sweep used to be read-only and sat in step 2. It no longer is:
+  //      after the initial Tab pass it activates each in-page control to see
+  //      what that brings into the tab sequence, reloading between candidates.
+  //      A page whose content is behind a disclosure has its whole focus order
+  //      hidden from a load-time sweep, which is what moved it down here.
+  //    Any of these would leave the transcripts above describing a different
+  //    page. All are --sc gated, so at most one runs per capture.
+  const focusOrder =
+    !opts.noSr && opts.sc === "2.4.3"
+      ? await focusOrderProbe(page, { url: fileUrl })
+      : null;
   const keyboardTrap =
     !opts.noSr && opts.sc === "2.1.2" ? await keyboardTrapProbe(page) : null;
   const focusContext =

@@ -68,13 +68,14 @@ def full_run(df: pd.DataFrame, output_csv: Path, log_path: Path) -> None:
     for index, row in df.iterrows():
         sample_id = row.get("sample_id")
         ev = evidence.build(row)
-        skills = router.select(ev, row)
+        primary, secondary = router.partition(ev, row)
+        skills = primary + secondary
         print(
             f"[{index}] {str(row.get('sample_id','?'))[:48]} "
-            f"-> {[s.id for s in skills]}"
+            f"-> {[s.id for s in primary]} + {[s.id for s in secondary]}"
         )
         try:
-            pred = classifier.classify(structured_llm, ev, skills)
+            pred = classifier.classify(structured_llm, ev, primary, secondary)
             prediction = pred.classification
             reason = pred.reason
             _log(log_path, sample_id, pred.model_dump_json(indent=2))

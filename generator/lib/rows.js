@@ -104,6 +104,13 @@ export const COLUMNS = [
   "sr_input_context",
   // 1.3.3 sensory-characteristics probe (null for rows not captured under --sc 1.3.3)
   "sr_sensory_reference",
+  // Rendered appearance of the sample: CSS-generated content and per-link visual
+  // distinction. Unlike every column above it this is not --sc gated, because it
+  // is not a probe of a page-level behaviour -- it is the sample's own computed
+  // style, and the two defects it settles (1.3.1 content injected by a `content:`
+  // rule, 1.4.1 a link set apart by colour alone) leave no trace in the markup.
+  // `null` when the sample has neither generated content nor a link.
+  "sr_computed_style",
 ];
 
 /**
@@ -191,6 +198,8 @@ export function buildRow({
     // No markup in this one -- it carries sentences, rects and computed colours, so
     // there is nothing for normalizeHtml to strip.
     sr_sensory_reference: sensoryReference,
+    // Computed values and link text only -- no markup, nothing to normalize.
+    sr_computed_style: sample.computedStyle || null,
   };
 }
 

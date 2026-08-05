@@ -5,6 +5,8 @@ title: "Heading semantics and hierarchy"
 applies_when:
   element_tag: [main, body, section, div, article, h1, h2, h3, h4, h5, h6, p, span, b, strong]
 signals:
+  - field: STRUCTURE OBSERVATIONS
+    look_for: "the heading sequence in document order with any downward skips already identified, plus how much prose sits under how many headings"
   - field: parent_html
     look_for: "heading levels that skip downwards (e.g. h1 then h3) or are out of logical order"
   - field: element_html
@@ -22,6 +24,12 @@ semantically:
   marked up with `<b>`, `<strong>`, `<p>`, or CSS font-size instead of an
   `<h1>`–`<h6>`, so no `heading` role is announced in `sr_transcript`.
 - An **empty heading** element conveying no text.
+- **No headings at all** over a substantial run of content. STRUCTURE OBSERVATIONS
+  reports the heading count against the number of prose blocks; where a page's
+  content plainly has topics but the markup exposes no heading to separate them,
+  the structure a sighted reader gets from the layout reaches nobody else. (Where
+  this overlaps the unorganised-content bullet in the semantic-misuse skill,
+  report it once, not twice.)
 
 ## Pass criteria
 - Headings use `<h1>`–`<h6>` in a logical, non-skipping order; `sr_transcript`

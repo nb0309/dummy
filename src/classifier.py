@@ -69,19 +69,65 @@ APPLICABLE SKILLS FOR THIS ELEMENT:
 """
 
 
-def build_messages(ev: Evidence, skills: Sequence[Skill]) -> List:
-    """Compose the system + human messages for one element."""
-    skill_blocks = "\n\n".join(skill.prompt_block() for skill in skills)
-    system = BASE_SYSTEM_INSTRUCTIONS + skill_blocks
+PRIMARY_HEADER = """
+--- PRIMARY CRITERION ---
+This capture was MADE to adjudicate the criterion below: its probe was run against
+the live page and its section in the evidence is the decisive one. Answer this
+criterion first and explicitly. Returning "accessible" while its probe section
+reports the failing observation is the single most common way to get this wrong.
+"""
+
+SECONDARY_HEADER = """
+--- ALSO APPLICABLE ---
+These matched on the element's tag rather than on a probe. They are real checks
+and any one of them can make this element inaccessible on its own, but none of
+them is what this capture was aimed at. Do not let them crowd out the criterion
+above.
+"""
+
+
+def build_messages(
+    ev: Evidence,
+    skills: Sequence[Skill],
+    secondary: Sequence[Skill] | None = None,
+) -> List:
+    """Compose the system + human messages for one element.
+
+    Called either as ``build_messages(ev, primary, secondary)`` — the two-tier
+    form the router produces — or as ``build_messages(ev, skills)``, in which case
+    every skill is rendered in one undifferentiated block as before.
+    """
+    if secondary is None:
+        system = BASE_SYSTEM_INSTRUCTIONS + "\n\n".join(
+            skill.prompt_block() for skill in skills
+        )
+    else:
+        sections = []
+        if skills:
+            sections.append(
+                PRIMARY_HEADER
+                + "\n\n".join(skill.prompt_block() for skill in skills)
+            )
+        if secondary:
+            sections.append(
+                SECONDARY_HEADER
+                + "\n\n".join(skill.prompt_block() for skill in secondary)
+            )
+        system = BASE_SYSTEM_INSTRUCTIONS + "\n".join(sections)
     return [
         SystemMessage(content=system),
         HumanMessage(content=ev.block),
     ]
 
 
-def classify(structured_llm, ev: Evidence, skills: Sequence[Skill]) -> Prediction:
+def classify(
+    structured_llm,
+    ev: Evidence,
+    skills: Sequence[Skill],
+    secondary: Sequence[Skill] | None = None,
+) -> Prediction:
     """Run the structured LLM call and stamp the applied skill ids."""
-    messages = build_messages(ev, skills)
+    messages = build_messages(ev, skills, secondary)
     prediction: Prediction = structured_llm.invoke(messages)
-    prediction.applied_skills = [s.id for s in skills]
+    prediction.applied_skills = [s.id for s in skills] + [s.id for s in (secondary or [])]
     return prediction

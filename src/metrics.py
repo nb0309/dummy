@@ -41,6 +41,15 @@ def summarize(output_df: pd.DataFrame) -> None:
     def pct(n: int) -> str:
         return f"{n} ({n / total_elements * 100:.1f}%)"
 
+    # File-level first: it is the headline, because `label` is stamped per FILE
+    # and copied onto every sample the file produced (generator/lib/rows.js).
+    # A file's non-defective elements therefore carry an "inaccessible" label they
+    # can never satisfy, which makes the element-level number below a diagnostic
+    # rather than a score.
+    _file_level(output_df)
+
+    print("-" * 50)
+    print("Element-level detail (diagnostic — see the note in _file_level):")
     print(f"Total Evaluated DOM Elements : {total_elements}")
     print(f"[ACCESSIBLE]        : {pct(accessible_count)}")
     print(f"[INACCESSIBLE]      : {pct(inaccessible_count)}")
@@ -49,7 +58,6 @@ def summarize(output_df: pd.DataFrame) -> None:
         print(f"[ERRORS]            : {pct(error_count)}")
 
     _wcag_breakdown(output_df)
-    _file_level(output_df)
     _label_breakdown(output_df)  # optional, read-only vs ground truth
     print("=" * 50)
 
@@ -69,19 +77,23 @@ def _wcag_breakdown(output_df: pd.DataFrame) -> None:
 
 
 def _file_level(output_df: pd.DataFrame) -> None:
+    """The headline metric: a file is flagged if ANY of its elements is flagged.
+
+    Also lists the files where nothing was flagged. A rate on its own says how
+    much is wrong and nothing about what; the named misses are what the next
+    iteration is actually worked from.
+    """
     print("-" * 50)
-    print("File-Level Verification Metrics Summary:")
+    print("FILE-LEVEL VERIFICATION (headline metric)")
     if "source_file" not in output_df.columns:
         print("(no source_file column; skipping file-level summary)")
         return
 
-    file_summary = (
-        output_df.groupby("source_file")["Prediction"]
-        .apply(lambda x: "inaccessible" if "inaccessible" in x.values else "accessible")
-        .reset_index()
+    flagged = output_df.groupby("source_file")["Prediction"].apply(
+        lambda x: "inaccessible" if "inaccessible" in x.values else "accessible"
     )
-    total_files = len(file_summary)
-    failed_files = int((file_summary["Prediction"] == "inaccessible").sum())
+    total_files = len(flagged)
+    failed_files = int((flagged == "inaccessible").sum())
     print(f"Total Unique HTML Test Files Audited : {total_files}")
     print(
         f"Files Flagged with WCAG Violations   : "
@@ -92,6 +104,22 @@ def _file_level(output_df: pd.DataFrame) -> None:
         f"{failed_files / total_files * 100:.1f}% (Target: 100.0% on this all-inaccessible set)"
     )
 
+    if "label" not in output_df.columns:
+        return
+    truth = output_df.groupby("source_file")["label"].first()
+    missed = sorted(flagged[(truth == "inaccessible") & (flagged == "accessible")].index)
+    if missed:
+        print(f"\nMISSED — labelled inaccessible, nothing flagged ({len(missed)}):")
+        for name in missed:
+            print(f"  - {name}")
+    false_alarms = sorted(
+        flagged[(truth == "accessible") & (flagged == "inaccessible")].index
+    )
+    if false_alarms:
+        print(f"\nFALSE POSITIVES — labelled accessible, flagged ({len(false_alarms)}):")
+        for name in false_alarms:
+            print(f"  - {name}")
+
 
 def _label_breakdown(output_df: pd.DataFrame) -> None:
     """Read-only recall vs the existing ``label`` column, if present."""
@@ -99,6 +127,12 @@ def _label_breakdown(output_df: pd.DataFrame) -> None:
         return
     print("-" * 50)
     print("Ground-truth check (read-only, vs `label` column):")
+    print(
+        "  NOTE: `label` is per-FILE, copied onto every element that file produced. "
+        "An element that is itself fine inside a defective page carries an "
+        "'inaccessible' label it cannot satisfy, so treat the numbers below as a "
+        "diagnostic and the file-level rate above as the score."
+    )
     labels = output_df["label"].astype(str).str.lower()
     preds = output_df["Prediction"].astype(str).str.lower()
 

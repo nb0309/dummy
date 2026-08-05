@@ -7,7 +7,9 @@ applies_when:
   requires_column: [sr_focus_order]
 signals:
   - field: sr_focus_order
-    look_for: "PRIMARY. The Tab sweep: `{stops, complete, truncated, stalled}`. Each stop carries the announced `phrase`, its `tabindex`, its `domIndex` (source order), its document-relative `rect` (where it sits on screen), `obscured` (whether something is painted on top of it), and `controls`/`controlsRange` (the subtree this control claims to reveal). Read the stops IN ORDER and ask the question 2.4.3 actually asks: would a person moving through the page this way still understand it and still be able to operate it?"
+    look_for: "PRIMARY. The Tab sweep: `{stops, complete, truncated, stalled, activation}`. Each stop carries the announced `phrase`, its `tabindex`, its `domIndex` (source order), its document-relative `rect` (where it sits on screen), `obscured` (whether something is painted on top of it), and `controls`/`controlsRange` (the subtree this control claims to reveal). Read the stops IN ORDER and ask the question 2.4.3 actually asks: would a person moving through the page this way still understand it and still be able to operate it?"
+  - field: FOCUS ORDER AFTER ACTIVATION
+    look_for: "Present when clicking an in-page control brought new components into the tab sequence — a lightbox, a disclosure, a menu. Per trigger: what it revealed, whether focus MOVED INTO the revealed content, and the tab order with that content open. A short initial sweep plus this section means the page's focus order lives here, not above."
   - field: sr_transcript
     look_for: "The static walk IS the screen-reader reading order. Compare it against the tab order directly: a page where the reader reads A then B, but the keyboard reaches B then A, is telling you the two sequences disagree. This is the 'spoken context' half of the judgement and it needs no extra probe."
   - field: element_html
@@ -70,6 +72,14 @@ Flag `inaccessible` under `2.4.3` when any of the following holds:
   or otherwise covered.
 - Content revealed by an expanded control is not reached from that control: the
   next stop is outside its `controlsRange`.
+- **A control opens content and focus is left behind.** The FOCUS ORDER AFTER
+  ACTIVATION section reports "Focus did NOT move into the revealed content". A
+  lightbox, dialog or panel that appears while the keyboard stays on the trigger
+  leaves the user's focus somewhere the new content is not — and the tab order
+  printed beneath says how far away it is, or that it is not reachable at all.
+  This holds whether or not the widget uses `aria-expanded`/`aria-controls`; those
+  attributes make the relationship *readable*, and their absence does not make the
+  behaviour acceptable.
 - The sequence separates a control from the context that gives it meaning, so what
   is announced at a stop no longer makes sense in the order it arrives.
 
@@ -90,8 +100,21 @@ Flag `inaccessible` under `2.4.3` when any of the following holds:
 - **`truncated: true`** — the sweep hit its cap, so the full sequence was never
   observed. Say so and return `insufficient_evidence`; do not judge the order from
   a partial sweep.
-- **Fewer than two stops** — one focusable component, or none, is not a sequence.
-  There is nothing for 2.4.3 to be about.
+- **Fewer than two stops, and nothing in the ACTIVATION section** — one focusable
+  component, or none, is not a sequence. There is nothing for 2.4.3 to be about.
+
+  Two things override this, because neither is a property of a *sequence* and both
+  are fully visible in a single stop. Do not abstain when either is present:
+  - **A positive `tabindex` on any stop.** `tabindex="5"` places that element at
+    position 5 of a document-wide order it does not otherwise participate in. That
+    is a defect in the element, not in the sequence, and it does not become one
+    only once a second control is added to the page. Flag it.
+  - **`obscured: true` on any stop.** Focus on content the user cannot see is a
+    failure with one stop exactly as much as with ten.
+
+  Likewise, a one-stop sweep with an ACTIVATION section is not a one-stop page —
+  it is a page whose other controls are behind an interaction. Judge it from the
+  activation evidence below, not from the initial sweep.
 - Where the visual order is genuinely ambiguous — a grid or card layout that reads
   equally well by row or by column — say the intended order cannot be determined
   from the capture rather than inventing one and flagging against it.

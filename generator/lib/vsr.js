@@ -485,9 +485,13 @@ async function resetFocus(page) {
 }
 
 /**
- * WCAG 2.4.3 focus-order probe. Tabs through the page from the top and records
- * every focus stop: what the reader announces there, where it sits on screen, and
- * where it sits in the DOM.
+ * One Tab sweep of the page AS IT STANDS. Tabs from the top and records every
+ * focus stop: what the reader announces there, where it sits on screen, and where
+ * it sits in the DOM.
+ *
+ * Run twice by `focusOrderProbe` below -- once on the page as loaded, then again
+ * after each in-page control is activated -- because "as it stands" is not one
+ * state for a page with a lightbox or a disclosure in it.
  *
  * This is the ONE probe that cannot live inside `page.evaluate`. Native focus
  * traversal only happens for trusted key events, so `Virtual.press("Tab")` (which
@@ -513,15 +517,13 @@ async function resetFocus(page) {
  * `stalled` so the evidence can attribute it to 2.1.2 rather than to 2.4.3.
  *
  * @param {import('@playwright/test').Page} page
- * @param {{maxStops?: number}} opts
+ * @param {number} maxStops
  * @returns {Promise<{stops: Array<object>, complete: boolean, truncated: boolean, stalled: boolean}>}
  */
-export async function focusOrderProbe(page, { maxStops = 60 } = {}) {
+async function tabSweep(page, maxStops) {
   // Start from a known state: nothing focused, so the first Tab lands on the
   // first tabbable element in the page's own order.
   await resetFocus(page);
-
-  const readStop = () => readActiveStop(page, { geometry: true });
 
   const stops = [];
   let complete = false;
@@ -529,7 +531,7 @@ export async function focusOrderProbe(page, { maxStops = 60 } = {}) {
 
   for (let i = 0; i < maxStops; i++) {
     await page.keyboard.press("Tab");
-    const stop = await readStop();
+    const stop = await readActiveStop(page, { geometry: true });
 
     if (!stop) {
       complete = true; // reached <body>: the cycle finished
@@ -548,6 +550,154 @@ export async function focusOrderProbe(page, { maxStops = 60 } = {}) {
   }
 
   return { stops, complete, truncated: stops.length >= maxStops && !complete, stalled };
+}
+
+/**
+ * Which elements are focusable, before and after an activation.
+ *
+ * The difference between the two is the set of controls the interaction brought
+ * into the tab sequence -- the only reliable way to detect a disclosure that
+ * advertises itself with nothing. `aria-expanded`/`aria-controls` would be easier
+ * to read, and a well-built widget has them; a lightbox wired up with a jQuery
+ * click handler on a bare `<a href="#">` has neither, and that is exactly the
+ * case the sweep was missing.
+ *
+ * `mode: "mark"` tags what is focusable now with an expando; `mode: "diff"`
+ * returns what is focusable and was NOT tagged. Identity is carried on the
+ * element object rather than by domIndex because a handler is free to MOVE the
+ * content it reveals -- this suite's lightbox does exactly that
+ * (`$('body').append($lbox)`), which renumbers every index after it and would
+ * make a before/after comparison of index sets meaningless. An expando also
+ * cannot leak into any captured HTML the way an attribute could.
+ */
+async function focusableSnapshot(page, mode) {
+  return page.evaluate((mode) => {
+    const SEL =
+      'a[href], button, input, select, textarea, [tabindex], [contenteditable="true"]';
+    const focusable = [...document.querySelectorAll(SEL)].filter((el) => {
+      if (el.hasAttribute("disabled")) return false;
+      if ((el.getAttribute("tabindex") || "0").trim() === "-1") return false;
+      const style = getComputedStyle(el);
+      if (style.display === "none" || style.visibility === "hidden") return false;
+      return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    });
+
+    if (mode === "mark") {
+      focusable.forEach((el) => {
+        el.__focusableBefore = true;
+      });
+      return focusable.length;
+    }
+
+    const all = [...document.querySelectorAll("*")];
+    return focusable
+      .filter((el) => el.__focusableBefore !== true)
+      .map((el) => ({
+        domIndex: all.indexOf(el),
+        tag: el.tagName.toLowerCase(),
+        text: (el.textContent || "").trim().slice(0, 60),
+      }));
+  }, mode);
+}
+
+/**
+ * Activate the page's in-page controls and record what each one does to the tab
+ * sequence.
+ *
+ * The static sweep reads the page as it loads, and for a whole class of pages that
+ * is the wrong state to read: a lightbox, a disclosure, a menu. Their content is
+ * `hidden` until something is clicked, so the sweep truthfully reports one stop,
+ * the skill truthfully answers "one stop is not a sequence", and a real defect is
+ * returned as insufficient evidence. What 2.4.3 asks about those pages is
+ * precisely what happens on activation -- does focus follow the content that just
+ * appeared, or is the user left where they were with the new content somewhere
+ * down the tab order.
+ *
+ * Only in-page controls are activated: `href="#"`, buttons, and things carrying a
+ * button role or `aria-expanded`. Clicking `<a href="page.html">` would navigate
+ * and the probe would be measuring a different document. `el.click()` is used
+ * rather than Playwright's click so no actionability wait or real navigation is
+ * involved -- the event is untrusted, which is irrelevant to a click handler
+ * (unlike Tab, which needs a trusted event to move focus natively).
+ *
+ * The page is reloaded before each candidate so one trigger's effects cannot be
+ * attributed to the next. Nothing is judged here: `focusMovedIntoRevealed` is a
+ * set-membership test, and whether the resulting order preserves meaning is left
+ * where every other 2.4.3 question is left.
+ */
+async function activationPass(page, { url, maxStops, maxTriggers = 5 }) {
+  const IN_PAGE =
+    'a[href="#"], a[href=""], a[href^="#"], button, [role="button"], [aria-expanded]';
+
+  const candidates = await page.evaluate((sel) => {
+    const all = [...document.querySelectorAll("*")];
+    return [...document.querySelectorAll(sel)].map((el) => all.indexOf(el));
+  }, IN_PAGE);
+
+  const triggers = [];
+  for (const domIndex of candidates.slice(0, maxTriggers)) {
+    if (url) {
+      await page.goto(url, { waitUntil: "load" });
+      // The reload takes the injected reader with it, and every stop read after
+      // this point would otherwise come back with an empty `phrase`.
+      await injectVsr(page);
+    }
+
+    await focusableSnapshot(page, "mark");
+    const trigger = await page.evaluate((index) => {
+      const el = [...document.querySelectorAll("*")][index];
+      if (!el) return null;
+      // focus() before click() so this models a KEYBOARD activation. A user who
+      // reached this control by Tab has focus on it at the moment it fires, and
+      // "where is focus once the content opens" is the whole question here -- a
+      // bare synthetic click() leaves activeElement on <body>, so the answer
+      // would be an artefact of how the probe clicks rather than what the page
+      // does.
+      el.focus();
+      el.click();
+      return {
+        tag: el.tagName.toLowerCase(),
+        text: (el.textContent || "").trim().slice(0, 60),
+        domIndex: index,
+      };
+    }, domIndex);
+    if (!trigger) continue;
+
+    const revealed = await focusableSnapshot(page, "diff");
+    // Nothing came into the tab sequence, so this control is not a disclosure and
+    // has nothing to say about focus order. Reporting it would put an entry on
+    // every ordinary button on every page.
+    if (!revealed.length) continue;
+
+    const focusAfter = await readActiveStop(page, { geometry: true });
+    // Asked of the element itself rather than by comparing domIndexes, for the
+    // same reason the snapshot is: the revealed content may have been moved.
+    const focusMovedIntoRevealed = await page.evaluate(() => {
+      const el = document.activeElement;
+      return !!el && el !== document.body && el.__focusableBefore !== true;
+    });
+
+    const sweep = await tabSweep(page, maxStops);
+    triggers.push({
+      trigger,
+      revealed,
+      focusAfter,
+      focusMovedIntoRevealed,
+      stopsAfter: sweep.stops,
+      completeAfter: sweep.complete,
+      stalledAfter: sweep.stalled,
+    });
+  }
+
+  return triggers.length ? { triggers } : null;
+}
+
+export async function focusOrderProbe(page, { maxStops = 60, url = null } = {}) {
+  const initial = await tabSweep(page, maxStops);
+  // Reloaded inside, so this must be the last thing done to the page -- see the
+  // step-4 note in capture.mjs.
+  const activation = await activationPass(page, { url, maxStops });
+  return { ...initial, activation };
 }
 
 /**

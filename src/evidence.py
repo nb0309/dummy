@@ -85,6 +85,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from html.parser import HTMLParser
 from typing import Any, List, Mapping
 
 from .orchestrator import parse_root_tag
@@ -287,6 +288,107 @@ def _focus_order_findings(stops: List[Mapping[str, Any]]) -> List[str]:
             )
 
     return findings
+
+
+def _activation_lines(activation: Mapping[str, Any], initial_stops: int) -> List[str]:
+    """What each in-page control did to the tab sequence when activated.
+
+    Framed around one comparison, because it is the whole reason this pass exists:
+    a page whose initial sweep found ONE stop is not a page with one focusable
+    control, it is a page whose controls are behind an interaction — and the
+    "fewer than two stops is not a sequence" abstention is exactly wrong there.
+    The lead line says so outright when that is the situation.
+
+    ``focusMovedIntoRevealed`` is a set-membership test and is stated as a fact.
+    Everything downstream of it — whether arriving at revealed content later in the
+    order is confusing, whether a lightbox ought to hold focus at all — is left to
+    the model, as with every other 2.4.3 observation.
+    """
+    triggers = [t for t in activation.get("triggers") or [] if isinstance(t, dict)]
+    if not triggers:
+        return []
+
+    lines = [
+        "\n## FOCUS ORDER AFTER ACTIVATION — 2.4.3 (each in-page control was "
+        "clicked, then the page was swept again; only controls that actually "
+        "brought new components into the tab sequence are listed)"
+    ]
+    if initial_stops < 2:
+        lines.append(
+            f"The sweep above found {initial_stops} stop(s), but this page's other "
+            f"components are behind an interaction rather than absent. Judge the "
+            f"focus order from what follows — do NOT return insufficient_evidence "
+            f"on the grounds that the initial sweep was too short."
+        )
+
+    for entry in triggers:
+        trigger = entry.get("trigger") or {}
+        revealed = [r for r in entry.get("revealed") or [] if isinstance(r, dict)]
+        focus_after = entry.get("focusAfter") or {}
+        lines.append(
+            f'\nActivating <{trigger.get("tag")}> "{trigger.get("text")}" '
+            f'(dom {trigger.get("domIndex")}) brought {len(revealed)} component(s) '
+            f"into the tab sequence:"
+        )
+        for item in revealed:
+            lines.append(
+                f'    dom {item.get("domIndex")}: <{item.get("tag")}> "{item.get("text")}"'
+            )
+
+        if entry.get("focusMovedIntoRevealed"):
+            lines.append(
+                f'    Focus MOVED INTO the revealed content — it landed on '
+                f'"{focus_after.get("phrase", "")}", which is one of the components '
+                f"above. The user arrives where the new content is."
+            )
+        elif focus_after:
+            lines.append(
+                f'    Focus did NOT move into the revealed content — it stayed on '
+                f'"{focus_after.get("phrase", "")}" (dom {focus_after.get("domIndex")}), '
+                f"which is the trigger or something else outside what just appeared. "
+                f"The content is on screen; the keyboard is not in it."
+            )
+        else:
+            lines.append(
+                "    Focus is on NOTHING in the document after activation — it left "
+                "the page entirely, so the revealed content is not where the keyboard "
+                "is either."
+            )
+
+        stops_after = [s for s in entry.get("stopsAfter") or [] if isinstance(s, dict)]
+        if stops_after:
+            # Deliberately NOT a fresh sweep from the top of the page. The browser
+            # keeps its sequential-navigation starting point at the control that
+            # was just activated, so these are the stops a user actually walks
+            # next, which is the question this section exists to answer. Labelled
+            # as such, because read as a whole-page order it would look like the
+            # trigger had vanished from the sequence.
+            lines.append("    Tab order CONTINUING from the trigger:")
+            for stop in stops_after:
+                lines.append(
+                    f'      {stop.get("stop")}. dom {stop.get("domIndex")}  '
+                    f'"{stop.get("phrase", "")}"'
+                )
+            revealed_indexes = {r.get("domIndex") for r in revealed}
+            reached = [s for s in stops_after if s.get("domIndex") in revealed_indexes]
+            if not reached:
+                lines.append(
+                    "      NONE of the revealed components appear in the tab order at "
+                    "all — the content cannot be reached by keyboard from here."
+                )
+            elif stops_after.index(reached[0]):
+                lines.append(
+                    f"      The revealed content is first reached at stop "
+                    f'{reached[0].get("stop")}, after '
+                    f"{stops_after.index(reached[0])} unrelated stop(s)."
+                )
+        if entry.get("completeAfter") and stops_after:
+            lines.append(
+                "      The sweep then left the document, so nothing holds focus while "
+                "this content is open."
+            )
+
+    return lines
 
 
 def _reading_order(raw: str) -> Mapping[str, Any] | None:
@@ -1235,6 +1337,434 @@ def _lost_segments(before: str, after: str) -> List[str]:
     return [seg for seg in before.split(", ") if seg and seg not in after]
 
 
+# ---------------------------------------------------------------------------
+# 1.3.1 structure observations
+#
+# Every other criterion in this module gets its decisive facts from a probe that
+# ran against the live page. 1.3.1 has no probe: its evidence is the raw markup,
+# and the model was being asked to sum `colspan` attributes across four rows and
+# notice that a `<td>` holding `&nbsp;` is empty. Those are mechanical, so they
+# are computed here and rendered as their own section — the same bargain the
+# probe sections strike. What is NOT computed is whether a `<table>` is a data
+# table at all, or whether an irregular shape actually breaks the row/column
+# mapping; those are the judgements 1.3.1 turns on and they stay with the model.
+#
+# stdlib `html.parser` only. `requirements.txt` deliberately carries no HTML
+# parser, and adding one for a cell count would be a poor trade.
+# ---------------------------------------------------------------------------
+
+_VOID_TAGS = frozenset(
+    {
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+        "meta", "param", "source", "track", "wbr",
+    }
+)
+
+_HEADING_TAGS = ("h1", "h2", "h3", "h4", "h5", "h6")
+_LANDMARK_TAGS = ("main", "nav", "header", "footer", "aside", "section", "article")
+_LIST_TAGS = ("ul", "ol", "dl")
+
+
+class _Markup(HTMLParser):
+    """A minimal element index of a fragment: one record per element, in order.
+
+    Only what the structure findings below need — tag, attributes, the element's
+    own children and its full descendant text. Text is appended to every open
+    ancestor so each node ends up carrying its text content, which is what makes
+    an "is this cell empty" test possible without a second pass.
+
+    ``convert_charrefs`` is left on deliberately: it turns ``&nbsp;`` into
+    ``\\xa0``, so a cell authored as ``<td>&nbsp;</td>`` becomes whitespace and
+    the emptiness test catches it. That entity is exactly what defeated the model
+    on the ``table-with-some-empty-cells`` fixture.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.nodes: List[dict] = []
+        self._stack: List[dict] = []
+
+    def handle_starttag(self, tag: str, attrs) -> None:
+        node = {
+            "tag": tag,
+            "attrs": {k.lower(): (v or "") for k, v in attrs},
+            "ancestors": [n["tag"] for n in self._stack],
+            "children": [],
+            "text": "",
+        }
+        if self._stack:
+            self._stack[-1]["children"].append(node)
+        self.nodes.append(node)
+        if tag not in _VOID_TAGS:
+            self._stack.append(node)
+
+    def handle_startendtag(self, tag: str, attrs) -> None:
+        self.handle_starttag(tag, attrs)
+        if self._stack and self._stack[-1]["tag"] == tag:
+            self._stack.pop()
+
+    def handle_endtag(self, tag: str) -> None:
+        # Unwind to the nearest matching open element. Captured markup is real
+        # browser outerHTML so it is well formed, but a stray close tag must not
+        # be allowed to desynchronise the stack.
+        for index in range(len(self._stack) - 1, -1, -1):
+            if self._stack[index]["tag"] == tag:
+                del self._stack[index:]
+                return
+
+    def handle_data(self, data: str) -> None:
+        for node in self._stack:
+            node["text"] += data
+
+
+def _parse_markup(html: Any) -> List[dict]:
+    """Element records for a fragment, in document order ([] if unparseable)."""
+    if not isinstance(html, str) or not html.strip() or html == "nan":
+        return []
+    parser = _Markup()
+    try:
+        parser.feed(html)
+        parser.close()
+    except Exception:  # noqa: BLE001 - a findings section must never break a run
+        return []
+    return parser.nodes
+
+
+def _own_descendants(node: Mapping[str, Any], stop_tag: str = "table"):
+    """Descendants of ``node``, not descending into a nested ``stop_tag``.
+
+    A table nested inside another table owns its own rows; walking blindly would
+    attribute them to the outer table and report a shape defect that is really
+    the inner table's.
+    """
+    for child in node["children"]:
+        yield child
+        if child["tag"] != stop_tag:
+            yield from _own_descendants(child, stop_tag)
+
+
+def _blank(text: str) -> bool:
+    """True when a cell's text content is empty once entities are resolved."""
+    return not text.replace("\xa0", " ").strip()
+
+
+def _span(node: Mapping[str, Any], attribute: str) -> int:
+    raw = str(node["attrs"].get(attribute, "")).strip()
+    return int(raw) if raw.isdigit() and int(raw) > 0 else 1
+
+
+def _table_findings(element_html: Any, parent_html: Any) -> List[str]:
+    """Mechanical shape facts for every table in the element, verdict-free.
+
+    Reports cell counts BESIDE ``colspan``-expanded widths rather than choosing
+    between them, because the two disagreeing is itself the signal: rows of 1, 4,
+    2 and 4 cells all padded to a width of 10 is a grid of label/value pairs, not
+    a data table with a consistent column mapping, and either number alone hides
+    that.
+    """
+    tables = [n for n in _parse_markup(element_html) if n["tag"] == "table"]
+    if not tables:
+        return []
+
+    findings: List[str] = []
+    parent_nodes = _parse_markup(parent_html)
+    nested_in_parent = any(
+        n["tag"] == "table" and ("table" in n["ancestors"] or "th" in n["ancestors"])
+        for n in parent_nodes
+    )
+
+    for index, table in enumerate(tables, start=1):
+        name = "TABLE" if len(tables) == 1 else f"TABLE {index}"
+        own = list(_own_descendants(table))
+        rows = [n for n in own if n["tag"] == "tr"]
+        headers = [n for n in own if n["tag"] == "th"]
+        data_cells = [n for n in own if n["tag"] == "td"]
+        captions = [n for n in own if n["tag"] == "caption"]
+
+        findings.append(
+            f"{name}: {len(rows)} row(s), {len(headers)} <th>, {len(data_cells)} <td>."
+        )
+
+        named_by = table["attrs"].get("aria-label") or table["attrs"].get(
+            "aria-labelledby"
+        )
+        if captions:
+            findings.append(f'    <caption> present: "{captions[0]["text"].strip()}"')
+        elif named_by:
+            findings.append(f'    NO <caption>, but the table is named by "{named_by}".')
+        else:
+            findings.append(
+                "    NO <caption>, and no aria-label/aria-labelledby either — this "
+                "table has no accessible name."
+            )
+
+        if headers and not data_cells:
+            findings.append(
+                "    This table has header cells and NO data cells at all — there is "
+                "nothing for the headers to be the headers OF."
+            )
+
+        # ---- shape: cell count beside colspan-expanded width -----------------
+        shapes = []
+        for row_index, row in enumerate(rows):
+            cells = [c for c in _own_descendants(row) if c["tag"] in ("th", "td")]
+            width = sum(_span(c, "colspan") for c in cells)
+            shapes.append((row_index, len(cells), width, cells))
+        if shapes:
+            findings.append(
+                "    row shape (cells -> width after colspan):  "
+                + ",  ".join(f"row {i}: {n} -> {w}" for i, n, w, _ in shapes)
+            )
+            widths = {w for _, _, w, _ in shapes}
+            counts = {n for _, n, _, _ in shapes}
+            if len(widths) > 1:
+                findings.append(
+                    f"    Rows do NOT all expand to the same width ({sorted(widths)}) "
+                    f"— the column mapping is not consistent across rows."
+                )
+            elif len(counts) > 1:
+                findings.append(
+                    f"    Every row expands to width {widths.pop()}, but the rows hold "
+                    f"DIFFERENT numbers of cells ({sorted(counts)}) — the uniform width "
+                    f"is produced by colspans, not by a shared column structure."
+                )
+
+        # ---- empty cells, located ---------------------------------------------
+        empties = [
+            f"row {i}, cell {position}"
+            for i, _, _, cells in shapes
+            for position, cell in enumerate(cells)
+            if _blank(cell["text"])
+        ]
+        if empties:
+            findings.append(
+                f"    {len(empties)} cell(s) are EMPTY once &nbsp;/whitespace is "
+                f"resolved: {', '.join(empties)}."
+            )
+
+        # ---- header association ------------------------------------------------
+        unscoped = [
+            h for h in headers if not h["attrs"].get("scope") and not h["attrs"].get("id")
+        ]
+        if unscoped:
+            findings.append(
+                f"    {len(unscoped)} of {len(headers)} <th> carry neither scope= nor "
+                f"id= (so no headers=/id= association either): "
+                + ", ".join(f'"{h["text"].strip()[:30]}"' for h in unscoped[:6])
+            )
+
+        # A <th> whose text differs on every row is a data VALUE wearing a header
+        # tag — the signature tables.md describes but has never had facts to test.
+        # Gated on the header being UNASSOCIATED: `<th scope="row">Jackie</th>` also
+        # varies per row and is a perfectly correct row header, so scope=/headers=
+        # is exactly what tells the defect from the conforming pattern.
+        body_header_texts = [
+            cell["text"].strip()
+            for row_index, _, _, cells in shapes
+            if row_index > 0
+            for cell in cells
+            if cell["tag"] == "th"
+            and cell["text"].strip()
+            and not cell["attrs"].get("scope")
+            and not cell["attrs"].get("id")
+        ]
+        if len(body_header_texts) > 1 and len(set(body_header_texts)) == len(
+            body_header_texts
+        ):
+            findings.append(
+                f"    Below the first row, every <th> holds a DIFFERENT value "
+                f"({', '.join(repr(t[:24]) for t in body_header_texts[:6])}) — values "
+                f"that change per row are data, not column or row labels."
+            )
+
+        if "table" in table["ancestors"] or "th" in table["ancestors"] or nested_in_parent:
+            findings.append(
+                "    This table is NESTED inside another table (or inside a <th>)."
+            )
+
+    return findings
+
+
+def _structure_findings(element_html: Any, parent_html: Any) -> List[str]:
+    """How much structure the markup actually carries, verdict-free.
+
+    Counts headings, landmarks, lists and block-level text against each other.
+    The undifferentiated-blob defect has no single tag to look for — it is the
+    RATIO of prose to structure — and a model reading eight long paragraphs one
+    after another has no way to feel that ratio. Whether the content genuinely
+    has sections that the markup fails to express is still the model's call.
+    """
+    element_nodes = _parse_markup(element_html)
+    parent_nodes = _parse_markup(parent_html)
+    # The parent is an ancestor, so it is a superset — prefer it when it actually
+    # carries more heading context (a <main><p></p></main> sample cannot see the
+    # <h1> that sits beside it in <body>).
+    nodes = element_nodes
+    scope = "the element"
+    if sum(1 for n in parent_nodes if n["tag"] in _HEADING_TAGS) > sum(
+        1 for n in element_nodes if n["tag"] in _HEADING_TAGS
+    ):
+        nodes, scope = parent_nodes, "the element's parent"
+    if not nodes:
+        return []
+
+    findings: List[str] = []
+    headings = [n for n in nodes if n["tag"] in _HEADING_TAGS]
+    landmarks = [n for n in nodes if n["tag"] in _LANDMARK_TAGS]
+    lists = [n for n in nodes if n["tag"] in _LIST_TAGS]
+    blocks = [
+        n for n in nodes if n["tag"] == "p" and not _blank(n["text"])
+    ]
+    prose = sum(len(n["text"].strip()) for n in blocks)
+    orphan_li = [
+        n
+        for n in nodes
+        if n["tag"] == "li" and not (set(n["ancestors"]) & {"ul", "ol", "menu"})
+    ]
+    orphan_dd = [
+        n for n in nodes if n["tag"] in ("dt", "dd") and "dl" not in n["ancestors"]
+    ]
+
+    # Nothing to say about a bare <table> or an <img>: reporting "0 headings, 0
+    # lists, 0 prose" on every such row would be noise competing with the table
+    # findings above it for the model's attention.
+    if not (headings or landmarks or lists or blocks or orphan_li or orphan_dd):
+        return []
+
+    findings.append(
+        f"Structure of {scope}: {len(headings)} heading(s), {len(landmarks)} "
+        f"landmark(s) ({', '.join(sorted({l['tag'] for l in landmarks})) or 'none'}), "
+        f"{len(lists)} list(s), {len(blocks)} non-empty <p> carrying ~{prose} "
+        f"characters of prose."
+    )
+
+    if headings:
+        sequence = [(int(h["tag"][1]), h["text"].strip()[:40]) for h in headings]
+        findings.append(
+            "    heading sequence: "
+            + " -> ".join(f'h{level} "{text}"' for level, text in sequence)
+        )
+        skips = [
+            f"h{previous[0]} -> h{current[0]}"
+            for previous, current in zip(sequence, sequence[1:])
+            if current[0] > previous[0] + 1
+        ]
+        if skips:
+            findings.append(f"    heading levels SKIP downwards at: {', '.join(skips)}")
+        empty = [h for h in headings if _blank(h["text"])]
+        if empty:
+            findings.append(f"    {len(empty)} heading element(s) have NO text.")
+    else:
+        findings.append("    NO heading element anywhere in this markup.")
+
+    if len(blocks) >= 4 and len(headings) <= 1 and not lists:
+        findings.append(
+            f"    {len(blocks)} blocks of prose are organised by {len(headings)} "
+            f"heading(s), no list and no sectioning element. Whether that prose has "
+            f"sections a reader would need to navigate between is the judgement here — "
+            f"the markup expresses none."
+        )
+
+    if orphan_li:
+        findings.append(f"    {len(orphan_li)} <li> with no <ul>/<ol>/<menu> ancestor.")
+    if orphan_dd:
+        findings.append(f"    {len(orphan_dd)} <dt>/<dd> with no <dl> ancestor.")
+
+    return findings
+
+
+def _computed_style(raw: str) -> Mapping[str, Any] | None:
+    """Parse the sr_computed_style JSON object column, or None if absent."""
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    if not isinstance(parsed, dict):
+        return None
+    return parsed if parsed.get("generated") or parsed.get("links") else None
+
+
+def _computed_style_findings(data: Mapping[str, Any]) -> List[str]:
+    """What the page RENDERS as, for the two defects markup cannot show.
+
+    Framed to cut both ways. Text injected by a `content:` rule is invisible in the
+    HTML and in the transcript alike, so its absence from those has been read as
+    "no evidence" when it is really the defect. A link's distinguishability is the
+    mirror image: the markup carries only a class name, and a class name is what
+    the author called the rule, not what the rule does. So the measured values are
+    reported and the class name is not trusted — including when it is named after
+    the very defect being looked for.
+
+    ``differsIn`` is the whole link finding: an empty list means nothing at all
+    sets the link apart from its surrounding text, and ``["color"]`` means colour
+    alone does. Anything else — an underline, a weight — is a non-colour cue and a
+    pass. Whether there IS surrounding text is reported beside it, because a link
+    alone in a nav item has nothing to be indistinguishable from.
+    """
+    findings: List[str] = []
+
+    generated = [g for g in data.get("generated") or [] if isinstance(g, dict)]
+    if generated:
+        findings.append(
+            f"{len(generated)} CSS-GENERATED content rule(s) render text that exists "
+            f"in NEITHER the source HTML NOR the transcript:"
+        )
+        for entry in generated:
+            where = f'<{entry.get("tag")}'
+            if entry.get("id"):
+                where += f' #{entry.get("id")}'
+            where += ">"
+            findings.append(
+                f'    {where}{entry.get("pseudo")} renders {entry.get("content")}'
+            )
+        findings.append(
+            "    Content injected this way is not in the accessibility tree, so a "
+            "reader never receives it. Judge whether it is decorative or whether it "
+            "carries meaning the rest of the element does not."
+        )
+
+    links = [x for x in data.get("links") or [] if isinstance(x, dict)]
+    for entry in links:
+        differs = entry.get("differsIn")
+        if differs is None:
+            continue
+        link = entry.get("link") or {}
+        surrounding_text = str(entry.get("surroundingText") or "").strip()
+        name = str(entry.get("text") or "").strip() or "(no text)"
+
+        if not surrounding_text:
+            findings.append(
+                f'Link "{name}" has no surrounding text in its block, so there is '
+                f"nothing for it to be visually indistinguishable from. Its own "
+                f'decoration is "{link.get("textDecorationLine")}".'
+            )
+        elif not differs:
+            findings.append(
+                f'Link "{name}" computes IDENTICALLY to the text around it — same '
+                f'colour ({link.get("color")}), same weight ({link.get("fontWeight")}), '
+                f'text-decoration-line: {link.get("textDecorationLine")}. NOTHING '
+                f'visually distinguishes it from the prose "{surrounding_text[:60]}". '
+                f"Not colour alone — no cue at all."
+            )
+        elif differs == ["color"]:
+            findings.append(
+                f'Link "{name}" differs from the text around it in COLOUR ONLY '
+                f'({link.get("color")} vs {(entry.get("surrounding") or {}).get("color")}), '
+                f'with text-decoration-line: {link.get("textDecorationLine")}. Colour is '
+                f"the only visual cue that it is a link."
+            )
+        else:
+            findings.append(
+                f'Link "{name}" differs from its surrounding text in '
+                f'{", ".join(str(d) for d in differs)} — it carries a cue that is not '
+                f"colour."
+            )
+
+    return findings
+
+
 @dataclass
 class Evidence:
     """Structured, pre-formatted evidence for one element plus routing hint."""
@@ -1269,6 +1799,44 @@ def build(row: Mapping[str, Any]) -> Evidence:
         "walking through this element, in order)"
     )
     parts.append(_format_phrases(_val(row, "sr_transcript")))
+
+    # 1.3.1 structure observations. Unlike every section below, this is computed
+    # from the markup rather than measured on the live page — 1.3.1 has no probe.
+    # It is placed here, straight after the three standard inputs, because it is
+    # a reading OF those inputs rather than an additional source of evidence.
+    structure = _table_findings(element_html, row.get("parent_html")) + _structure_findings(
+        element_html, row.get("parent_html")
+    )
+    if structure:
+        parts.append(
+            "\n## STRUCTURE OBSERVATIONS — 1.3.1 (counted from the SOURCE/PARENT HTML "
+            "above, not measured on the page, and NOT a verdict)"
+        )
+        parts.append(
+            "These are mechanical counts of what the markup encodes. They settle the "
+            "questions that are arithmetic — how wide each row really is once colspans "
+            "are applied, which cells are empty once &nbsp; is resolved, whether a "
+            "<caption> or a scope= exists, how much prose sits under how many headings. "
+            "They do NOT settle whether a <table> is a data table or a layout table, "
+            "whether an irregular shape actually breaks the row/column mapping, or "
+            "whether the content has sections the markup fails to express. Those are "
+            "yours to judge — but judge them from these numbers, not by re-counting the "
+            "raw markup yourself."
+        )
+        parts.extend(structure)
+
+    # Rendered appearance. Not --sc gated like the probes below: it is the
+    # sample's own computed style, present whenever the sample has a link or a
+    # generated-content rule, and absent (no section) otherwise.
+    style = _computed_style(_val(row, "sr_computed_style"))
+    if style:
+        style_findings = _computed_style_findings(style)
+        if style_findings:
+            parts.append(
+                "\n## RENDERED APPEARANCE — computed style (measured from the page, "
+                "and the ONLY evidence for anything the stylesheet does)"
+            )
+            parts.extend(style_findings)
 
     # 4.1.3 interaction probe: only present for status-message rows. An empty
     # string means the row was not a status message (not probed) -> no section.
@@ -1420,6 +1988,10 @@ def build(row: Mapping[str, Any]) -> Evidence:
             "someone moving through the page this way could still understand and "
             "operate it."
         )
+
+        activation = focus.get("activation")
+        if isinstance(activation, dict):
+            parts.extend(_activation_lines(activation, len(stops)))
 
     # 2.4.4 link purpose: only present for page rows captured under --sc 2.4.4.
     link_purpose = _link_purpose(_val(row, "sr_link_purpose"))
