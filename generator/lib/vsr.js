@@ -552,6 +552,30 @@ async function tabSweep(page, maxStops) {
   return { stops, complete, truncated: stops.length >= maxStops && !complete, stalled };
 }
 
+/** The URL without its fragment -- i.e. which DOCUMENT is loaded. */
+function stripHash(href) {
+  const url = new URL(href);
+  url.hash = "";
+  return url.toString();
+}
+
+/**
+ * A cheap fingerprint of the rendered body, for "did anything change at all".
+ *
+ * Passed to `page.evaluate` as a function, so it must be self-contained. Hashing
+ * rather than comparing lengths: a handler that swaps one class for another of
+ * the same length is a real change, and a length comparison would call the
+ * control dead.
+ */
+function domHash() {
+  const html = document.body ? document.body.innerHTML : "";
+  let hash = 5381;
+  for (let i = 0; i < html.length; i++) {
+    hash = ((hash << 5) + hash + html.charCodeAt(i)) | 0;
+  }
+  return hash;
+}
+
 /**
  * Which elements are focusable, before and after an activation.
  *
@@ -624,8 +648,22 @@ async function focusableSnapshot(page, mode) {
  * attributed to the next. Nothing is judged here: `focusMovedIntoRevealed` is a
  * set-membership test, and whether the resulting order preserves meaning is left
  * where every other 2.4.3 question is left.
+ *
+ * The result has two halves, because activating a control has two interesting
+ * outcomes and 2.4.3 only cares about one of them:
+ *
+ *   `triggers` -- it revealed something. Where the focus order actually lives.
+ *   `inert`    -- it did NOTHING: nothing revealed, no DOM change, no navigation.
+ *                 That is 4.1.2's finding, not 2.4.3's. A component announced as
+ *                 "link" or "button" that does nothing when activated is exposing
+ *                 a role it does not fulfil, and this is the ONLY evidence that
+ *                 separates it from the ordinary JavaScript-driven `href="#"` --
+ *                 which is indistinguishable from it in the markup, and is why a
+ *                 rubric rule about `href="#"` would flag half the real web.
+ *
+ * @returns {Promise<{triggers: Array<object>, inert: Array<object>}|null>}
  */
-async function activationPass(page, { url, maxStops, maxTriggers = 5 }) {
+export async function activationProbe(page, { url, maxStops = 60, maxTriggers = 5 } = {}) {
   const IN_PAGE =
     'a[href="#"], a[href=""], a[href^="#"], button, [role="button"], [aria-expanded]';
 
@@ -635,6 +673,7 @@ async function activationPass(page, { url, maxStops, maxTriggers = 5 }) {
   }, IN_PAGE);
 
   const triggers = [];
+  const inert = [];
   for (const domIndex of candidates.slice(0, maxTriggers)) {
     if (url) {
       await page.goto(url, { waitUntil: "load" });
@@ -643,6 +682,8 @@ async function activationPass(page, { url, maxStops, maxTriggers = 5 }) {
       await injectVsr(page);
     }
 
+    const urlBefore = page.url();
+    const domBefore = await page.evaluate(domHash);
     await focusableSnapshot(page, "mark");
     const trigger = await page.evaluate((index) => {
       const el = [...document.querySelectorAll("*")][index];
@@ -658,16 +699,31 @@ async function activationPass(page, { url, maxStops, maxTriggers = 5 }) {
       return {
         tag: el.tagName.toLowerCase(),
         text: (el.textContent || "").trim().slice(0, 60),
+        href: el.getAttribute("href"),
+        role: el.getAttribute("role") || null,
         domIndex: index,
       };
     }, domIndex);
     if (!trigger) continue;
 
     const revealed = await focusableSnapshot(page, "diff");
-    // Nothing came into the tab sequence, so this control is not a disclosure and
-    // has nothing to say about focus order. Reporting it would put an entry on
-    // every ordinary button on every page.
-    if (!revealed.length) continue;
+    if (!revealed.length) {
+      // Nothing came into the tab sequence. Either the control did something
+      // else (changed text, navigated) -- not this probe's business -- or it did
+      // nothing whatsoever, which is 4.1.2's.
+      const domAfter = await page.evaluate(domHash);
+      // Compare DOCUMENTS, not URL strings. Clicking `<a href="#">` appends a
+      // bare "#", so a raw string comparison calls the page navigated and the
+      // one control this check exists to catch is the one it misses. A fragment
+      // with an actual target is different -- that moves the reading position,
+      // which is the link doing its job.
+      const jumped = new URL(page.url()).hash.length > 1;
+      const sameDocument = stripHash(page.url()) === stripHash(urlBefore);
+      if (domAfter === domBefore && sameDocument && !jumped) {
+        inert.push(trigger);
+      }
+      continue;
+    }
 
     const focusAfter = await readActiveStop(page, { geometry: true });
     // Asked of the element itself rather than by comparing domIndexes, for the
@@ -689,14 +745,15 @@ async function activationPass(page, { url, maxStops, maxTriggers = 5 }) {
     });
   }
 
-  return triggers.length ? { triggers } : null;
+  return triggers.length || inert.length ? { triggers, inert } : null;
 }
 
 export async function focusOrderProbe(page, { maxStops = 60, url = null } = {}) {
   const initial = await tabSweep(page, maxStops);
   // Reloaded inside, so this must be the last thing done to the page -- see the
-  // step-4 note in capture.mjs.
-  const activation = await activationPass(page, { url, maxStops });
+  // step-4 note in capture.mjs. 2.4.3 reads only the `triggers` half; the `inert`
+  // half rides along unread and is 4.1.2's, which calls this probe directly.
+  const activation = await activationProbe(page, { url, maxStops });
   return { ...initial, activation };
 }
 

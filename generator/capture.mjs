@@ -43,6 +43,7 @@ import {
   roleStateValueProbe,
   labelInstructionProbe,
   focusOrderProbe,
+  activationProbe,
   linkPurposeProbe,
   headingLabelProbe,
   readingOrderProbe,
@@ -189,6 +190,15 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
     !opts.noSr && opts.sc === "2.4.3"
       ? await focusOrderProbe(page, { url: fileUrl })
       : null;
+  // 4.1.2 borrows the same activation pass for a different question: not what a
+  // control reveals, but whether it does anything at all. A component announced
+  // as a link or a button that does nothing is exposing a role it does not have,
+  // and no amount of markup can tell that apart from an ordinary JS-driven
+  // href="#".
+  const controlActivation =
+    !opts.noSr && opts.sc === "4.1.2"
+      ? await activationProbe(page, { url: fileUrl })
+      : null;
   const keyboardTrap =
     !opts.noSr && opts.sc === "2.1.2" ? await keyboardTrapProbe(page) : null;
   const focusContext =
@@ -218,6 +228,7 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
         focusContext,
         inputContext,
         sensoryReference,
+        controlActivation,
         meta: { label: opts.label },
       })
     );

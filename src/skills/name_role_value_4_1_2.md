@@ -3,7 +3,7 @@ sc: "4.1.2"
 technique: "name-role-value"
 title: "Custom UI component missing or stale role, name, or state"
 applies_when:
-  element_tag: [div, span, input, select, button, a, li, ul, ol, main, body]
+  element_tag: [div, span, p, input, textarea, select, button, a, iframe, frame, li, ul, ol, main, body]
 signals:
   - field: sr_transcript
     look_for: "PRIMARY. The STATIC walk of the element. Does the reader announce a role at all (e.g. 'checkbox', 'switch', 'slider'), an accessible NAME alongside it (not just the bare role word), and — for stateful roles — a state or value ('checked' / 'not checked' / 'on' / 'off' / a numeric value)? A role-bearing widget that reads as plain text, or reads a role with no name, or reads a role with no state where one is required, is the core 4.1.2 signal."
@@ -13,6 +13,10 @@ signals:
     look_for: "CORROBORATION. The role attribute (present/absent/valid enumerated role); the state/value attributes required by that role (aria-checked for checkbox/switch/menuitemcheckbox/menuitemradio, aria-selected for option/tab, aria-valuenow+aria-valuemin+aria-valuemax for slider/spinbutton, aria-expanded for a disclosure trigger) and whether their VALUES are valid (aria-checked must be true/false/mixed, never an arbitrary string); the accessible-name source (aria-label, aria-labelledby, a wrapping/associated <label>, or visible text content) — or its total absence."
   - field: parent_html
     look_for: "whether a <label for> or a labelling element referenced by aria-labelledby actually exists and contains real text (not aria-hidden, not empty) — this is often the only place the accessible name can be confirmed for a bare custom-control div/span"
+  - field: NAME AND LABEL OBSERVATIONS
+    look_for: "the name/label arithmetic, already done: duplicate `for` attributes binding two labels to one control, a `for` pointing at no id, controls with no name source at all, hint text bound by no aria-describedby, tabindex on an element with no role, and frames with no title. Read these rather than re-deriving them from the markup."
+  - field: CONTROL ACTIVATION
+    look_for: "present under a 4.1.2 capture. Each in-page control was clicked and what it did was recorded. A control listed as doing NOTHING — nothing revealed, no DOM change, no navigation — announces a role it does not fulfil. This is the only evidence that separates a dead `href=\"#\"` from the ordinary JavaScript-driven kind."
 ---
 ## Violation criteria (4.1.2 Name, Role, Value)
 **4.1.2 Name, Role, Value is Level A and is in scope for this element.**
@@ -42,6 +46,33 @@ Flag `inaccessible` under `4.1.2` when any of the following holds:
   `aria-checked`; `option`/`tab` with no `aria-selected`; `slider`/`spinbutton`
   with no `aria-valuenow` (and no `aria-valuemin`/`aria-valuemax`) — the role
   is announced, but there is nothing for the reader to say about its state.
+- **An embedded frame with no accessible name.** An `<iframe>`/`<frame>` with no
+  `title` and no `aria-label` is announced as a bare frame, so a reader moving
+  between frames cannot tell what any of them contains or decide whether to enter.
+  The frame's own content is a separate document and is NOT what names it.
+- **A frame whose name does not describe what it contains.** `title="Facebook"` on
+  a frame embedding an unrelated page names it inaccurately, which for a reader
+  choosing between frames is worse than the bare frame above — they act on it. Read
+  the `src` and any announced content before accepting a name as accurate.
+- **A control that announces a role it does not fulfil.** Where the
+  CONTROL ACTIVATION section reports that activating an element did nothing at all
+  — no content revealed, no DOM change, no navigation — a component announced as
+  "link" or "button" is not one. The role is exposed, and it is wrong. Judge this
+  ONLY from that section: `href="#"` is the ordinary way to write a
+  JavaScript-driven control and proves nothing on its own.
+- **Two labels bound to one control.** NAME AND LABEL OBSERVATIONS reports duplicate
+  `for` attributes. Only one accessible name can result, so either a label the
+  author wrote is silently dropped or two are concatenated into a name that reads
+  as neither — and a second control that looks labelled on screen has no label at
+  all. Check the transcript for which happened.
+- **A description that reaches nobody.** NAME AND LABEL OBSERVATIONS reports hint or
+  instruction text sitting beside a control with no `aria-describedby` binding it.
+  It is on screen and is not in the control's announcement; confirm against
+  `sr_transcript`, where the control will announce its name and stop.
+- **Focusable, but not a component.** NAME AND LABEL OBSERVATIONS reports `tabindex >= 0`
+  on an element with no role and no native interactive semantics (`<p tabindex="0">`).
+  Focus stops there and the reader announces "paragraph" — a stop with no role that
+  says what it is or what it does.
 - **State/value present but invalid.** `aria-checked` set to anything other
   than `true`/`false`/`mixed` (e.g. `"yes"`) — assistive tech cannot reliably
   interpret it, so the exposed state is effectively broken even though the

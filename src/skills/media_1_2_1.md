@@ -10,6 +10,20 @@ signals:
   - field: sr_transcript
     look_for: "the media player is skipped entirely (silence) or its controls read as unlabelled actions"
 ---
+## Scope boundary
+`<iframe>`/`<object>`/`<embed>` appear in `element_tag` above because they can
+EMBED time-based media, and that is the only reason. Whether such an element has
+an accessible name — a `title`, an `aria-label`, and whether that name describes
+what it contains — is **4.1.2 Name, Role, Value**, which has its own skill
+(`4.1.2/name-role-value`). Both skills can match one `<iframe>`; this one owns the
+media inside it, not the frame's label.
+
+So: a frame with no `title` is not a 1.2.1 finding, and its missing title is not
+evidence about media. Where the capture shows only a frame and gives no sign of
+audio or video inside it, this criterion has nothing to judge — say so and leave
+the naming question to 4.1.2 rather than returning `insufficient_evidence` as
+though the row were unreadable.
+
 ## Violation criteria (1.2.1 Audio-only and Video-only)
 Flag `inaccessible` under `1.2.1` when time-based media has no text alternative
 and its player is not perceivable/operable via assistive tech:

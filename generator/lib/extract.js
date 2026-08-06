@@ -73,6 +73,20 @@ export async function extractSamples(page, { sc = null } = {}) {
       // their descendants are still separate samples, which is what keeps the
       // nested-list and orphan defects visible.
       landmark: "article, section, [role='article'], [role='region']",
+      // 4.1.2 name/role/value, the half `control` above does not cover. That
+      // selector is about STATE -- things whose aria-checked/pressed/expanded can
+      // go stale -- so it stops at stateful widgets. 4.1.2 is equally about NAME
+      // and ROLE, and those are owed by every interactive thing on the page: a
+      // text input, a link, a button, an embedded frame, and anything made
+      // focusable with tabindex. None of them is a candidate today, so a page
+      // whose defect is an unlabelled input or an untitled <iframe> falls through
+      // to the fallback content block and the control itself is never the sample.
+      // Scored on the 4.1.2 suite that difference is stark: rows where the
+      // control WAS the sample came back 4/4 correct, rows that fell back to
+      // <main> came back 4/8.
+      named:
+        "a[href], button, [role='link'], [role='button'], " +
+        "input:not([type='hidden']), textarea, iframe, frame, [tabindex]",
     };
     const MEDIAISH = [SEL.image, SEL.media, SEL.embed].join(", ");
     const CONTAINER = [SEL.table, SEL.list].join(", ");
@@ -85,11 +99,18 @@ export async function extractSamples(page, { sc = null } = {}) {
     // carries the 4.1.3 defect signal. Both form-level criteria share the one
     // selector, so the gate is a membership test rather than a single ===.
     const FORM_SC = ["3.3.1", "3.3.2"];
+    // Same opt-in reasoning as FORM_SC, and needed more urgently: `named` matches
+    // a link or an input on almost every page in every suite, so adding it to the
+    // default sweep would take the fallback block away from all of them -- and
+    // 4.1.3's five ACCESSIBLE fixtures, the corpus's only false-positive guard,
+    // would each gain rows they do not have today. Gating on the criterion that
+    // asks the question makes a regression elsewhere structurally impossible.
     const CANDIDATES = [
       SEL.image, SEL.media, SEL.embed, SEL.table, SEL.list, SEL.status,
       SEL.control, SEL.landmark,
     ]
       .concat(FORM_SC.includes(sc) ? [SEL.form] : [])
+      .concat(sc === "4.1.2" ? [SEL.named] : [])
       .join(", ");
 
     // ---- classify a resolved target element into an element_type -------------
@@ -113,6 +134,17 @@ export async function extractSamples(page, { sc = null } = {}) {
       if (target.matches(SEL.image)) return "image";
       if (target.matches(SEL.media)) return "media";
       if (target.matches(SEL.embed)) return "embed";
+      // LAST, and the position is load-bearing. `named` overlaps three selectors
+      // above it -- <iframe> is also SEL.embed, <input type="image"> is also
+      // SEL.image -- and those types are what 1.2.1 and 1.1.1 are routed by. Only
+      // elements no earlier rule claimed reach here.
+      //
+      // Deliberately NOT "control" either: capture.mjs gates the 4.1.2
+      // role/state/value probe -- which CLICKS the sample -- on that type, and
+      // clicking <a href="page.html"> would navigate away, leaving every later
+      // probe on this page reading a different document. These owe a name and a
+      // role, not a state, so that probe has nothing to observe on them anyway.
+      if (target.matches(SEL.named)) return "named";
       return tag;
     }
 
@@ -139,7 +171,15 @@ export async function extractSamples(page, { sc = null } = {}) {
     // Falling back to the enclosing fieldset/form when the control is unnamed
     // (or genuinely alone) keeps the answer available in the one shape that
     // proves the group IS enclosed.
+    // `named` samples need the same widening for the same reason, and arguably
+    // more: the element under test IS the control, so its labels are all outside
+    // it. `<label for="x">Date of issue</label>` and `<label for="x">Day</label>`
+    // can sit in different subtrees of one form -- the immediate parent contains
+    // one of them, and a duplicate binding is invisible unless both are in view.
     function contextParent(el, type) {
+      if (type === "named") {
+        return el.closest("fieldset, form, main") || el.parentElement;
+      }
       if (type !== "control") return el.parentElement;
       const name = el.getAttribute("name");
       if (name) {

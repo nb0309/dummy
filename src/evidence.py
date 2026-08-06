@@ -1585,6 +1585,192 @@ def _table_findings(element_html: Any, parent_html: Any) -> List[str]:
     return findings
 
 
+# Elements that carry an interactive role natively, so `tabindex` on them is
+# ordinary. Anything else with a tabindex is claiming a place in the focus order
+# without claiming a role to go with it.
+_NATIVELY_INTERACTIVE = frozenset(
+    {"a", "button", "input", "select", "textarea", "iframe", "frame", "audio", "video"}
+)
+
+# Controls that owe an accessible name. `input[type=hidden]` is excluded when the
+# attribute is read; a hidden input is not a component.
+_NAMEABLE_TAGS = frozenset({"input", "select", "textarea", "button"})
+
+
+def _name_findings(element_html: Any, parent_html: Any) -> List[str]:
+    """The name/label arithmetic for 4.1.2, verdict-free.
+
+    Same bargain as the table findings: these are all countable, and the model was
+    being asked to notice them by eye in a whole ``<main>`` block. Two ``<label>``
+    elements pointing at one id, a hint paragraph that no ``aria-describedby``
+    references, a ``tabindex`` on a ``<p>`` — each is a set operation over the
+    markup, and each was missed on the 4.1.2 suite.
+
+    What is NOT decided here is whether a name that exists is any *good*. A frame
+    titled "Facebook" is reported as named; whether that describes what it embeds
+    needs the ``src`` and a judgement, and stays with the model.
+
+    Two scopes, and the split is what keeps this honest:
+
+    * **context** — the richer of element/parent markup. Where names come FROM:
+      labels, ids, ``aria-describedby`` targets. A control captured on its own has
+      its ``<label>`` in the parent.
+    * **scope** — what is AUDITED. Absence of a name can only be concluded from
+      markup that would have contained the name, so this is normally the element
+      under test alone. Without that limit, a 4.1.3 status-region row reports the
+      missing labels of every input that happens to share its form — inputs the
+      capture never claimed to be about — and five fixtures that pass their own
+      criterion get flagged.
+
+      The exception is when the element under test IS a nameable control. Then it
+      is a leaf, everything that could name it is by definition outside it, and
+      the parent is not a bystander but the control's own naming context. So scope
+      widens to match context there, and only there.
+    """
+    element_nodes = _parse_markup(element_html)
+    parent_nodes = _parse_markup(parent_html)
+    context = parent_nodes if len(parent_nodes) > len(element_nodes) else element_nodes
+    root = element_nodes[0] if element_nodes else None
+    element_is_control = bool(
+        root
+        and (
+            root["tag"] in _NAMEABLE_TAGS
+            or root["tag"] in ("a", "iframe", "frame")
+            or root["attrs"].get("tabindex")
+        )
+    )
+    scope = context if element_is_control else (element_nodes or context)
+    if not context:
+        return []
+
+    findings: List[str] = []
+    ids = {n["attrs"].get("id") for n in context if n["attrs"].get("id")}
+
+    # ---- label bindings ----------------------------------------------------
+    labels = [n for n in context if n["tag"] == "label"]
+    by_target: dict = {}
+    for label in labels:
+        target = label["attrs"].get("for")
+        if target:
+            by_target.setdefault(target, []).append(label)
+
+    for target, group in by_target.items():
+        if len(group) > 1:
+            texts = ", ".join(f'"{l["text"].strip()}"' for l in group)
+            findings.append(
+                f'{len(group)} <label> elements all point at for="{target}": {texts}. '
+                f"One control can have only ONE accessible name, so these either "
+                f"concatenate or one is dropped — check sr_transcript for which. Any "
+                f"other control those labels appear to belong to on screen has none."
+            )
+        if target not in ids:
+            findings.append(
+                f'<label for="{target}"> names an id that does not exist in this '
+                f"markup — the label is bound to nothing."
+            )
+
+    # ---- controls with no name source at all --------------------------------
+    for node in scope:
+        if node["tag"] not in _NAMEABLE_TAGS:
+            continue
+        if node["tag"] == "input" and node["attrs"].get("type", "").lower() == "hidden":
+            continue
+        node_id = node["attrs"].get("id")
+        named_by = (
+            node["attrs"].get("aria-label")
+            or node["attrs"].get("aria-labelledby")
+            or node["attrs"].get("title")
+            or (node_id and node_id in by_target)
+            or "label" in node["ancestors"]
+            or (node["tag"] == "button" and not _blank(node["text"]))
+        )
+        if not named_by:
+            descriptor = f'<{node["tag"]}'
+            if node["attrs"].get("type"):
+                descriptor += f' type="{node["attrs"]["type"]}"'
+            if node_id:
+                descriptor += f' id="{node_id}"'
+            descriptor += ">"
+            findings.append(
+                f"{descriptor} has NO name source: no <label for> pointing at it, no "
+                f"wrapping <label>, no aria-label/aria-labelledby, no title."
+            )
+
+    # ---- description text bound to nothing ----------------------------------
+    described = {
+        ref
+        for n in context
+        for ref in str(n["attrs"].get("aria-describedby", "")).split()
+        if ref
+    }
+    controls = [
+        n
+        for n in scope
+        if n["tag"] in _NAMEABLE_TAGS
+        and not (n["tag"] == "input" and n["attrs"].get("type", "").lower() == "hidden")
+    ]
+    if controls:
+        for node in scope:
+            if node["tag"] not in ("p", "span", "div") or _blank(node["text"]):
+                continue
+            # Only text sitting INSIDE the form, beside the controls -- prose
+            # elsewhere on the page is not claiming to describe anything.
+            if "form" not in node["ancestors"]:
+                continue
+            if node["children"]:
+                continue
+            if node["attrs"].get("id") in described:
+                continue
+            # A live region is not a description. Its whole design is to be
+            # announced on change WITHOUT being attached to a control, so the
+            # absence of an aria-describedby is correct there and reporting it
+            # would argue against the very thing 4.1.3 asks for.
+            if node["attrs"].get("aria-live") or str(
+                node["attrs"].get("role", "")
+            ).lower() in ("status", "alert", "log", "progressbar", "timer", "marquee"):
+                continue
+            findings.append(
+                f'Text beside a control, referenced by no aria-describedby: '
+                f'<{node["tag"]}> "{node["text"].strip()[:80]}". It is on screen and '
+                f"is not part of any control's announcement."
+            )
+
+    # ---- focusable, but not a component -------------------------------------
+    for node in scope:
+        raw = str(node["attrs"].get("tabindex", "")).strip()
+        if not raw.lstrip("+").isdigit():
+            continue
+        if node["tag"] in _NATIVELY_INTERACTIVE or node["attrs"].get("role"):
+            continue
+        findings.append(
+            f'<{node["tag"]} tabindex="{raw}"> is focusable but has NO role and no '
+            f"native interactive semantics"
+            + (f': "{node["text"].strip()[:60]}"' if not _blank(node["text"]) else "")
+            + ". Focus stops there and the reader announces the element's ordinary "
+            "role, which says nothing about what it is or does."
+        )
+
+    # ---- embedded frames -----------------------------------------------------
+    for node in scope:
+        if node["tag"] not in ("iframe", "frame"):
+            continue
+        name = node["attrs"].get("title") or node["attrs"].get("aria-label")
+        src = node["attrs"].get("src", "(no src)")
+        if name:
+            findings.append(
+                f'<{node["tag"]}> is named "{name}" and embeds {src}. Whether that '
+                f"name describes what is actually inside is a judgement, not a count "
+                f"— read the src."
+            )
+        else:
+            findings.append(
+                f'<{node["tag"]}> embedding {src} has NO title and NO aria-label — it '
+                f"is announced as a bare frame with nothing to identify it."
+            )
+
+    return findings
+
+
 def _structure_findings(element_html: Any, parent_html: Any) -> List[str]:
     """How much structure the markup actually carries, verdict-free.
 
@@ -1804,6 +1990,22 @@ def build(row: Mapping[str, Any]) -> Evidence:
     # from the markup rather than measured on the live page — 1.3.1 has no probe.
     # It is placed here, straight after the three standard inputs, because it is
     # a reading OF those inputs rather than an additional source of evidence.
+    names = _name_findings(element_html, row.get("parent_html"))
+    if names:
+        parts.append(
+            "\n## NAME AND LABEL OBSERVATIONS — 4.1.2 (counted from the SOURCE/PARENT "
+            "HTML above, and NOT a verdict)"
+        )
+        parts.append(
+            "Which controls have a name source and which do not, which labels bind to "
+            "what, which text is attached to nothing, and what is focusable without "
+            "being a component. These are set operations over the markup, so they are "
+            "settled. What is NOT settled is whether a name that exists is any good — "
+            "a frame titled \"Facebook\" is reported as named, and whether that "
+            "describes what it embeds is yours to judge."
+        )
+        parts.extend(names)
+
     structure = _table_findings(element_html, row.get("parent_html")) + _structure_findings(
         element_html, row.get("parent_html")
     )
@@ -1837,6 +2039,43 @@ def build(row: Mapping[str, Any]) -> Evidence:
                 "and the ONLY evidence for anything the stylesheet does)"
             )
             parts.extend(style_findings)
+
+    # 4.1.2 control-activation probe: only present under --sc 4.1.2.
+    control_activation = None
+    activation_raw = _val(row, "sr_control_activation")
+    if activation_raw:
+        try:
+            control_activation = json.loads(activation_raw)
+        except (json.JSONDecodeError, TypeError):
+            control_activation = None
+    if isinstance(control_activation, dict):
+        inert = [x for x in control_activation.get("inert") or [] if isinstance(x, dict)]
+        live = [x for x in control_activation.get("triggers") or [] if isinstance(x, dict)]
+        if inert or live:
+            parts.append(
+                "\n## CONTROL ACTIVATION — 4.1.2 probe (each in-page control was "
+                "focused and activated, and what it did was recorded)"
+            )
+            for entry in inert:
+                parts.append(
+                    f'  <{entry.get("tag")} href="{entry.get("href")}"> '
+                    f'"{entry.get("text")}" did NOTHING when activated — nothing was '
+                    f"revealed, the DOM did not change, and the page did not navigate."
+                )
+            if inert:
+                parts.append(
+                    "  A control that does nothing still announces its role. Note that "
+                    'href="#" is ALSO how an ordinary JavaScript-driven control is '
+                    "written — the measurement above, not the attribute, is what "
+                    "separates the two."
+                )
+            for entry in live:
+                trigger = entry.get("trigger") or {}
+                parts.append(
+                    f'  <{trigger.get("tag")}> "{trigger.get("text")}" DID respond — it '
+                    f'brought {len(entry.get("revealed") or [])} component(s) into the '
+                    f"tab sequence. Its role is fulfilled."
+                )
 
     # 4.1.3 interaction probe: only present for status-message rows. An empty
     # string means the row was not a status message (not probed) -> no section.

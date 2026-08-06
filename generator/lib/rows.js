@@ -111,6 +111,11 @@ export const COLUMNS = [
   // rule, 1.4.1 a link set apart by colour alone) leave no trace in the markup.
   // `null` when the sample has neither generated content nor a link.
   "sr_computed_style",
+  // 4.1.2 control-activation probe: `{triggers, inert}` from clicking each
+  // in-page control. `inert` is the half this criterion is about -- controls that
+  // did nothing at all, which is the only way to tell a dead `href="#"` from the
+  // ordinary JavaScript-driven kind. `null` outside `--sc 4.1.2`.
+  "sr_control_activation",
 ];
 
 /**
@@ -167,6 +172,7 @@ export function buildRow({
   focusContext = null,
   inputContext = null,
   sensoryReference = null,
+  controlActivation = null,
 }) {
   const normalizeSides = (entry) => ({
     ...entry,
@@ -200,6 +206,8 @@ export function buildRow({
     sr_sensory_reference: sensoryReference,
     // Computed values and link text only -- no markup, nothing to normalize.
     sr_computed_style: sample.computedStyle || null,
+    // Announced phrases, hrefs and counts -- no markup either.
+    sr_control_activation: controlActivation,
   };
 }
 
