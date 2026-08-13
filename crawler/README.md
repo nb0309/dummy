@@ -1,4 +1,4 @@
-# Dataset generator
+# Dataset crawler
 
 Scalable capture pipeline that turns GDS WCAG audit HTML fixtures into a
 per-element labeled dataset. Headless **Chromium (Playwright)** +
@@ -8,7 +8,7 @@ to `../dataset.csv`, so it plugs straight into the `src/` classifier.
 ## Run
 
 ```bash
-cd generator
+cd crawler
 node capture.mjs                       # default (inaccessible) suites -> ../dataset_generated.{csv,jsonl}
 node capture.mjs --no-sr               # fast: skip the screen reader (static features only)
 node capture.mjs --dir "tests/wcag 1.1.1" --out images_only

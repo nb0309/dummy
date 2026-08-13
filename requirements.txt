@@ -3,8 +3,8 @@
 # run against; major versions are capped because pydantic/langchain have all
 # broken APIs across majors before.
 #
-# The generator/ capture pipeline is Node, not Python — its dependencies live in
-# generator/package.json and are installed separately with npm.
+# The crawler/ capture pipeline is Node, not Python — its dependencies live in
+# crawler/package.json and are installed separately with npm.
 #
 #   pip install -r requirements.txt
 

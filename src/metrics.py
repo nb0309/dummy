@@ -42,7 +42,7 @@ def summarize(output_df: pd.DataFrame) -> None:
         return f"{n} ({n / total_elements * 100:.1f}%)"
 
     # File-level first: it is the headline, because `label` is stamped per FILE
-    # and copied onto every sample the file produced (generator/lib/rows.js).
+    # and copied onto every sample the file produced (crawler/lib/rows.js).
     # A file's non-defective elements therefore carry an "inaccessible" label they
     # can never satisfy, which makes the element-level number below a diagnostic
     # rather than a score.

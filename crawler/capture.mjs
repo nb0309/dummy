@@ -22,7 +22,7 @@
 //                                                                BFS from the seed, repeatable,
 //                                                                combinable with --dir)
 //
-// Paths given to --dir are relative to the repo root (the parent of generator/),
+// Paths given to --dir are relative to the repo root (the parent of crawler/),
 // which is also the static server root so the fixtures' ../../assets/* references
 // resolve. --url targets are navigated to directly and never touch that server.
 
@@ -54,7 +54,7 @@ import {
 } from "./lib/vsr.js";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const REPO_ROOT = path.join(__dirname, ".."); // generator/ -> repo root
+const REPO_ROOT = path.join(__dirname, ".."); // crawler/ -> repo root
 
 // ---- tiny argv parser -------------------------------------------------------
 function parseArgs(argv) {

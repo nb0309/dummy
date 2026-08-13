@@ -1,5 +1,5 @@
 {
-  "name": "wcag-sr-dataset-generator",
+  "name": "wcag-sr-dataset-crawler",
   "version": "0.1.0",
   "private": true,
   "type": "module",
