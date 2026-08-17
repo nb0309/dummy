@@ -116,6 +116,10 @@ export const COLUMNS = [
   // did nothing at all, which is the only way to tell a dead `href="#"` from the
   // ordinary JavaScript-driven kind. `null` outside `--sc 4.1.2`.
   "sr_control_activation",
+  // Nested browsing contexts (iframe/frame). Always captured when any exist:
+  // inspected same-origin frames, plus SKIPPED cross-origin ones so a payment
+  // widget or chat embed cannot vanish from the evidence.
+  "sr_frames",
 ];
 
 /**
@@ -173,6 +177,7 @@ export function buildRow({
   inputContext = null,
   sensoryReference = null,
   controlActivation = null,
+  frames = null,
 }) {
   const normalizeSides = (entry) => ({
     ...entry,
@@ -180,7 +185,9 @@ export function buildRow({
     after: { ...entry.after, html: normalizeHtml(entry.after.html) },
   });
   return {
-    sample_id: `${path.basename(file, ".html")}::${sample.elementId}`,
+    sample_id: `${path.basename(file, ".html")}::${
+      sample.frameIndex != null ? `frame-${sample.frameIndex}-` : ""
+    }${sample.elementId}`,
     source_file: path.basename(file),
     label: meta.label || "inaccessible",
 
@@ -208,6 +215,7 @@ export function buildRow({
     sr_computed_style: sample.computedStyle || null,
     // Announced phrases, hrefs and counts -- no markup either.
     sr_control_activation: controlActivation,
+    sr_frames: frames,
   };
 }
 

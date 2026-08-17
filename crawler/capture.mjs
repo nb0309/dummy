@@ -36,6 +36,8 @@ import { extractSamples } from "./lib/extract.js";
 import { triggerErrors } from "./lib/interact.js";
 import { buildRow, writeOutputs } from "./lib/rows.js";
 import { discoverLinks, urlToFile } from "./lib/crawl.js";
+import { gotoAndSettle } from "./lib/ready.js";
+import { collectFrames } from "./lib/frames.js";
 import {
   injectVsr,
   elementTranscript,
@@ -109,7 +111,10 @@ function toUrlPath(relDir, file) {
  * @returns {Promise<{links: string[]}>}
  */
 async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
-  await page.goto(fileUrl, { waitUntil: "load" });
+  // `load` is not "the page is fully there": lazy images, infinite-scroll
+  // chunks and IntersectionObserver panels arrive only after they are scrolled
+  // into view. Settle first so extract/probes see that content.
+  await gotoAndSettle(page, fileUrl);
   const links = originFilter ? await discoverLinks(page, originFilter) : [];
 
   // 0. Drive the page's own validation so an error state exists before we
@@ -118,7 +123,10 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
   await triggerErrors(page);
 
   // 1. DOM extraction (+ inject data-sample-id)
-  const samples = await extractSamples(page, { sc: opts.sc });
+  const hostSamples = await extractSamples(page, { sc: opts.sc });
+  const frames = await collectFrames(page, { sc: opts.sc });
+  const samples = hostSamples.concat(frames.extraSamples);
+  const frameInventory = frames.inventory.length ? frames.inventory : null;
 
   // 2. virtual screen reader (per-element transcripts)
   //    + the 4.1.3 interaction probe. The probe self-gates: it returns null
@@ -154,13 +162,16 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
   //    page-level probe is read-only and stays above, where it was.
   const pending = [];
   for (const s of samples) {
-    const transcript = opts.noSr ? [] : await elementTranscript(page, s.elementId);
+    const ctx =
+      s.frameIndex != null ? frames.frameOf.get(s.frameIndex) || page : page;
+    if (!opts.noSr && ctx !== page) await injectVsr(ctx);
+    const transcript = opts.noSr ? [] : await elementTranscript(ctx, s.elementId);
     // 4.1.2 interaction probe: only for samples extract.js classified as a
     // role/state/value control (checkbox/switch/slider/etc). Cheap on every
     // other sample since it's simply skipped.
     const roleStateValue =
       !opts.noSr && s.elementType === "control"
-        ? await roleStateValueProbe(page, s.elementId)
+        ? await roleStateValueProbe(ctx, s.elementId)
         : null;
     // 3.3.2 labels/instructions probe: form rows only, and only under
     // --sc 3.3.2. Gating on the flag rather than just the element type keeps
@@ -168,7 +179,7 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
     // form, and typing into it afterwards would muddy its evidence.
     const labelInstruction =
       !opts.noSr && opts.sc === "3.3.2" && s.elementType === "form"
-        ? await labelInstructionProbe(page, s.elementId)
+        ? await labelInstructionProbe(ctx, s.elementId)
         : null;
     pending.push({ sample: s, transcript, roleStateValue, labelInstruction });
   }
@@ -229,6 +240,7 @@ async function captureFile(page, { file, fileUrl, originFilter }, opts, rows) {
         inputContext,
         sensoryReference,
         controlActivation,
+        frames: frameInventory,
         meta: { label: opts.label },
       })
     );

@@ -8,8 +8,9 @@ Usage
     python -m src.run --input other.csv --output preds.csv
 
 ``--dry-run`` is the cheap verification path: it exercises routing + evidence
-formatting over every row and asserts each element gets at least one skill,
-without spending any tokens.
+formatting over every row without spending any tokens. Rows whose every tag
+match was dropped for missing probe data are reported as skipped, not as a
+coverage failure.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from typing import List
 
 import pandas as pd
 
-from . import config, evidence, router
+from . import config, evidence, orchestrator, router
 
 
 def _log(log_path: Path, sample_id, payload: str) -> None:
@@ -34,24 +35,35 @@ def _log(log_path: Path, sample_id, payload: str) -> None:
 def dry_run(df: pd.DataFrame) -> int:
     """Route + build evidence for every row; report coverage. No LLM."""
     print(f"DRY RUN — routing + evidence over {len(df)} rows (no API calls)\n")
+    covered = 0
+    skipped = 0
     uncovered = 0
     for _, row in df.iterrows():
         ev = evidence.build(row)
         skills = router.select(ev, row)
         skill_ids = [s.id for s in skills]
-        if not skill_ids:
+        if skill_ids:
+            covered += 1
+            note = ""
+        elif orchestrator.route(ev.element_tag):
+            skipped += 1
+            note = " [skipped: probe data missing]"
+        else:
             uncovered += 1
+            note = " [UNCOVERED]"
         print(
             f"{str(row.get('sample_id','?'))[:52]:54} "
-            f"tag=<{ev.element_tag or '?'}> -> {skill_ids}"
+            f"tag=<{ev.element_tag or '?'}> -> {skill_ids}{note}"
         )
 
     print("\n--- coverage ---")
-    print(f"rows with NO applicable skill : {uncovered}")
+    print(f"rows with applicable skills          : {covered}")
+    print(f"rows skipped (probe data missing)    : {skipped}")
+    print(f"rows with NO applicable skill        : {uncovered}")
     if uncovered:
-        print("FAIL: some rows have no skill.")
+        print("FAIL: some rows matched no skill and were not a probe-gated drop.")
         return 1
-    print("OK: every row routed to >=1 skill.")
+    print("OK: every row routed or correctly skipped.")
     return 0
 
 
@@ -59,6 +71,7 @@ def full_run(df: pd.DataFrame, output_csv: Path, log_path: Path) -> None:
     # Imported lazily so --dry-run needs no LLM credentials.
     from . import classifier
     from .llm import load_structured_llm
+    from .schema import Prediction
 
     structured_llm = load_structured_llm()
     with open(log_path, "w", encoding="utf-8") as f:
@@ -75,12 +88,25 @@ def full_run(df: pd.DataFrame, output_csv: Path, log_path: Path) -> None:
             f"-> {[s.id for s in primary]} + {[s.id for s in secondary]}"
         )
         try:
-            pred = classifier.classify(structured_llm, ev, primary, secondary)
+            if not skills:
+                pred = Prediction(
+                    classification="insufficient_evidence",
+                    reason={
+                        "routing": (
+                            "no applicable skill; required probe data was missing"
+                        )
+                    },
+                    confidence=0.0,
+                    applied_skills=[],
+                )
+            else:
+                pred = classifier.classify(structured_llm, ev, primary, secondary)
             prediction = pred.classification
             reason = pred.reason
             _log(log_path, sample_id, pred.model_dump_json(indent=2))
         except Exception as exc:  # noqa: BLE001 - record and continue
-            print(f"   ! error: {exc}")
+            # classify() already retried transient faults; this is the leftover.
+            print(f"   ! error after retries: {exc}")
             prediction = "error"
             reason = {"error": str(exc)}
             pred = None

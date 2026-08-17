@@ -3,7 +3,9 @@ sc: "3.3.2"
 technique: "labels-instructions"
 title: "Form field missing a label, or an instruction that does not reach the user"
 applies_when:
-  element_tag: [form, fieldset]
+  element_tag: [form, fieldset, select, input, textarea, label]
+  requires_column: [sr_label_instruction]
+  requires_column_if_tag: []
 signals:
   - field: sr_label_instruction
     look_for: "PRIMARY. One entry per field, each `{field, before, after}` with `{phrase, html}`. The reader read the field, a value was entered, then it read again. DO NOT judge on 'the phrase changed' — it always changes, because the entered value becomes one of the announced segments. The decisive test is SEGMENT LOSS: split `before.phrase` on ', ', drop the leading role word, and check each remaining segment still appears in `after.phrase`. A segment present BEFORE and missing AFTER is a label or instruction that existed only while the field was empty. Two further tells in `before.phrase`: a name announced with a literal 'placeholder ' prefix came from the placeholder attribute and is not a real label; a trailing 'required' segment is the only proof the field's mandatory state is exposed."
@@ -23,10 +25,18 @@ requirement the user cannot infer. Both must be available to everyone, and both
 must still be available **once the field is in use** — not only while it is empty.
 
 ## Note on the capture
-This form was captured with the 3.3.2 probe: for every field the reader announced
-it, a value was entered, and it announced it again. `sr_label_instruction` holds
-both readings. Judge it by **segment loss**, never by "the phrase changed" — the
-entered value always joins the announcement, so every field's phrase differs.
+When `sr_label_instruction` is present, this form was captured with the 3.3.2
+probe: for every field the reader announced it, a value was entered, and it
+announced it again. Judge that by **segment loss**, never by "the phrase
+changed" — the entered value always joins the announcement, so every field's
+phrase differs.
+
+When this row is a single control (`<select>`, `<input>`, `<textarea>`) and
+`sr_label_instruction` is absent, judge from `element_html`, `parent_html` and
+`sr_transcript` only: a control with no associated `<label for>` / wrapping
+`<label>` / `aria-label` / `aria-labelledby`, or whose only name is a
+placeholder, fails 3.3.2. Adjacent visible text that is not programmatically
+tied to the control does not count as a label.
 
 Flag `inaccessible` under `3.3.2` when any of the following holds:
 
@@ -93,6 +103,10 @@ Flag `inaccessible` under `3.3.2` when any of the following holds:
   4.1.2's question. This skill is about controls that take user input.
 
 ## Examples
+- INACCESSIBLE: `<select onchange="location.href=this.value"><option>QUICKMENU
+  -----></option>…</select>` with no `<label for>` / wrapping label /
+  `aria-label` — a lone control row with no probe; adjacent "QUICKMENU" text is
+  not programmatically tied to the field.
 - INACCESSIBLE: `<input type="email" id="email" placeholder="Email address">` →
   `before` "textbox, placeholder Email address" → `after` "textbox,
   someone@example.com". The name is placeholder-derived and does not survive input.

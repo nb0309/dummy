@@ -6,7 +6,7 @@ applies_when:
   element_tag: [img, input, svg, canvas, picture, object, area, a, button]
 signals:
   - field: element_html
-    look_for: "img/input[type=image] with no alt, alt='', a filename as alt, or a generic/wrong alt"
+    look_for: "img/input[type=image] with no alt, alt='', a filename as alt, a generic/wrong alt, or an alt that describes appearance instead of purpose (F30)"
   - field: sr_transcript
     look_for: "a raw filename read aloud, a bare 'image'/'graphic', or the control announced with no accessible name (or a meaningful image skipped in silence)"
 ---
@@ -21,6 +21,13 @@ control lacks an adequate text alternative:
   the content or purpose.
 - `alt` that is **wrong/misleading** for the image (e.g. `alt="Twitter"` on a BBC
   logo).
+- **Functional / brand image whose alt describes appearance instead of purpose**
+  (WCAG F30). A long visual description (`alt="Red dot with a white letter C
+  followed by turquoise green handwriting"`) is not a text alternative for a
+  logo or image link — the alternative must name the purpose or destination
+  (`alt="CityLights: your access to the city"`). Presence of *some* alt, and the
+  screen reader announcing it, is not a pass if that alt is a picture of the
+  picture.
 - `<input type="image">` (image button) with missing or empty `alt`; these are
   interactive controls and require a text alternative describing the action.
 - A **spacer / layout image** that is announced instead of hidden — a purely
@@ -28,8 +35,9 @@ control lacks an adequate text alternative:
   `role="presentation"`), not read out.
 
 ## Pass criteria
-- Meaningful image has a concise, accurate `alt` (e.g. `alt="BBC Logo"`) and the
-  screen reader announces that name.
+- Meaningful image has a concise, accurate `alt` that states **purpose or
+  function**, not appearance (e.g. `alt="BBC Logo"`, `alt="CityLights: your
+  access to the city"`) and the screen reader announces that name.
 - A genuinely decorative image uses `alt=""` or `role="presentation"` and is
   **silently skipped** by the screen reader — silence here is correct, not a
   violation.
@@ -41,5 +49,10 @@ capture (no `src`, no surrounding context), return `insufficient_evidence`.
 ## Examples
 - INACCESSIBLE: `<img src="…/bbc-blocks-dark.png">` (no alt) → SR reads only "image".
 - INACCESSIBLE: `<input type="image" src="…/submit.png">` (no alt).
+- INACCESSIBLE: `<a href="/"><img alt="Red dot with a white letter C followed by
+  turquoise green handwriting" src="cl.gif"></a>` → alt describes appearance, not
+  purpose (F30). Announcing that string is not a pass.
 - ACCESSIBLE: `<img src="…/bbc-blocks-dark.png" alt="BBC Logo">` → "image, BBC Logo".
+- ACCESSIBLE: `<a href="/"><img alt="CityLights: your access to the city"
+  src="cl.gif"></a>` → purpose, not appearance.
 - ACCESSIBLE: `<img role="presentation" src="…/decoration.png">` → skipped (silence).

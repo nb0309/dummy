@@ -7,6 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
+import { gotoAndSettle } from "./ready.js";
+
 // Resolve the package location robustly (it may live in a node_modules folder
 // several directories up, e.g. the shared d2/node_modules) rather than assuming
 // it sits next to this file.
@@ -29,6 +31,72 @@ export async function injectVsr(page) {
       URL.revokeObjectURL(u);
     }
   }, BUNDLE);
+
+  // Geometry helpers used by the order probes. Component hosts often have no
+  // box of their own (`display: contents`, collapsed wrappers, shadow trees),
+  // and treating that as (0,0) made every visual-order comparison lie.
+  await page.evaluate(() => {
+    if (window.__vsrGeom) return;
+
+    const empty = (r) => !r || (r.width <= 0 && r.height <= 0);
+
+    const toDocRect = (r) => {
+      if (empty(r)) return null;
+      return {
+        x: Math.round(r.left + window.scrollX),
+        y: Math.round(r.top + window.scrollY),
+        w: Math.round(r.width),
+        h: Math.round(r.height),
+      };
+    };
+
+    /** Light DOM plus open shadow trees, document order within each root. */
+    const collectAll = (root = document, out = []) => {
+      const scope = root.nodeType === 9 ? root.documentElement : root;
+      if (scope.nodeType === 1) out.push(scope);
+      if (!scope.querySelectorAll) return out;
+      for (const el of scope.querySelectorAll("*")) {
+        out.push(el);
+        if (el.shadowRoot) collectAll(el.shadowRoot, out);
+      }
+      return out;
+    };
+
+    /**
+     * Where `node` is painted. Text uses a Range so a `display:contents`
+     * parent (no box of its own) still yields the glyphs' box; empty hosts
+     * climb through slots and shadow hosts until something has a box.
+     */
+    const layoutRect = (node) => {
+      if (!node) return null;
+      if (node.nodeType === 3) {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const fromText = toDocRect(range.getBoundingClientRect());
+        if (fromText) return fromText;
+        node = node.parentElement;
+      }
+      let el = node && node.nodeType === 1 ? node : null;
+      while (el) {
+        const fromEl = toDocRect(el.getBoundingClientRect());
+        if (fromEl) return fromEl;
+        const root = el.getRootNode && el.getRootNode();
+        el = el.assignedSlot || el.parentElement || (root && root.host) || null;
+      }
+      return null;
+    };
+
+    /** Innermost focused node, walking into open shadow roots. */
+    const deepActiveElement = () => {
+      let el = document.activeElement;
+      while (el && el.shadowRoot && el.shadowRoot.activeElement) {
+        el = el.shadowRoot.activeElement;
+      }
+      return el;
+    };
+
+    window.__vsrGeom = { collectAll, layoutRect, deepActiveElement, toDocRect };
+  });
 }
 
 /**
@@ -36,18 +104,25 @@ export async function injectVsr(page) {
  * Scope is the whole page (sampleId null) or a single element (its
  * data-sample-id), which gives an accurate per-element transcript.
  *
+ * Stop conditions:
+ *  - true wrap: opening phrase returns after an "end of …" boundary
+ *  - stuck cursor: same phrase AND same activeNode for 2 consecutive steps
+ *    (a single-node container re-announcing itself — not duplicate cells,
+ *    links, or headings, which share a phrase on different nodes)
+ *  - maxSteps: logs a warning; the phrase array is still returned as-is
+ *
  * @param {import('@playwright/test').Page} page
  * @param {{sampleId?: string|null, maxSteps?: number}} opts
  * @returns {Promise<string[]>}
  */
 export async function traverse(page, { sampleId = null, maxSteps = 300 } = {}) {
-  return page.evaluate(
+  const result = await page.evaluate(
     async ({ sampleId, maxSteps }) => {
       const { Virtual } = window.__vsrMod;
       const container = sampleId
         ? document.querySelector(`[data-sample-id="${sampleId}"]`)
         : document.body;
-      if (!container) return [];
+      if (!container) return { phrases: [], complete: true, truncated: false };
 
       const v = new Virtual();
       await v.start({ container });
@@ -57,35 +132,58 @@ export async function traverse(page, { sampleId = null, maxSteps = 300 } = {}) {
       if (first) phrases.push(first);
 
       let prev = first;
+      let prevNode = v.activeNode;
       let repeat = 0;
+      let complete = false;
+      let stuck = false;
       for (let i = 0; i < maxSteps; i++) {
         await v.next();
         const p = await v.lastSpokenPhrase();
+        const node = v.activeNode;
         // The reader cycles: after the container's closing "end of …" it wraps
         // back to the opening phrase. Break only on that true wrap (opening
         // phrase returns AND the previous phrase was an "end of …" boundary) so
         // nested same-role elements (a <ul> inside a <ul>, both "list") don't
         // trigger a false stop.
-        if (phrases.length && p === phrases[0] && /^end of\b/i.test(prev || "")) break;
+        if (phrases.length && p === phrases[0] && /^end of\b/i.test(prev || "")) {
+          complete = true;
+          break;
+        }
         // Safety net for a single-node container that just re-announces itself.
-        if (p === prev) {
-          if (++repeat >= 2) break;
+        // Keyed on cursor identity so consecutive duplicate cells/links/headings
+        // (same phrase, different nodes) keep walking.
+        if (p === prev && node === prevNode) {
+          if (++repeat >= 2) {
+            stuck = true;
+            break;
+          }
         } else {
           repeat = 0;
         }
         phrases.push(p);
         prev = p;
+        prevNode = node;
       }
       await v.stop();
 
-      // trim any trailing repeats left by the safety net
-      while (phrases.length >= 2 && phrases[phrases.length - 1] === phrases[phrases.length - 2]) {
+      // Drop the extra copy the stuck-node net recorded before breaking. Only
+      // on that path — never trim real duplicate phrases from different nodes.
+      if (stuck && phrases.length >= 2 && phrases[phrases.length - 1] === phrases[phrases.length - 2]) {
         phrases.pop();
       }
-      return phrases;
+
+      return { phrases, complete, truncated: !complete && !stuck };
     },
     { sampleId, maxSteps }
   );
+
+  if (result.truncated) {
+    const scope = sampleId ? `sample=${sampleId}` : "page";
+    console.warn(
+      `sr_transcript truncated at maxSteps=${maxSteps} ${scope} phrases=${result.phrases.length}`
+    );
+  }
+  return result.phrases;
 }
 
 export const elementTranscript = (page, sampleId) => traverse(page, { sampleId, maxSteps: 250 });
@@ -398,11 +496,12 @@ export async function labelInstructionProbe(page, sampleId, { settleMs = 50 } = 
  */
 async function readActiveStop(page, { geometry = true } = {}) {
   return page.evaluate(async (geometry) => {
-    const el = document.activeElement;
+    const geom = window.__vsrGeom;
+    const el = geom ? geom.deepActiveElement() : document.activeElement;
     // Focus left the document (browser chrome) -> end of the tab cycle.
     if (!el || el === document.body || el === document.documentElement) return null;
 
-    const all = [...document.querySelectorAll("*")];
+    const all = geom ? geom.collectAll() : [...document.querySelectorAll("*")];
     let phrase = "";
     const mod = window.__vsrMod;
     if (mod) {
@@ -426,19 +525,22 @@ async function readActiveStop(page, { geometry = true } = {}) {
       return { ...base, domIndex: all.indexOf(el) };
     }
 
-    const rect = el.getBoundingClientRect();
+    const rect = geom ? geom.layoutRect(el) : null;
+    const raw = el.getBoundingClientRect();
 
     // Is something painted on top of this stop? Tabbing scrolls the focused
     // element into view, so its live viewport rect is valid here. An element
     // that is not the topmost thing at its own centre is sitting under an
     // overlay -- the modal case, where focus walks content the user cannot see
     // or click. Geometry alone cannot catch that: the obscured content is
-    // often in a perfectly sensible position.
+    // often in a perfectly sensible position. Fall back to the raw viewport
+    // box here even when layoutRect climbed to an ancestor -- hit-testing the
+    // focused node itself is the question.
     let obscured = false;
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+    const cx = raw.left + raw.width / 2;
+    const cy = raw.top + raw.height / 2;
     if (
-      rect.width > 0 && rect.height > 0 &&
+      raw.width > 0 && raw.height > 0 &&
       cx >= 0 && cy >= 0 && cx <= window.innerWidth && cy <= window.innerHeight
     ) {
       const topmost = document.elementFromPoint(cx, cy);
@@ -466,12 +568,9 @@ async function readActiveStop(page, { geometry = true } = {}) {
       })(),
       domIndex: all.indexOf(el),
       // Document-relative, so a mid-sweep scroll cannot distort the geometry.
-      rect: {
-        x: Math.round(rect.left + window.scrollX),
-        y: Math.round(rect.top + window.scrollY),
-        w: Math.round(rect.width),
-        h: Math.round(rect.height),
-      },
+      // null when the stop has no layout box (display:contents / collapsed host)
+      // -- callers must NOT treat that as (0,0).
+      rect,
     };
   }, geometry);
 }
@@ -676,7 +775,7 @@ export async function activationProbe(page, { url, maxStops = 60, maxTriggers = 
   const inert = [];
   for (const domIndex of candidates.slice(0, maxTriggers)) {
     if (url) {
-      await page.goto(url, { waitUntil: "load" });
+      await gotoAndSettle(page, url);
       // The reload takes the injected reader with it, and every stop read after
       // this point would otherwise come back with an empty `phrase`.
       await injectVsr(page);
@@ -1072,12 +1171,14 @@ export async function linkPurposeProbe(page, { contextChars = 320, maxLinks = 60
  * invalidate the regression baseline for every suite.
  *
  * Two things the spike established about the walk, both reflected here:
- *  - `activeNode` may be a TEXT node, so positioning resolves through
- *    `parentElement` first.
+ *  - `activeNode` may be a TEXT node. Position comes from a Range on that
+ *    text (not the parent's getBoundingClientRect): a `display:contents`
+ *    wrapper, a shadow host, or an icon+label component has no useful box of
+ *    its own, and treating that as (0,0) used to throw off every ranking.
  *  - Each element yields TWO steps -- its role ("paragraph") then its text -- with
- *    the same domIndex. `isLeaf` is recorded so the consumer can restrict the
- *    order comparison to content-bearing leaves; including containers like <body>,
- *    whose rect spans everything, would distort the ranking.
+ *    the same domIndex. Text steps count as leaves even when the parent has
+ *    element children (the usual component pattern: `<button><svg></svg>Go</button>`).
+ *    Containers like <body>, whose rect spans everything, still drop out.
  *
  * @param {import('@playwright/test').Page} page
  * @param {{maxSteps?: number}} opts
@@ -1089,7 +1190,8 @@ export async function readingOrderProbe(page, { maxSteps = 120 } = {}) {
       const mod = window.__vsrMod;
       if (!mod || !document.body) return null;
 
-      const all = [...document.querySelectorAll("*")];
+      const geom = window.__vsrGeom;
+      const all = geom ? geom.collectAll() : [...document.querySelectorAll("*")];
       const v = new mod.Virtual();
       await v.start({ container: document.body });
 
@@ -1097,23 +1199,20 @@ export async function readingOrderProbe(page, { maxSteps = 120 } = {}) {
       const record = (phrase) => {
         const node = v.activeNode;
         const el = !node ? null : node.nodeType === 3 ? node.parentElement : node;
-        const rect = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+        // Text is a leaf even when its parent has sibling widgets (icon+label).
+        const isLeaf = !!(
+          (node && node.nodeType === 3) ||
+          (el && el.children.length === 0)
+        );
         steps.push({
           step: steps.length + 1,
           phrase: phrase || "",
           nodeType: node ? node.nodeType : null,
           tag: el ? el.tagName.toLowerCase() : null,
-          isLeaf: el ? el.children.length === 0 : false,
+          isLeaf,
           domIndex: el ? all.indexOf(el) : -1,
-          // Document-relative, so a mid-walk scroll cannot distort the geometry.
-          rect: rect
-            ? {
-                x: Math.round(rect.left + window.scrollX),
-                y: Math.round(rect.top + window.scrollY),
-                w: Math.round(rect.width),
-                h: Math.round(rect.height),
-              }
-            : null,
+          // Document-relative. null, not {0,0,0,0}, when the node has no box.
+          rect: geom ? geom.layoutRect(node || el) : null,
         });
       };
 
@@ -1641,7 +1740,7 @@ export async function focusContextProbe(page, { url, settleMs = 120, maxComponen
     // point into a document that no longer exists.
     if (navigated) {
       await disposeAll();
-      await page.goto(url, { waitUntil: "load" });
+      await gotoAndSettle(page, url);
       await injectVsr(page);
       entries = await visibleHandles(page, FOCUSABLE);
       navigated = false;
@@ -1781,7 +1880,7 @@ export async function inputContextProbe(page, { url, settleMs = 120, maxComponen
   for (let i = 0; i < limit; i++) {
     if (navigated) {
       await disposeAll();
-      await page.goto(url, { waitUntil: "load" });
+      await gotoAndSettle(page, url);
       await injectVsr(page);
       entries = await visibleHandles(page, SETTABLE);
       navigated = false;
@@ -2137,8 +2236,12 @@ export async function sensoryReferenceProbe(page, { maxReferences = 40, maxContr
 
       // Document-relative, the convention 2.4.3 and 1.3.2 fixed: a viewport-relative
       // rect would encode scroll position and the capture would not be reproducible.
+      // Climb past display:contents / collapsed hosts the same way those probes do.
+      const geom = window.__vsrGeom;
       const rectOf = (el) => {
+        if (geom) return geom.layoutRect(el);
         const r = el.getBoundingClientRect();
+        if (r.width <= 0 && r.height <= 0) return null;
         return {
           x: Math.round(r.left + window.scrollX),
           y: Math.round(r.top + window.scrollY),
@@ -2191,7 +2294,8 @@ export async function sensoryReferenceProbe(page, { maxReferences = 40, maxContr
 
       const candidates = [];
       for (const el of [...document.querySelectorAll(CANDIDATE)].slice(0, maxControls)) {
-        if (el.getClientRects().length === 0) continue;
+        const box = rectOf(el);
+        if (!box) continue;
         const style = getComputedStyle(el);
         candidates.push({
           phrase: await say(el),
@@ -2204,7 +2308,7 @@ export async function sensoryReferenceProbe(page, { maxReferences = 40, maxContr
           tag: el.tagName.toLowerCase(),
           role: el.getAttribute("role") || null,
           id: el.id || null,
-          rect: rectOf(el),
+          rect: box,
           colour: {
             text: style.color,
             textName: nameColour(style.color),
@@ -2233,7 +2337,8 @@ export async function sensoryReferenceProbe(page, { maxReferences = 40, maxContr
         }
         // Leaf blocks only, so a wrapper does not repeat its children's prose.
         if (block.querySelector(BLOCK)) continue;
-        if (block.getClientRects().length === 0) continue;
+        const here = rectOf(block);
+        if (!here) continue;
         const text = clean(block.textContent);
         if (!text) continue;
 
@@ -2261,7 +2366,6 @@ export async function sensoryReferenceProbe(page, { maxReferences = 40, maxContr
             ),
           ];
 
-          const here = rectOf(block);
           const resolved = {};
 
           if (categories.indexOf("position") !== -1) {

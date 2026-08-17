@@ -3,7 +3,8 @@ sc: "4.1.3"
 technique: "status-messages"
 title: "Status message not exposed as a live region"
 applies_when:
-  element_tag: [output, progress, div, p, span, section, aside, main, body, article, ul, ol]
+  element_tag: [output, progress, div, p, span, section, aside, main, body, article]
+  requires_column: [sr_status_announcement]
 signals:
   - field: sr_status_announcement
     look_for: "PRIMARY. The interaction probe triggered the status update (clicking the page's own control where the fixture has one) and recorded what the reader said. SILENT (no announcement) => the update is not conveyed without focus => 4.1.3 violation. A 'polite: <text>' / 'assertive: <text>' announcement of the message => it IS a working live region => pass. Only exception: a value-driven role=progressbar can read silent under this probe — corroborate with element_html there."

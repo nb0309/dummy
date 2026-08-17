@@ -3,8 +3,9 @@ sc: "3.2.2"
 technique: "on-input-context-change"
 title: "Changing a setting causes an unannounced change of context"
 applies_when:
-  element_tag: [body]
+  element_tag: [body, select, input]
   requires_column: [sr_input_context]
+  requires_column_if_tag: [body]
 signals:
   - field: sr_input_context
     look_for: "PRIMARY. Every component with a SETTING had it changed, one at a time: `{components, changedVia, truncated}`. Four fields are unambiguous changes of context — `focusMovedTo`, `navigatedTo`, `opened`, `submitted`. `mutations` is the ambiguous one, carrying `addedNodes` markup and `attributeTargets`. **`advisory` is what decides the criterion**: `describedBy` (announced with the control), `precedingText` (text before it in its group), `label` (its name, which is NOT advice), `hasText`. A change of context here is only a failure when no advisory warned of it. Also `note`, present when a component could not be measured because focusing it already changed context — that is 3.2.1's finding, not this one's."
@@ -28,6 +29,15 @@ Four recorded signals are changes of context by definition:
 2. **`opened`** — a window or tab was opened.
 3. **`submitted`** — a form was submitted.
 4. **`focusMovedTo`** — focus was moved somewhere the user did not put it.
+
+## When this is a single control (no `sr_input_context`)
+A `<select>` or `<input>` captured without the page-level probe is still in
+scope. Judge from `element_html` / `parent_html`: an `onchange` / `oninput`
+handler that navigates (`location.href`, `location.assign`, `window.open`) or
+submits the form, with no advisory in the markup before the control, is a 3.2.2
+failure. A Go button (or equivalent) that performs the navigation on click is
+not. If the handler's effect cannot be determined from the markup, return
+`insufficient_evidence` rather than guessing.
 
 ## First, the gate: a change of context here is only HALF a failure
 This is where 3.2.2 parts company with 3.2.1, and getting it wrong flags conforming
@@ -98,6 +108,9 @@ the page's subject matter without warning.
 - INACCESSIBLE: a jump-menu `<select>` navigating on `change`, with no advisory →
   `navigatedTo: "/renew"`, `advisory.hasText: false`. A keyboard user arrowing through
   the options is taken away on the first one they land on.
+- INACCESSIBLE: the same jump menu as a lone `<select
+  onchange="location.href=this.value">` row, no `sr_input_context` — the markup
+  is enough; do not wait for the page probe.
 - INACCESSIBLE: filter checkboxes calling `form.submit()` on `change` → `submitted`, no
   advisory; three filters mean three page loads and everything typed above is lost.
 - INACCESSIBLE: delivery radios calling `window.open` on `change` → `opened`, no

@@ -114,6 +114,33 @@ def clean_html(html: Any) -> str:
     return html.strip()
 
 
+# Capture stores parent.outerHTML, which always nests the sample. The prompt
+# already has SOURCE HTML, so repeating that subtree is wasted tokens. Fact
+# finders still receive the stored full parent_html; this marker is prompt-only.
+_ELEMENT_HOLE = "<!-- ELEMENT UNDER TEST: see SOURCE HTML above -->"
+_MISSING_HTML = "No HTML context provided"
+
+
+def _parent_context_html(element_html: Any, parent_html: Any) -> str | None:
+    """Parent markup with the sample removed, or None if it adds nothing.
+
+    Replaces the first copy of the cleaned element inside the cleaned parent
+    with ``_ELEMENT_HOLE``. Omits the section when parent is missing or is
+    identical to the element (there is no surrounding context to show).
+    """
+    cleaned_element = clean_html(element_html)
+    cleaned_parent = clean_html(parent_html)
+    if not cleaned_parent or cleaned_parent == _MISSING_HTML:
+        return None
+    if cleaned_element == _MISSING_HTML:
+        return cleaned_parent
+    if cleaned_parent == cleaned_element:
+        return None
+    if cleaned_element and cleaned_element in cleaned_parent:
+        return cleaned_parent.replace(cleaned_element, _ELEMENT_HOLE, 1)
+    return cleaned_parent
+
+
 def _val(row: Mapping[str, Any], key: str) -> str:
     """Return a trimmed string for a cell, mapping NaN/None to ''."""
     value = row.get(key)
@@ -178,6 +205,28 @@ def _focus_order(raw: str) -> Mapping[str, Any] | None:
     return parsed
 
 
+def _usable_rect(rect: Any) -> bool:
+    """True when ``rect`` is a real layout box, not a missing or 0x0 placeholder.
+
+    Component hosts with ``display: contents`` used to serialize as ``{x:0,y:0,w:0,h:0}``.
+    Ranking those at the origin threw off every visual-order comparison.
+    """
+    if not isinstance(rect, dict):
+        return False
+    try:
+        width = float(rect.get("w") or 0)
+        height = float(rect.get("h") or 0)
+    except (TypeError, ValueError):
+        return False
+    return width > 0 or height > 0
+
+
+def _format_position(rect: Any) -> str:
+    if not _usable_rect(rect):
+        return "unknown"
+    return f"{rect.get('x', '?')},{rect.get('y', '?')}"
+
+
 def _visual_rank(
     stops: List[Mapping[str, Any]],
     band: int = 24,
@@ -198,7 +247,10 @@ def _visual_rank(
     multi-column layout is *supposed* to produce. 1.3.2 compares against both,
     because a two-column article matches only the column-major ordering and
     checking row-major alone would report it as an inversion.
+
+    Stops with no layout box are omitted rather than ranked at (0, 0).
     """
+    positioned = [s for s in stops if _usable_rect(s.get("rect"))]
 
     def key(stop: Mapping[str, Any]) -> tuple:
         rect = stop.get("rect") or {}
@@ -208,7 +260,7 @@ def _visual_rank(
             return (x // band, y)
         return (y // band, x)
 
-    return [int(s.get(id_key) or 0) for s in sorted(stops, key=key)]
+    return [int(s.get(id_key) or 0) for s in sorted(positioned, key=key)]
 
 
 def _focus_order_findings(stops: List[Mapping[str, Any]]) -> List[str]:
@@ -219,24 +271,34 @@ def _focus_order_findings(stops: List[Mapping[str, Any]]) -> List[str]:
     observations that judgement should start from.
     """
     findings: List[str] = []
-    tab_order = [int(s.get("stop") or 0) for s in stops]
+    tab_all = [int(s.get("stop") or 0) for s in stops]
+    positioned = [s for s in stops if _usable_rect(s.get("rect"))]
+    tab_visual = [int(s.get("stop") or 0) for s in positioned]
 
-    visual = _visual_rank(stops)
-    if visual != tab_order:
+    visual = _visual_rank(positioned)
+    if visual != tab_visual:
         findings.append(
             f"Tab order does NOT match visual reading order.\n"
-            f"    tab order    : {tab_order}\n"
+            f"    tab order    : {tab_visual}\n"
             f"    visual order : {visual}   (top-to-bottom, then left-to-right)"
+        )
+
+    unknown = len(stops) - len(positioned)
+    if unknown:
+        findings.append(
+            f"{unknown} stop(s) have no layout box (collapsed, display:contents, or "
+            f"unrendered) and were omitted from the visual-order comparison rather "
+            f"than ranked at (0,0)."
         )
 
     dom_order = [
         int(s.get("stop") or 0)
         for s in sorted(stops, key=lambda s: int(s.get("domIndex") or 0))
     ]
-    if dom_order != tab_order:
+    if dom_order != tab_all:
         findings.append(
             f"Tab order does NOT match source (DOM) order.\n"
-            f"    tab order    : {tab_order}\n"
+            f"    tab order    : {tab_all}\n"
             f"    source order : {dom_order}"
         )
 
@@ -404,14 +466,91 @@ def _reading_order(raw: str) -> Mapping[str, Any] | None:
     return parsed
 
 
+def _frames(raw: Any) -> List[Mapping[str, Any]] | None:
+    """Parse sr_frames (list of iframe records), or None if absent."""
+    parsed: Any = raw
+    if parsed is None:
+        return None
+    # pandas empty cells become float NaN; older datasets have no column at all.
+    if isinstance(parsed, float) and parsed != parsed:
+        return None
+    if isinstance(parsed, str):
+        text = parsed.strip()
+        if not text or text.lower() == "nan":
+            return None
+        try:
+            parsed = json.loads(text)
+        except (json.JSONDecodeError, TypeError):
+            return None
+    if not isinstance(parsed, list) or not parsed:
+        return None
+    return [item for item in parsed if isinstance(item, dict)]
+
+
+def _frame_lines(frames: List[Mapping[str, Any]]) -> List[str]:
+    """Coverage of nested browsing contexts — inspected vs skipped, never silent."""
+    skipped = sum(1 for frame in frames if frame.get("status") == "skipped")
+    inspected = len(frames) - skipped
+    lines = [
+        "\n## FRAMES — nested documents (payment widgets, chat, embedded players). "
+        "SKIPPED means the contents were NOT tested. Do not treat the host page as "
+        "covering a skipped frame."
+    ]
+    lines.append(
+        f"{len(frames)} frame(s) on this page: {inspected} inspected, {skipped} skipped."
+    )
+    why = {
+        "cross-origin": "cross-origin — the capture cannot read another origin's DOM",
+        "evaluate-failed": "the nested document could not be evaluated",
+        "empty": "the nested document was empty",
+    }
+    for frame in frames:
+        tag = frame.get("tag") or "iframe"
+        src = frame.get("src") or frame.get("url") or "(no src)"
+        title = frame.get("title") or frame.get("name") or "(untitled)"
+        if frame.get("status") == "skipped":
+            reason = why.get(
+                str(frame.get("skipped") or ""),
+                str(frame.get("skipped") or "unreadable"),
+            )
+            lines.append(f'- SKIPPED <{tag}> src="{src}" title="{title}"')
+            lines.append(
+                f"    {reason}. Contents were not sampled, not walked, not judged."
+            )
+            continue
+        inner = frame.get("inner") if isinstance(frame.get("inner"), dict) else {}
+        bits = []
+        for key, label in (
+            ("forms", "form(s)"),
+            ("inputs", "control(s)"),
+            ("media", "media"),
+            ("headings", "heading(s)"),
+            ("links", "link(s)"),
+        ):
+            count = inner.get(key) or 0
+            if count:
+                bits.append(f"{count} {label}")
+        sampled = frame.get("sampled") or 0
+        detail = ", ".join(bits) if bits else "no controls/media/headings/links counted"
+        preview = inner.get("textPreview")
+        lines.append(f'- INSPECTED <{tag}> src="{src}" title="{title}"')
+        lines.append(
+            f"    {detail}. sampled {sampled} element(s) inside."
+            + (f' Preview: "{preview}"' if preview else "")
+        )
+    return lines
+
+
 def _content_steps(steps: List[Mapping[str, Any]]) -> List[Mapping[str, Any]]:
     """The steps worth comparing positions for.
 
     The walk emits two steps per element — its role ("paragraph") then its text —
     sharing a ``domIndex``, plus "end of …" boundary phrases. It also passes
     through containers like ``<body>``, whose rect spans the whole page and would
-    distort any ranking. So: drop boundaries, keep only leaves, and collapse each
-    element to one step.
+    distort any ranking. So: drop boundaries, keep leaves *or* text nodes (a
+    component like ``<button><svg></svg>Go</button>`` is not a leaf, but the text
+    still has a position), skip empty 0x0 boxes, and collapse each element to one
+    step.
 
     Which of the two to keep matters. Both carry the same position, so ordering is
     unaffected either way — but the skill asks the model to *read the announced
@@ -426,7 +565,12 @@ def _content_steps(steps: List[Mapping[str, Any]]) -> List[Mapping[str, Any]]:
             continue
         if re.match(r"^end of\b", str(step.get("phrase") or ""), re.IGNORECASE):
             continue
-        if not step.get("isLeaf") or not step.get("rect"):
+        # Text is the content even when the parent is a component with children
+        # (icon + label). Empty 0x0 boxes are not a position.
+        is_text = step.get("nodeType") == 3
+        if not (step.get("isLeaf") or is_text):
+            continue
+        if not _usable_rect(step.get("rect")):
             continue
         dom = step.get("domIndex")
         if dom is None or dom < 0:
@@ -1973,18 +2117,25 @@ def build(row: Mapping[str, Any]) -> Evidence:
     parts.append("\n## SOURCE HTML (the element under test)")
     parts.append(clean_html(element_html))
 
-    parts.append(
-        "\n## PARENT CONTEXT HTML (the element's parent — use this to check whether "
-        "a REQUIRED ancestor/sibling structure exists around the element, e.g. a "
-        "<ul>/<ol>/<dl> for an orphan check, or a <fieldset> around form controls)"
-    )
-    parts.append(clean_html(row.get("parent_html")))
+    parent_context = _parent_context_html(element_html, row.get("parent_html"))
+    if parent_context is not None:
+        parts.append(
+            "\n## PARENT CONTEXT HTML (the element's parent — use this to check whether "
+            "a REQUIRED ancestor/sibling structure exists around the element, e.g. a "
+            "<ul>/<ol>/<dl> for an orphan check, or a <fieldset> around form controls. "
+            "The nested copy of the element under test is replaced with a marker.)"
+        )
+        parts.append(parent_context)
 
     parts.append(
         "\n## SCREEN READER — transcript (what the virtual screen reader announces "
         "walking through this element, in order)"
     )
     parts.append(_format_phrases(_val(row, "sr_transcript")))
+
+    frames = _frames(row.get("sr_frames"))
+    if frames:
+        parts.extend(_frame_lines(frames))
 
     # 1.3.1 structure observations. Unlike every section below, this is computed
     # from the markup rather than measured on the live page — 1.3.1 has no probe.
@@ -2181,8 +2332,7 @@ def build(row: Mapping[str, Any]) -> Evidence:
             "  stop  tabindex  dom    x,y (document)  obscured  announced"
         )
         for s in stops:
-            rect = s.get("rect") or {}
-            position = f"{rect.get('x', '?')},{rect.get('y', '?')}"
+            position = _format_position(s.get("rect"))
             parts.append(
                 f"  {str(s.get('stop', '?')):>4}  "
                 f"{str(s.get('tabindex') if s.get('tabindex') is not None else '-'):>8}  "
@@ -2364,8 +2514,7 @@ def build(row: Mapping[str, Any]) -> Evidence:
         )
         parts.append("  step  x,y (document)   announced")
         for s in content:
-            rect = s.get("rect") or {}
-            position = f"{rect.get('x', '?')},{rect.get('y', '?')}"
+            position = _format_position(s.get("rect"))
             phrase = str(s.get("phrase", ""))
             if len(phrase) > 88:
                 phrase = phrase[:85] + "..."
@@ -2571,10 +2720,9 @@ def build(row: Mapping[str, Any]) -> Evidence:
             )
             parts.append("  name                             x,y (document)   colour")
             for candidate in candidates[:25]:
-                rect = candidate.get("rect") or {}
                 colour = candidate.get("colour") or {}
                 shade = colour.get("backgroundName") or colour.get("textName") or "-"
-                position = f"{rect.get('x', '?')},{rect.get('y', '?')}"
+                position = _format_position(candidate.get("rect"))
                 parts.append(
                     f"  {str(candidate.get('name') or '(unnamed)')[:32]:32} "
                     f"{position:>14}   {shade}"

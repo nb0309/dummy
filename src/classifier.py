@@ -7,6 +7,7 @@ from typing import List, Sequence
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from .evidence import Evidence
+from .retry import invoke_with_retry
 from .schema import Prediction
 from .skills import Skill
 
@@ -30,11 +31,15 @@ escape, what an interaction changes, what context surrounds a link. For those, t
 capture runs a PROBE and its result appears as one or more ADDITIONAL sections
 after the three above (STATUS MESSAGE ANNOUNCEMENT, ROLE / STATE / VALUE, LABELS /
 INSTRUCTIONS, FOCUS ORDER, LINK PURPOSE, HEADINGS AND LABELS, READING ORDER,
-KEYBOARD TRAP, ON FOCUS, ON INPUT). A probe section is present only when that probe
+KEYBOARD TRAP, ON FOCUS, ON INPUT, FRAMES). A probe section is present only when that probe
 ran, and when present it is the PRIMARY evidence for its criterion: it observes the
 live page, so it outranks anything you infer from the static HTML. Each section
 carries its own reading instructions and an explicit note on what it does and does
 not settle — follow them.
+
+FRAMES lists every iframe/frame on the page. SKIPPED (usually cross-origin: Stripe,
+chat, YouTube) means those contents were not tested — do not treat the host page as
+covering them. INSPECTED frames were entered; their inner samples are separate rows.
 
 One of those readings is easy to get backwards, so it is stated here too: in the
 STATUS MESSAGE ANNOUNCEMENT section (WCAG 4.1.3), SILENCE IS MEANINGFUL. If the
@@ -126,8 +131,13 @@ def classify(
     skills: Sequence[Skill],
     secondary: Sequence[Skill] | None = None,
 ) -> Prediction:
-    """Run the structured LLM call and stamp the applied skill ids."""
+    """Run the structured LLM call and stamp the applied skill ids.
+
+    Transient API failures (timeouts, 429, 5xx, connection drops) are retried
+    with backoff. Exhausted retries still raise, so ``run.py`` can record the
+    row as an error without aborting the rest of the run.
+    """
     messages = build_messages(ev, skills, secondary)
-    prediction: Prediction = structured_llm.invoke(messages)
+    prediction: Prediction = invoke_with_retry(structured_llm, messages)
     prediction.applied_skills = [s.id for s in skills] + [s.id for s in (secondary or [])]
     return prediction

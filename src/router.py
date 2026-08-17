@@ -12,6 +12,13 @@ indistinguishable from the generic fallback block every other suite captures.
 Without this narrowing, the focus-order rubric would be attached to every
 container row in every dataset, with no focus data to judge it against.
 
+Some skills can also be judged from a control's HTML when the page probe did
+not run (a ``<select onchange>`` is 3.2.2 without ``sr_input_context``). Those
+declare ``requires_column_if_tag``: the probe is mandatory only for those tags
+(typically ``body``). Other matching tags still attach, as secondary, when the
+column is empty. An empty list means never drop — promote to primary when the
+column is present, otherwise keep as secondary.
+
 That column test does more than exclude, though, and :func:`partition` is where
 the rest of it is used. A satisfied ``requires_column`` identifies the criterion
 the capture was actually *made* for — the probe ran, so somebody asked this
@@ -20,6 +27,12 @@ it buries the answer: a ``<body>`` row captured under ``--sc 1.3.3`` matched nin
 skills, of which the sensory-characteristics rubric holding the decisive probe
 was one, and the row was returned as accessible with no reason at all. So the
 selection is ordered and split rather than merely filtered.
+
+If every tag match is dropped because its probe column is empty, ``partition``
+returns two empty lists. That is a routing result — skip the row / record
+``insufficient_evidence`` — not a cue to re-attach the tag-matched set. Re-attaching
+would put page-level rubrics (keyboard trap, focus order, and the rest) onto a
+plain content ``<body>`` whose probes never ran.
 """
 
 from __future__ import annotations
@@ -99,7 +112,15 @@ def partition(
     ``inaccessible`` on its own, but capped when a primary exists.
 
     A skill whose ``requires_column`` is declared but NOT satisfied is excluded
-    from both: that is the original narrowing and it is unchanged.
+    from both, unless it also declares ``requires_column_if_tag``. Then the drop
+    applies only when the element's tag is in that list (a ``<body>`` 3.2.2 row
+    still needs the probe; a ``<select>`` row does not). An empty
+    ``requires_column_if_tag`` never drops: missing columns keep the skill as
+    secondary.
+
+    If that narrowing removes every skill, both lists are empty. Callers must not
+    treat emptiness as a coverage failure: the matches were inapplicable, not
+    missing.
     """
     selected = orchestrator.route(ev.element_tag)
 
@@ -109,16 +130,21 @@ def partition(
         required = skill.applies_when.get("requires_column", [])
         if not required:
             secondary.append(skill)
-        elif _has_columns(row, required):
+            continue
+        if _has_columns(row, required):
             primary.append(skill)
-        # else: declared a column it does not have -> not judgeable, drop it.
+            continue
+        # Column declared but empty. Default: drop. Dual-mode skills name the
+        # tags for which that drop still applies; other tags stay secondary.
+        if "requires_column_if_tag" not in skill.applies_when:
+            continue
+        gated_tags = skill.applies_when["requires_column_if_tag"]
+        if ev.element_tag in gated_tags:
+            continue
+        secondary.append(skill)
 
     if primary:
         secondary = _spread(secondary)[:_SECONDARY_CAP]
-    # Never leave a row with nothing to judge it by: if the narrowing removed
-    # everything, fall back to the tag-matched set.
-    if not primary and not secondary:
-        secondary = selected
     return primary, secondary
 
 

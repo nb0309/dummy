@@ -32,7 +32,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from src import evidence, router  # noqa: E402
+from src import evidence, orchestrator, router  # noqa: E402
 
 TESTCASE = REPO_ROOT / "testcase"
 
@@ -202,15 +202,38 @@ def test_accessible_rows_get_no_name_findings():
         assert not findings, f"{sample_id} would now be flagged: {findings}"
 
 
+def _all_matches_dropped_for_missing_columns(ev, row) -> bool:
+    """True when every tag match was probe-gated and the probe data is empty."""
+    selected = orchestrator.route(ev.element_tag)
+    if not selected:
+        return False
+    for skill in selected:
+        required = skill.applies_when.get("requires_column", [])
+        if not required:
+            return False
+        if router._has_columns(row, required):
+            return False
+        if "requires_column_if_tag" not in skill.applies_when:
+            continue
+        if ev.element_tag in skill.applies_when["requires_column_if_tag"]:
+            continue
+        return False
+    return True
+
+
 @pytest.mark.parametrize(
     "dataset", sorted(p.name.split("_")[0] for p in TESTCASE.glob("*_dataset.csv"))
 )
 def test_every_row_routes_to_a_skill(dataset):
-    """The guarantee `src.run.dry_run` asserts, held as a test."""
+    """Every row gets a skill, unless every tag match was a probe-gated drop."""
     for sample_id, row in _dataset(dataset).iterrows():
         ev = evidence.build(row)
         primary, secondary = router.partition(ev, row)
-        assert primary or secondary, f"{dataset}/{sample_id} routed to no skill"
+        if primary or secondary:
+            continue
+        assert _all_matches_dropped_for_missing_columns(ev, row), (
+            f"{dataset}/{sample_id} routed to no skill"
+        )
 
 
 @pytest.mark.parametrize(
@@ -230,3 +253,153 @@ def test_probe_backed_skill_is_primary(dataset):
             f"{dataset}/{sample_id}: primary skill is {primary[0].id}, "
             f"not the criterion this page was captured for"
         )
+
+
+def _synth(element_html: str, parent_html: object = "<body></body>", **cols: object) -> dict:
+    row = {
+        "element_html": element_html,
+        "parent_html": parent_html,
+        "sr_transcript": "[]",
+    }
+    row.update(cols)
+    return row
+
+
+def test_parent_context_replaces_nested_element_with_marker():
+    element = '<input id="a" type="checkbox">'
+    parent = (
+        f'<form><label for="a">{element} One</label>'
+        '<input id="b" type="checkbox"></form>'
+    )
+    block = evidence.build(_synth(element, parent)).block
+    assert block.count(element) == 1
+    assert evidence._ELEMENT_HOLE in block
+    assert '<input id="b" type="checkbox">' in block
+    assert "## PARENT CONTEXT HTML" in block
+
+
+def test_parent_context_omitted_when_identical_to_element():
+    html = "<main><p>hello</p></main>"
+    block = evidence.build(_synth(html, html)).block
+    assert "## PARENT CONTEXT HTML" not in block
+    assert html in block
+
+
+def test_parent_context_omitted_when_missing():
+    block = evidence.build(_synth("<p>x</p>", None)).block
+    assert "## PARENT CONTEXT HTML" not in block
+    assert "No HTML context provided" not in block
+
+
+def test_parent_context_left_intact_when_element_is_not_nested():
+    element = '<input id="a" type="text">'
+    parent = "<body><h1>Title</h1></body>"
+    block = evidence.build(_synth(element, parent)).block
+    assert evidence._ELEMENT_HOLE not in block
+    assert parent in block
+
+
+def test_page_level_parent_keeps_head_and_drops_body():
+    body = "<body><h1>Focus order</h1><main><a href='#'>First</a></main></body>"
+    parent = (
+        '<html lang="en"><head><title>Test</title>'
+        '<link rel="stylesheet" href="tests.css"></head>' + body + "</html>"
+    )
+    block = evidence.build(_synth(body, parent)).block
+    assert block.count(body) == 1
+    assert evidence._ELEMENT_HOLE in block
+    assert '<link rel="stylesheet" href="tests.css">' in block
+    assert "<title>Test</title>" in block
+
+
+def test_fact_finders_still_see_full_stored_parent():
+    """The hole is prompt-only; label arithmetic still uses stored parent_html."""
+    element = '<input id="empty" type="text">'
+    parent = f'<form><label for="missing"></label>{element}</form>'
+    block = evidence.build(_synth(element, parent)).block
+    assert "names an id that does not exist" in block
+    assert evidence._ELEMENT_HOLE in block
+
+
+def test_widened_parent_keeps_siblings_after_hole_punch():
+    block = _block(
+        "1.3.1", "forms-group-of-check-boxes-not-enclosed-in-a-fieldset::sample-0"
+    )
+    sample = (
+        '<input id="waste-type-1" name="waste-types" type="checkbox" '
+        'value="waste-animal">'
+    )
+    assert evidence._ELEMENT_HOLE in block
+    assert block.count(sample) == 1
+    assert "waste-type-2" in block
+    assert "waste-type-3" in block
+
+
+def test_skipped_cross_origin_frame_is_reported():
+    block = evidence.build(
+        _synth(
+            "<body><h1>Checkout</h1></body>",
+            sr_frames=[
+                {
+                    "index": 0,
+                    "tag": "iframe",
+                    "src": "https://js.stripe.com/v3/controller",
+                    "title": "Payment",
+                    "url": "https://js.stripe.com/v3/controller",
+                    "status": "skipped",
+                    "skipped": "cross-origin",
+                    "inner": None,
+                    "sampled": 0,
+                }
+            ],
+        )
+    ).block
+    assert "## FRAMES" in block
+    assert "SKIPPED" in block
+    assert "cross-origin" in block
+    assert "js.stripe.com" in block
+    assert "not sampled, not walked, not judged" in block
+
+
+def test_inspected_frame_lists_inner_counts():
+    block = evidence.build(
+        _synth(
+            "<body></body>",
+            sr_frames=[
+                {
+                    "index": 0,
+                    "tag": "iframe",
+                    "src": "/chat.html",
+                    "title": "Support",
+                    "status": "inspected",
+                    "skipped": None,
+                    "sampled": 2,
+                    "inner": {
+                        "forms": 1,
+                        "inputs": 3,
+                        "media": 0,
+                        "headings": 1,
+                        "links": 0,
+                        "textPreview": "How can we help",
+                    },
+                }
+            ],
+        )
+    ).block
+    assert "INSPECTED" in block
+    assert "3 control(s)" in block
+    assert "sampled 2 element(s) inside" in block
+    assert "How can we help" in block
+
+
+def test_no_frames_section_when_absent():
+    block = evidence.build(_synth("<p>hi</p>")).block
+    assert "## FRAMES" not in block
+
+
+def test_no_frames_section_when_pandas_nan():
+    block = evidence.build(_synth("<p>hi</p>", sr_frames=float("nan"))).block
+    assert "## FRAMES" not in block
+    assert evidence._frames(float("nan")) is None
+
+

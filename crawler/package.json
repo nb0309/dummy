@@ -6,7 +6,9 @@
   "description": "Scalable Playwright + axe-core + @guidepup/virtual-screen-reader capture pipeline: turns GDS WCAG audit HTML files (1.1.1 / 1.2.1 / 1.3.1) into a per-element labeled dataset matching dataset.csv's schema.",
   "scripts": {
     "capture": "node capture.mjs",
-    "dryrun": "node capture.mjs --no-sr"
+    "dryrun": "node capture.mjs --no-sr",
+    "test:traverse": "node test-traverse.mjs",
+    "test:frames": "node test-frames.mjs"
   },
   "dependencies": {
     "@guidepup/virtual-screen-reader": "^0.32.1",

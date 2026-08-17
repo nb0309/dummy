@@ -841,7 +841,9 @@ applies_when:
 
 `src/router.py` then drops that skill for rows with no data in the named columns,
 so its rubric is not attached to every container row in every other dataset. Skills
-without the key are unaffected. Note that `src/skills/loader.py` iterates every
+without the key are unaffected. Dropped skills stay dropped: if that leaves a row
+with nothing to judge, the classifier records `insufficient_evidence` rather than
+re-attaching the tag-matched set. Note that `src/skills/loader.py` iterates every
 `applies_when` value, so the key **must** be a YAML list — a bare string would be
 split into characters.
 

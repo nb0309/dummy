@@ -4,6 +4,7 @@ technique: "use-of-colour"
 title: "Colour as the only visual means of conveying information"
 applies_when:
   element_tag: [main, body, section, div, article, nav, p, span, a, ul, ol, li, table]
+  requires_column: [sr_computed_style]
 signals:
   - field: sr_computed_style
     look_for: "a link whose colour, weight, decoration and font all match the text it sits inside — no non-colour cue distinguishes it; or two sets of items differing only in computed colour"
